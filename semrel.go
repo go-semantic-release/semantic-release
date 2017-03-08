@@ -33,9 +33,10 @@ type Release struct {
 }
 
 type Repository struct {
-	Owner, Repo string
-	Ctx         context.Context
-	Client      *github.Client
+	Owner  string
+	Repo   string
+	Ctx    context.Context
+	Client *github.Client
 }
 
 func NewRepository(ctx context.Context, slug, token string) *Repository {
