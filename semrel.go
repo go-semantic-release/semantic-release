@@ -108,12 +108,10 @@ func (repo *Repository) GetLatestRelease() (*Release, error) {
 
 func (repo *Repository) CreateRelease(commits []*Commit, latestRelease *Release, newVersion *semver.Version) error {
 	tag := fmt.Sprintf("v%s", newVersion.String())
-	sha := commits[0].SHA
 	changelog := GetChangelog(commits, latestRelease, newVersion)
 	opts := &github.RepositoryRelease{
-		TagName:         &tag,
-		TargetCommitish: &sha,
-		Body:            &changelog,
+		TagName: &tag,
+		Body:    &changelog,
 	}
 	_, _, err := repo.Client.Repositories.CreateRelease(repo.Ctx, repo.Owner, repo.Repo, opts)
 	if err != nil {
@@ -160,16 +158,49 @@ func GetNewVersion(commits []*Commit, latestRelease *Release) *semver.Version {
 	return ApplyChange(latestRelease.Version, CaluclateChange(commits, latestRelease))
 }
 
+func formatCommit(c *Commit) string {
+	ret := "* "
+	if c.Scope != "" {
+		ret += fmt.Sprintf("**%s:** ", c.Scope)
+	}
+	ret += fmt.Sprintf("%s (%s)\n", c.Message, c.SHA[:8])
+	return ret
+}
+
+var typeToText = map[string]string{
+	"feat":     "Feature",
+	"fix":      "Bug Fixes",
+	"perf":     "Performance Improvements",
+	"revert":   "Reverts",
+	"docs":     "Documentation",
+	"style":    "Styles",
+	"refactor": "Code Refactoring",
+	"test":     "Tests",
+	"chore":    "Chores",
+	"%%bc%%":   "Breaking Changes",
+}
+
 func GetChangelog(commits []*Commit, latestRelease *Release, newVersion *semver.Version) string {
 	ret := fmt.Sprintf("## %s (%s)\n\n", newVersion.String(), time.Now().UTC().Format("2006-01-02"))
+	typeScopeMap := make(map[string]string)
 	for _, commit := range commits {
 		if latestRelease.SHA == commit.SHA {
 			break
 		}
+		if commit.Change.Major {
+			typeScopeMap["%%bc%%"] += fmt.Sprintf("%s\n```%s\n```\n", formatCommit(commit), strings.Join(commit.Raw[1:], "\n"))
+		}
 		if commit.Type == "" {
 			continue
 		}
-		ret += fmt.Sprintf("%s (%s)\n", commit.Raw[0], commit.SHA[:8])
+		typeScopeMap[commit.Type] += formatCommit(commit)
+	}
+	for t, msg := range typeScopeMap {
+		typeName, found := typeToText[t]
+		if !found {
+			typeName = t
+		}
+		ret += fmt.Sprintf("#### %s\n\n%s\n", typeName, msg)
 	}
 	return ret
 }
