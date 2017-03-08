@@ -2,11 +2,17 @@ package semrel
 
 import (
 	"context"
+	"fmt"
 	"github.com/Masterminds/semver"
 	"github.com/google/go-github/github"
+	"golang.org/x/oauth2"
 	"regexp"
 	"strings"
+	"time"
 )
+
+var commitPattern = regexp.MustCompile("^(\\w*)(?:\\((.*)\\))?\\: (.*)$")
+var breakingPattern = regexp.MustCompile("BREAKING CHANGES?")
 
 type Change struct {
 	Major, Minor, Patch bool
@@ -28,12 +34,23 @@ type Release struct {
 
 type Repository struct {
 	Owner, Repo string
+	Ctx         context.Context
+	Client      *github.Client
 }
 
-var commitPattern = regexp.MustCompile("^(\\w*)(?:\\((.*)\\))?\\: (.*)$")
-var breakingPattern = regexp.MustCompile("BREAKING CHANGES?")
+func NewRepository(ctx context.Context, slug, token string) *Repository {
+	repo := new(Repository)
+	splited := strings.Split(slug, "/")
+	repo.Owner = splited[0]
+	repo.Repo = splited[1]
+	repo.Ctx = ctx
+	repo.Client = github.NewClient(oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)))
+	return repo
+}
 
-func ParseCommit(commit *github.RepositoryCommit) *Commit {
+func parseCommit(commit *github.RepositoryCommit) *Commit {
 	c := new(Commit)
 	c.SHA = *commit.SHA
 	c.Raw = strings.Split(*commit.Commit.Message, "\n")
@@ -52,35 +69,54 @@ func ParseCommit(commit *github.RepositoryCommit) *Commit {
 	return c
 }
 
-func GetCommits(ctx context.Context, client *github.Client, repo *Repository) ([]*Commit, error) {
+func (repo *Repository) GetCommits() ([]*Commit, error) {
 	opts := &github.CommitsListOptions{
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
-	commits, _, err := client.Repositories.ListCommits(ctx, repo.Owner, repo.Repo, opts)
+	commits, _, err := repo.Client.Repositories.ListCommits(repo.Ctx, repo.Owner, repo.Repo, opts)
 	if err != nil {
 		return nil, err
 	}
 	ret := make([]*Commit, len(commits))
 	for i, commit := range commits {
-		ret[i] = ParseCommit(commit)
+		ret[i] = parseCommit(commit)
 	}
 	return ret, nil
 }
 
-func GetLatestRelease(ctx context.Context, client *github.Client, repo *Repository) (*Release, error) {
+func (repo *Repository) GetLatestRelease() (*Release, error) {
 	opts := &github.ListOptions{PerPage: 1}
-	tags, _, err := client.Repositories.ListTags(ctx, repo.Owner, repo.Repo, opts)
+	tags, _, err := repo.Client.Repositories.ListTags(repo.Ctx, repo.Owner, repo.Repo, opts)
 	if err != nil {
 		return nil, err
+	}
+	if len(tags) == 0 {
+		return &Release{"", &semver.Version{}}, nil
 	}
 	v, _ := semver.NewVersion(*tags[0].Name)
 	return &Release{*tags[0].Commit.SHA, v}, nil
 }
 
-func GetChange(commits []*Commit, release *Release) Change {
+func (repo *Repository) CreateRelease(commits []*Commit, latestRelease *Release, newVersion *semver.Version) error {
+	tag := fmt.Sprintf("v%s", newVersion.String())
+	sha := commits[0].SHA
+	changelog := GetChangelog(commits, latestRelease, newVersion)
+	opts := &github.RepositoryRelease{
+		TagName:         &tag,
+		TargetCommitish: &sha,
+		Body:            &changelog,
+	}
+	_, _, err := repo.Client.Repositories.CreateRelease(repo.Ctx, repo.Owner, repo.Repo, opts)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func CaluclateChange(commits []*Commit, latestRelease *Release) Change {
 	var change Change
 	for _, commit := range commits {
-		if release.SHA == commit.SHA {
+		if latestRelease.SHA == commit.SHA {
 			break
 		}
 		change.Major = change.Major || commit.Change.Major
@@ -91,6 +127,9 @@ func GetChange(commits []*Commit, release *Release) Change {
 }
 
 func ApplyChange(version *semver.Version, change Change) *semver.Version {
+	if version.Major() == 0 {
+		change.Major = true
+	}
 	var newVersion semver.Version
 	switch {
 	case change.Major:
@@ -106,4 +145,22 @@ func ApplyChange(version *semver.Version, change Change) *semver.Version {
 		return nil
 	}
 	return &newVersion
+}
+
+func GetNewVersion(commits []*Commit, latestRelease *Release) *semver.Version {
+	return ApplyChange(latestRelease.Version, CaluclateChange(commits, latestRelease))
+}
+
+func GetChangelog(commits []*Commit, latestRelease *Release, newVersion *semver.Version) string {
+	ret := fmt.Sprintf("## %s (%s)\n\n", newVersion.String(), time.Now().UTC().Format("2006-01-02"))
+	for _, commit := range commits {
+		if latestRelease.SHA == commit.SHA {
+			break
+		}
+		if commit.Type == "" {
+			continue
+		}
+		ret += fmt.Sprintf("%s (%s)\n", commit.Raw[0], commit.SHA[:8])
+	}
+	return ret
 }
