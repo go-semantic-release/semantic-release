@@ -48,6 +48,7 @@ func Travis(token, defaultBranch string, private bool) error {
 	}
 
 	client := travis.NewClient(endpoint, "")
+	client.Headers["User-Agent"] = "Travis"
 	if _, _, err := client.Authentication.UsingGithubToken(token); err != nil {
 		return err
 	}
