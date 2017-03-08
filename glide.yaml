@@ -1,0 +1,8 @@
+package: github.com/christophwitzko/go-semantic-release
+import:
+- package: github.com/google/go-github
+  subpackages:
+  - github
+- package: golang.org/x/oauth2
+- package: github.com/Masterminds/semver
+  version: ^1.2.2
