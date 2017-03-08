@@ -1,14 +1,16 @@
 hash: 5e0f1d299680ec945b30d59bc8d0154e0d63cd011e47b4b52546866f7bb1d3e2
-updated: 2017-03-08T15:18:08.58216445+01:00
+updated: 2017-03-08T17:15:51.46525462+01:00
 imports:
 - name: github.com/Ableton/go-travis
   version: 1cdf3cca2f3ac6e6af8df7a2567d8cd0f402c942
+- name: github.com/fatih/structs
+  version: a720dfa8df582c51dee1b36feabb906bde1588bd
 - name: github.com/golang/protobuf
   version: c9c7427a2a70d2eb3bafa0ab2dc163e45f143317
   subpackages:
   - proto
 - name: github.com/google/go-github
-  version: cfbfe91dfc6f331a809a2c942f64b6bad65d9c91
+  version: 2694dcaaa60686a8c69d923b3d365fb9375d7e9a
   subpackages:
   - github
 - name: github.com/google/go-querystring
@@ -17,6 +19,8 @@ imports:
   - query
 - name: github.com/Masterminds/semver
   version: 59c29afe1a994eacb71c833025ca7acf874bb1da
+- name: github.com/oleiade/reflections
+  version: 0e86b3c98b2ff33e30c85cfe97d9a63d439fe7eb
 - name: golang.org/x/net
   version: d379faa25cbdc04d653984913a2ceb43b0bc46d7
   subpackages:
