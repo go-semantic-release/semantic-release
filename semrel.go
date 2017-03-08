@@ -51,10 +51,18 @@ func NewRepository(ctx context.Context, slug, token string) *Repository {
 	return repo
 }
 
+func (repo *Repository) GetDefaultBranch() (string, error) {
+	r, _, err := repo.Client.Repositories.Get(repo.Ctx, repo.Owner, repo.Repo)
+	if err != nil {
+		return "", err
+	}
+	return r.GetDefaultBranch(), nil
+}
+
 func parseCommit(commit *github.RepositoryCommit) *Commit {
 	c := new(Commit)
-	c.SHA = *commit.SHA
-	c.Raw = strings.Split(*commit.Commit.Message, "\n")
+	c.SHA = commit.GetSHA()
+	c.Raw = strings.Split(commit.Commit.GetMessage(), "\n")
 	found := commitPattern.FindAllStringSubmatch(c.Raw[0], -1)
 	if len(found) < 1 {
 		return c
@@ -63,7 +71,7 @@ func parseCommit(commit *github.RepositoryCommit) *Commit {
 	c.Scope = found[0][2]
 	c.Message = found[0][3]
 	c.Change = Change{
-		Major: breakingPattern.MatchString(*commit.Commit.Message),
+		Major: breakingPattern.MatchString(commit.Commit.GetMessage()),
 		Minor: c.Type == "feat",
 		Patch: c.Type == "fix",
 	}
@@ -94,8 +102,8 @@ func (repo *Repository) GetLatestRelease() (*Release, error) {
 	if len(tags) == 0 {
 		return &Release{"", &semver.Version{}}, nil
 	}
-	v, _ := semver.NewVersion(*tags[0].Name)
-	return &Release{*tags[0].Commit.SHA, v}, nil
+	v, _ := semver.NewVersion(tags[0].GetName())
+	return &Release{tags[0].Commit.GetSHA(), v}, nil
 }
 
 func (repo *Repository) CreateRelease(commits []*Commit, latestRelease *Release, newVersion *semver.Version) error {
