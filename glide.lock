@@ -1,12 +1,14 @@
-hash: 26870bdcaffbe629c29b3cd8cf19da06051ebd12e3dbcbfc0c3ae34f04f8c1d9
-updated: 2017-03-08T00:08:46.607219534+01:00
+hash: 5e0f1d299680ec945b30d59bc8d0154e0d63cd011e47b4b52546866f7bb1d3e2
+updated: 2017-03-08T15:18:08.58216445+01:00
 imports:
+- name: github.com/Ableton/go-travis
+  version: 1cdf3cca2f3ac6e6af8df7a2567d8cd0f402c942
 - name: github.com/golang/protobuf
   version: c9c7427a2a70d2eb3bafa0ab2dc163e45f143317
   subpackages:
   - proto
 - name: github.com/google/go-github
-  version: 04b64a7f8ccd7701ed660231f3805bd585fb486c
+  version: cfbfe91dfc6f331a809a2c942f64b6bad65d9c91
   subpackages:
   - github
 - name: github.com/google/go-querystring
@@ -24,7 +26,7 @@ imports:
   subpackages:
   - internal
 - name: google.golang.org/appengine
-  version: 5403c08c6e8fb3b2dc1209d2d833d8e8ac8240de
+  version: b79c28f0197795b4050bfcd7c4c2209136c594b1
   subpackages:
   - internal
   - internal/base
