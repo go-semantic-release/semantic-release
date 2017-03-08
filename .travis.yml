@@ -11,9 +11,6 @@ before_script:
 script:
   - go test -v $(glide novendor)
 after_success:
-  - ./semantic-release -ghr -vf -dry
-  - export VERSION=$(cat .version)
-  - gox -os="linux darwin windows openbsd" -ldflags="-s -w -X main.SRVERSION=$VERSION" -output="bin/{{.Dir}}_v"$VERSION"_{{.OS}}_{{.Arch}}" ./cmd/semantic-release/
-  - ghr $(cat .ghr) bin/
+  - ./release
 notifications:
   email: false
