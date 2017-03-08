@@ -12,6 +12,8 @@ import (
 	"strings"
 )
 
+var SRVERSION string
+
 func main() {
 	token := flag.String("token", os.Getenv("GITHUB_TOKEN"), "github token")
 	slug := flag.String("slug", os.Getenv("TRAVIS_REPO_SLUG"), "slug of the repository")
@@ -22,6 +24,7 @@ func main() {
 	flag.Parse()
 
 	logger := log.New(os.Stderr, "[semantic-release]: ", 0)
+	logger.Println("cli version: " + SRVERSION)
 
 	if *token == "" {
 		logger.Println("github token missing")
