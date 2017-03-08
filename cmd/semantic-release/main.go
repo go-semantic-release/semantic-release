@@ -9,12 +9,13 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 )
 
 func main() {
 	token := flag.String("token", os.Getenv("GITHUB_TOKEN"), "github token")
 	slug := flag.String("slug", os.Getenv("TRAVIS_REPO_SLUG"), "slug of the repository")
-	ghr := flag.Bool("ghr", false, "print ghr flags to stdout")
+	ghr := flag.Bool("ghr", false, "create a .ghr file with the parameters for ghr")
 	noci := flag.Bool("noci", false, "run semantic-release locally")
 	dry := flag.Bool("dry", false, "do not create release")
 	vFile := flag.Bool("vf", false, "create a .version file")
@@ -27,8 +28,8 @@ func main() {
 		os.Exit(1)
 		return
 	}
-	if *slug == "" {
-		logger.Println("slug missing")
+	if *slug == "" || !strings.Contains(*slug, "/") {
+		logger.Println("slug missing or invalid")
 		os.Exit(1)
 		return
 	}
@@ -68,9 +69,9 @@ func main() {
 	logger.Println("found: " + release.Version.String())
 
 	logger.Println("getting commits...")
-	commits, err := repo.GetCommits()
-	if err != nil {
-		logger.Println(err)
+	commits, cerr := repo.GetCommits()
+	if cerr != nil {
+		logger.Println(cerr)
 		os.Exit(1)
 		return
 	}
@@ -99,7 +100,12 @@ func main() {
 	}
 
 	if *ghr {
-		fmt.Printf("-u %s -r %s v%s", repo.Owner, repo.Repo, newVer.String())
+		gerr := ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repo.Owner, repo.Repo, newVer.String())), 0644)
+		if gerr != nil {
+			logger.Println(gerr)
+			os.Exit(1)
+			return
+		}
 	}
 
 	if *vFile {
