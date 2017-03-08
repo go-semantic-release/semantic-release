@@ -6,6 +6,8 @@ install:
   - glide install
 before_script:
   - cd cmd/semantic-release/ && go build && cd ../../
+script:
+  - go test -v $(glide novendor)
 after_success:
   - ./cmd/semantic-release/semantic-release -dry
 notifications:
