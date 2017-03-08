@@ -1,0 +1,12 @@
+language: go
+go:
+  - 1.x
+install:
+  - go get github.com/Masterminds/glide
+  - glide install
+before_script:
+  - cd cmd/semantic-release/ && go build && cd ../../
+after_success:
+  - ./cmd/semantic-release/semantic-release -dry
+notifications:
+  email: false
