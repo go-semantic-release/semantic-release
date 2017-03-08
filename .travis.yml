@@ -3,12 +3,17 @@ go:
   - 1.x
 install:
   - go get github.com/Masterminds/glide
+  - go get github.com/mitchellh/gox
+  - go get github.com/tcnksm/ghr
   - glide install
 before_script:
-  - cd cmd/semantic-release/ && go build && cd ../../
+  - go build ./cmd/semantic-release/
 script:
   - go test -v $(glide novendor)
 after_success:
-  - ./cmd/semantic-release/semantic-release -dry
+  - ./semantic-release -ghr -vf -dry
+  - export VERSION=$(cat .version)
+  - gox -os="linux darwin windows openbsd" -ldflags="-s -w -X main.SRVERSION=$VERSION" -output="bin/{{.Dir}}_v"$VERSION"_{{.OS}}_{{.Arch}}" ./cmd/semantic-release/
+  - ghr $(cat .ghr) bin/
 notifications:
   email: false
