@@ -51,12 +51,12 @@ func NewRepository(ctx context.Context, slug, token string) *Repository {
 	return repo
 }
 
-func (repo *Repository) GetDefaultBranch() (string, error) {
+func (repo *Repository) GetInfo() (string, bool, error) {
 	r, _, err := repo.Client.Repositories.Get(repo.Ctx, repo.Owner, repo.Repo)
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
-	return r.GetDefaultBranch(), nil
+	return r.GetDefaultBranch(), r.GetPrivate(), nil
 }
 
 func parseCommit(commit *github.RepositoryCommit) *Commit {
