@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 )
 
 var SRVERSION string
@@ -31,13 +30,18 @@ func main() {
 		os.Exit(1)
 		return
 	}
-	if *slug == "" || !strings.Contains(*slug, "/") {
-		logger.Println("slug missing or invalid")
+	if *slug == "" {
+		logger.Println("slug missing")
 		os.Exit(1)
 		return
 	}
 
-	repo := semrel.NewRepository(context.TODO(), *slug, *token)
+	repo, nerr := semrel.NewRepository(context.TODO(), *slug, *token)
+	if nerr != nil {
+		logger.Println(nerr)
+		os.Exit(1)
+		return
+	}
 
 	logger.Println("getting default branch...")
 	defaultBranch, isPrivate, derr := repo.GetInfo()
@@ -94,7 +98,7 @@ func main() {
 		return
 	}
 
-	logger.Println("generating release...")
+	logger.Println("creating release...")
 	berr := repo.CreateRelease(commits, release, newVer)
 	if berr != nil {
 		logger.Println(berr)

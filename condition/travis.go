@@ -75,7 +75,6 @@ func Travis(token, defaultBranch string, private bool) error {
 				logger.Printf("Aborting attempt %d. Job %s failed.\n", i, job.Number)
 				return errors.New("In this test run not all jobs passed and therefore a new version won’t be published.")
 			}
-
 		}
 		if successes >= len(jobs) {
 			logger.Printf("Success at attempt %d. All %d jobs passed.\n", i, successes)

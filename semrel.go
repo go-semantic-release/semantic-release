@@ -2,6 +2,7 @@ package semrel
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/Masterminds/semver"
 	"github.com/google/go-github/github"
@@ -39,7 +40,10 @@ type Repository struct {
 	Client *github.Client
 }
 
-func NewRepository(ctx context.Context, slug, token string) *Repository {
+func NewRepository(ctx context.Context, slug, token string) (*Repository, error) {
+	if !strings.Contains(slug, "/") {
+		return nil, errors.New("invalid slug")
+	}
 	repo := new(Repository)
 	splited := strings.Split(slug, "/")
 	repo.Owner = splited[0]
@@ -48,7 +52,7 @@ func NewRepository(ctx context.Context, slug, token string) *Repository {
 	repo.Client = github.NewClient(oauth2.NewClient(ctx, oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)))
-	return repo
+	return repo, nil
 }
 
 func (repo *Repository) GetInfo() (string, bool, error) {
@@ -158,12 +162,19 @@ func GetNewVersion(commits []*Commit, latestRelease *Release) *semver.Version {
 	return ApplyChange(latestRelease.Version, CaluclateChange(commits, latestRelease))
 }
 
+func trimSHA(sha string) string {
+	if len(sha) < 9 {
+		return sha
+	}
+	return sha[:8]
+}
+
 func formatCommit(c *Commit) string {
 	ret := "* "
 	if c.Scope != "" {
 		ret += fmt.Sprintf("**%s:** ", c.Scope)
 	}
-	ret += fmt.Sprintf("%s (%s)\n", c.Message, c.SHA[:8])
+	ret += fmt.Sprintf("%s (%s)\n", c.Message, trimSHA(c.SHA))
 	return ret
 }
 
@@ -189,6 +200,7 @@ func GetChangelog(commits []*Commit, latestRelease *Release, newVersion *semver.
 		}
 		if commit.Change.Major {
 			typeScopeMap["%%bc%%"] += fmt.Sprintf("%s\n```%s\n```\n", formatCommit(commit), strings.Join(commit.Raw[1:], "\n"))
+			continue
 		}
 		if commit.Type == "" {
 			continue
