@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"github.com/christophwitzko/go-semantic-release"
@@ -12,6 +13,15 @@ import (
 )
 
 var SRVERSION string
+
+func errorHandler(logger *log.Logger) func(error) {
+	return func(err error) {
+		if err != nil {
+			logger.Println(err)
+			os.Exit(1)
+		}
+	}
+}
 
 func main() {
 	token := flag.String("token", os.Getenv("GITHUB_TOKEN"), "github token")
@@ -29,104 +39,60 @@ func main() {
 	}
 
 	logger := log.New(os.Stderr, "[semantic-release]: ", 0)
+	exitIfError := errorHandler(logger)
 
 	if *token == "" {
-		logger.Println("github token missing")
-		os.Exit(1)
-		return
+		exitIfError(errors.New("github token missing"))
 	}
 	if *slug == "" {
-		logger.Println("slug missing")
-		os.Exit(1)
-		return
+		exitIfError(errors.New("slug missing"))
 	}
 
 	repo, nerr := semrel.NewRepository(context.TODO(), *slug, *token)
-	if nerr != nil {
-		logger.Println(nerr)
-		os.Exit(1)
-		return
-	}
+	exitIfError(nerr)
 
 	logger.Println("getting default branch...")
 	defaultBranch, isPrivate, derr := repo.GetInfo()
-	if derr != nil {
-		logger.Println(derr)
-		os.Exit(1)
-		return
-	}
+	exitIfError(derr)
 	logger.Println("found default branch: " + defaultBranch)
 
 	if !*noci {
 		logger.Println("running CI condition...")
-		if err := condition.Travis(*token, defaultBranch, isPrivate); err != nil {
-			logger.Println(err)
-			os.Exit(1)
-			return
-		}
+		exitIfError(condition.Travis(*token, defaultBranch, isPrivate))
 	}
 
 	logger.Println("getting latest release...")
 	release, rerr := repo.GetLatestRelease()
-	if rerr != nil {
-		logger.Println(rerr)
-		os.Exit(1)
-		return
-	}
+	exitIfError(rerr)
 	if release.Version == nil {
-		logger.Println("found invalid version")
-		os.Exit(1)
-		return
+		exitIfError(errors.New("found invalid version"))
 	}
 	logger.Println("found: " + release.Version.String())
 
 	logger.Println("getting commits...")
 	commits, cerr := repo.GetCommits()
-	if cerr != nil {
-		logger.Println(cerr)
-		os.Exit(1)
-		return
-	}
+	exitIfError(cerr)
 
 	logger.Println("calculating new version...")
 	newVer := semrel.GetNewVersion(commits, release)
 	if newVer == nil {
-		logger.Println("no change")
-		os.Exit(1)
-		return
+		exitIfError(errors.New("no change"))
 	}
 	logger.Println("new version: " + newVer.String())
 
 	if *dry {
-		logger.Println("DRY RUN: no release was created")
-		os.Exit(1)
-		return
+		exitIfError(errors.New("DRY RUN: no release was created"))
 	}
 
 	logger.Println("creating release...")
-	berr := repo.CreateRelease(commits, release, newVer)
-	if berr != nil {
-		logger.Println(berr)
-		os.Exit(1)
-		return
-	}
+	exitIfError(repo.CreateRelease(commits, release, newVer))
 
 	if *ghr {
-		gerr := ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repo.Owner, repo.Repo, newVer.String())), 0644)
-		if gerr != nil {
-			logger.Println(gerr)
-			os.Exit(1)
-			return
-		}
+		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repo.Owner, repo.Repo, newVer.String())), 0644))
 	}
 
 	if *vFile {
-		werr := ioutil.WriteFile(".version", []byte(newVer.String()), 0644)
-		if werr != nil {
-			logger.Println(werr)
-			os.Exit(1)
-			return
-		}
+		exitIfError(ioutil.WriteFile(".version", []byte(newVer.String()), 0644))
 	}
 
 	logger.Println("done.")
