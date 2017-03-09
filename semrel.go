@@ -106,8 +106,11 @@ func (repo *Repository) GetLatestRelease() (*Release, error) {
 	if len(tags) == 0 {
 		return &Release{"", &semver.Version{}}, nil
 	}
-	v, _ := semver.NewVersion(tags[0].GetName())
-	return &Release{tags[0].Commit.GetSHA(), v}, nil
+	version, verr := semver.NewVersion(tags[0].GetName())
+	if verr != nil {
+		return nil, verr
+	}
+	return &Release{tags[0].Commit.GetSHA(), version}, nil
 }
 
 func (repo *Repository) CreateRelease(commits []*Commit, latestRelease *Release, newVersion *semver.Version) error {

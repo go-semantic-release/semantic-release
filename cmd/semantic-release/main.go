@@ -64,9 +64,6 @@ func main() {
 	logger.Println("getting latest release...")
 	release, rerr := repo.GetLatestRelease()
 	exitIfError(rerr)
-	if release.Version == nil {
-		exitIfError(errors.New("found invalid version"))
-	}
 	logger.Println("found: " + release.Version.String())
 
 	logger.Println("getting commits...")
