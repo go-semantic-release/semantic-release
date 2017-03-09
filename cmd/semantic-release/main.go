@@ -64,7 +64,7 @@ func main() {
 	logger.Println("getting latest release...")
 	release, rerr := repo.GetLatestRelease()
 	exitIfError(rerr)
-	logger.Println("found: " + release.Version.String())
+	logger.Println("found version: " + release.Version.String())
 
 	logger.Println("getting commits...")
 	commits, cerr := repo.GetCommits()
