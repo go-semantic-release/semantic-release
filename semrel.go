@@ -8,6 +8,7 @@ import (
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 )
@@ -194,6 +195,17 @@ var typeToText = map[string]string{
 	"%%bc%%":   "Breaking Changes",
 }
 
+func getSortedKeys(m *map[string]string) []string {
+	keys := make([]string, len(*m))
+	i := 0
+	for k, _ := range *m {
+		keys[i] = k
+		i++
+	}
+	sort.Strings(keys)
+	return keys
+}
+
 func GetChangelog(commits []*Commit, latestRelease *Release, newVersion *semver.Version) string {
 	ret := fmt.Sprintf("## %s (%s)\n\n", newVersion.String(), time.Now().UTC().Format("2006-01-02"))
 	typeScopeMap := make(map[string]string)
@@ -210,7 +222,8 @@ func GetChangelog(commits []*Commit, latestRelease *Release, newVersion *semver.
 		}
 		typeScopeMap[commit.Type] += formatCommit(commit)
 	}
-	for t, msg := range typeScopeMap {
+	for _, t := range getSortedKeys(&typeScopeMap) {
+		msg := typeScopeMap[t]
 		typeName, found := typeToText[t]
 		if !found {
 			typeName = t
