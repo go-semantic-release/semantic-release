@@ -20,10 +20,15 @@ func main() {
 	noci := flag.Bool("noci", false, "run semantic-release locally")
 	dry := flag.Bool("dry", false, "do not create release")
 	vFile := flag.Bool("vf", false, "create a .version file")
+	showVersion := flag.Bool("version", false, "outputs the semantic-release version")
 	flag.Parse()
 
+	if *showVersion {
+		fmt.Printf("semantic-release v%s", SRVERSION)
+		return
+	}
+
 	logger := log.New(os.Stderr, "[semantic-release]: ", 0)
-	logger.Println("cli version: " + SRVERSION)
 
 	if *token == "" {
 		logger.Println("github token missing")
