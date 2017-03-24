@@ -152,9 +152,9 @@ func TestCreateRelease(t *testing.T) {
 
 func TestCaluclateChange(t *testing.T) {
 	commits := []*Commit{
-		&Commit{SHA: "a", Change: Change{true, false, false}},
-		&Commit{SHA: "b", Change: Change{false, true, false}},
-		&Commit{SHA: "c", Change: Change{false, false, true}},
+		{SHA: "a", Change: Change{true, false, false}},
+		{SHA: "b", Change: Change{false, true, false}},
+		{SHA: "c", Change: Change{false, false, true}},
 	}
 	change := CaluclateChange(commits, &Release{})
 	if !change.Major || !change.Minor || !change.Patch {
@@ -198,12 +198,12 @@ func TestApplyChange(t *testing.T) {
 
 func TestGetChangelog(t *testing.T) {
 	commits := []*Commit{
-		&Commit{},
-		&Commit{SHA: "123456789", Type: "feat", Scope: "app", Message: "commit message"},
-		&Commit{SHA: "abcd", Type: "fix", Scope: "", Message: "commit message"},
-		&Commit{SHA: "12345678", Type: "yolo", Scope: "swag", Message: "commit message"},
-		&Commit{SHA: "12345678", Type: "chore", Scope: "", Message: "commit message", Raw: []string{"", "BREAKING CHANGE: test"}, Change: Change{Major: true}},
-		&Commit{SHA: "stop", Type: "chore", Scope: "", Message: "not included"},
+		{},
+		{SHA: "123456789", Type: "feat", Scope: "app", Message: "commit message"},
+		{SHA: "abcd", Type: "fix", Scope: "", Message: "commit message"},
+		{SHA: "12345678", Type: "yolo", Scope: "swag", Message: "commit message"},
+		{SHA: "12345678", Type: "chore", Scope: "", Message: "commit message", Raw: []string{"", "BREAKING CHANGE: test"}, Change: Change{Major: true}},
+		{SHA: "stop", Type: "chore", Scope: "", Message: "not included"},
 	}
 	latestRelease := &Release{SHA: "stop"}
 	newVersion, _ := semver.NewVersion("2.0.0")

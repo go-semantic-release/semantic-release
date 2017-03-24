@@ -198,7 +198,7 @@ var typeToText = map[string]string{
 func getSortedKeys(m *map[string]string) []string {
 	keys := make([]string, len(*m))
 	i := 0
-	for k, _ := range *m {
+	for k := range *m {
 		keys[i] = k
 		i++
 	}
