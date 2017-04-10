@@ -28,7 +28,7 @@ language: go
 go:
   - 1.x
 install:
-  - curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o /usr/bin/semantic-release && chmod +x /usr/bin/semantic-release
+  - sudo curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o /usr/bin/semantic-release && sudo chmod +x /usr/bin/semantic-release
   - go get github.com/mitchellh/gox
   - go get github.com/tcnksm/ghr
 after_success:
@@ -61,9 +61,9 @@ services:
 go:
   - 1.x
 install:
-  - curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o /usr/bin/semantic-release && chmod +x /usr/bin/semantic-release
+  - sudo curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o /usr/bin/semantic-release && sudo chmod +x /usr/bin/semantic-release
 after_success:
-  - ./publish.sh
+  - ./release
 notifications:
   email: false
 ```
