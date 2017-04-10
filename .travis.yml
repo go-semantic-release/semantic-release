@@ -1,6 +1,6 @@
 language: go
 go:
-  - 1.x
+  - 1.8.x
 install:
   - go get github.com/Masterminds/glide
   - go get github.com/mitchellh/gox
