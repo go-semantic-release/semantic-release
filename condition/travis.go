@@ -23,7 +23,7 @@ func Travis(token, defaultBranch string, private bool) error {
 		return errors.New("This test run was triggered by a git tag and therefore a new version won’t be published.")
 	}
 	if branch := os.Getenv("TRAVIS_BRANCH"); branch != defaultBranch {
-		return errors.New(fmt.Sprintf("This test run was triggered on the branch %s, while semantic-release is configured to only publish from %s.", branch, defaultBranch))
+		return fmt.Errorf("This test run was triggered on the branch %s, while semantic-release is configured to only publish from %s.", branch, defaultBranch)
 	}
 	if !strings.HasSuffix(os.Getenv("TRAVIS_JOB_NUMBER"), ".1") {
 		return errors.New("This test run is not the build leader and therefore a new version won’t be published.")
