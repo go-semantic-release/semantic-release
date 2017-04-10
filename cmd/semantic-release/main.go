@@ -48,12 +48,12 @@ func main() {
 		exitIfError(errors.New("slug missing"))
 	}
 
-	repo, nerr := semrel.NewRepository(context.TODO(), *slug, *token)
-	exitIfError(nerr)
+	repo, err := semrel.NewRepository(context.TODO(), *slug, *token)
+	exitIfError(err)
 
 	logger.Println("getting default branch...")
-	defaultBranch, isPrivate, derr := repo.GetInfo()
-	exitIfError(derr)
+	defaultBranch, isPrivate, err := repo.GetInfo()
+	exitIfError(err)
 	logger.Println("found default branch: " + defaultBranch)
 
 	if !*noci {
@@ -62,13 +62,13 @@ func main() {
 	}
 
 	logger.Println("getting latest release...")
-	release, rerr := repo.GetLatestRelease()
-	exitIfError(rerr)
+	release, err := repo.GetLatestRelease()
+	exitIfError(err)
 	logger.Println("found version: " + release.Version.String())
 
 	logger.Println("getting commits...")
-	commits, cerr := repo.GetCommits()
-	exitIfError(cerr)
+	commits, err := repo.GetCommits()
+	exitIfError(err)
 
 	logger.Println("calculating new version...")
 	newVer := semrel.GetNewVersion(commits, release)
