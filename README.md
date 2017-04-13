@@ -91,6 +91,31 @@ docker push $IMAGE_NAME
 
 ```
 
+## Example npm
+
+The environment variables GITHUB_TOKEN and NPM_TOKEN must be set.
+
+__.travis.yml__
+```yml
+language: node_js
+cache:
+  directories:
+    - node_modules
+notifications:
+  email: false
+node_js:
+  - '7'
+  - '6'
+  - '4'
+after_success:
+  - sudo curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o /usr/bin/semantic-release && sudo chmod +x /usr/bin/semantic-release
+  - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+  - semantic-release -update package.json && npm publish
+branches:
+  except:
+    - /^v\d+\.\d+\.\d+$/
+```
+
 ## Licence
 
 The [MIT License (MIT)](http://opensource.org/licenses/MIT)
