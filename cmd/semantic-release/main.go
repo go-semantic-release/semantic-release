@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/semantic-release/go-semantic-release"
 	"github.com/semantic-release/go-semantic-release/condition"
+	"github.com/semantic-release/go-semantic-release/update"
 	"io/ioutil"
 	"log"
 	"os"
@@ -31,6 +32,7 @@ func main() {
 	dry := flag.Bool("dry", false, "do not create release")
 	vFile := flag.Bool("vf", false, "create a .version file")
 	showVersion := flag.Bool("version", false, "outputs the semantic-release version")
+	updateFile := flag.String("update", "", "updates the version of a certain file")
 	flag.Parse()
 
 	if *showVersion {
@@ -90,6 +92,10 @@ func main() {
 
 	if *vFile {
 		exitIfError(ioutil.WriteFile(".version", []byte(newVer.String()), 0644))
+	}
+
+	if *updateFile != "" {
+		exitIfError(update.Apply(*updateFile, newVer.String()))
 	}
 
 	logger.Println("done.")
