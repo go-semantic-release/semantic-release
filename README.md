@@ -28,7 +28,7 @@ language: go
 go:
   - 1.x
 install:
-  - sudo curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o /usr/bin/semantic-release && sudo chmod +x /usr/bin/semantic-release
+  - curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o ~/semantic-release && chmod +x ~/semantic-release
   - go get github.com/mitchellh/gox
   - go get github.com/tcnksm/ghr
 after_success:
@@ -42,7 +42,7 @@ __release__
 #!/bin/bash
 set -e
 
-semantic-release -ghr -vf
+~/semantic-release -ghr -vf
 export VERSION=$(cat .version)
 gox -ldflags="-s -w" -output="bin/{{.Dir}}_v"$VERSION"_{{.OS}}_{{.Arch}}"
 ghr $(cat .ghr) bin/
@@ -61,7 +61,7 @@ services:
 go:
   - 1.x
 install:
-  - sudo curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o /usr/bin/semantic-release && sudo chmod +x /usr/bin/semantic-release
+  - curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o ~/semantic-release && chmod +x ~/semantic-release
 after_success:
   - ./release
 notifications:
@@ -74,7 +74,7 @@ __release__
 set -e
 
 # run semantic-release
-semantic-release -vf
+~/semantic-release -vf
 export VERSION=$(cat .version)
 
 # docker build
@@ -108,9 +108,9 @@ node_js:
   - '6'
   - '4'
 after_success:
-  - sudo curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o /usr/bin/semantic-release && sudo chmod +x /usr/bin/semantic-release
+  - curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o ~/semantic-release && chmod +x ~/semantic-release
   - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
-  - semantic-release -update package.json && npm publish
+  - ~/semantic-release -update package.json && npm publish
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
