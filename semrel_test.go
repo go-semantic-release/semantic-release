@@ -28,6 +28,10 @@ func createCommit(sha, message string) *github.RepositoryCommit {
 	return &github.RepositoryCommit{SHA: &sha, Commit: &github.Commit{Message: &message}}
 }
 
+func createRef(ref, sha string) *github.Reference {
+	return &github.Reference{Ref: &ref, Object: &github.GitObject{SHA: &sha}}
+}
+
 var (
 	GITHUB_REPO_PRIVATE  = true
 	GITHUB_DEFAULTBRANCH = "master"
@@ -38,9 +42,14 @@ var (
 		createCommit("cdba", "Initial commit"),
 		createCommit("efcd", "chore: break\nBREAKING CHANGE: breaks everything"),
 	}
-	GITHUB_TAG_SHA  = "be10"
-	GITHUB_TAG_NAME = "v1.0.0"
-	GITHUB_TAG      = github.RepositoryTag{Commit: &github.Commit{SHA: &GITHUB_TAG_SHA}, Name: &GITHUB_TAG_NAME}
+	GITHUB_TAGS = []*github.Reference{
+		createRef("refs/tags/test-tag", "deadbeef"),
+		createRef("refs/tags/v1.0.0", "deadbeef"),
+		createRef("refs/tags/v2.0.0", "deadbeef"),
+		createRef("refs/tags/v2.1.0-beta", "deadbeef"),
+		createRef("refs/tags/v3.0.0-beta.2", "deadbeef"),
+		createRef("refs/tags/v3.0.0-beta.1", "deadbeef"),
+	}
 )
 
 func githubHandler(w http.ResponseWriter, r *http.Request) {
@@ -56,8 +65,8 @@ func githubHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(GITHUB_COMMITS)
 		return
 	}
-	if r.Method == "GET" && r.URL.Path == "/repos/owner/test-repo/tags" {
-		json.NewEncoder(w).Encode([]*github.RepositoryTag{&GITHUB_TAG})
+	if r.Method == "GET" && r.URL.Path == "/repos/owner/test-repo/git/refs/tags" {
+		json.NewEncoder(w).Encode(GITHUB_TAGS)
 		return
 	}
 	if r.Method == "POST" && r.URL.Path == "/repos/owner/test-repo/releases" {
@@ -131,11 +140,34 @@ func TestGetCommits(t *testing.T) {
 func TestGetLatestRelease(t *testing.T) {
 	repo, ts := getNewTestRepo(t)
 	defer ts.Close()
-	release, err := repo.GetLatestRelease()
+	release, err := repo.GetLatestRelease("")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if release.SHA != GITHUB_TAG_SHA || release.Version.String() != "1.0.0" {
+	if release.SHA != "deadbeef" || release.Version.String() != "2.0.0" {
+		t.Fatal("invalid tag")
+	}
+	release, err = repo.GetLatestRelease("2-beta")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if release.SHA != "deadbeef" || release.Version.String() != "2.1.0-beta" {
+		t.Fatal("invalid tag")
+	}
+
+	release, err = repo.GetLatestRelease("3-beta")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if release.SHA != "deadbeef" || release.Version.String() != "3.0.0-beta.2" {
+		t.Fatal("invalid tag")
+	}
+
+	release, err = repo.GetLatestRelease("4-beta")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if release.SHA != "" || release.Version.String() != "4.0.0-beta" {
 		t.Fatal("invalid tag")
 	}
 }
@@ -192,6 +224,21 @@ func TestApplyChange(t *testing.T) {
 	version, _ = semver.NewVersion("0.1.0")
 	newVersion = ApplyChange(version, Change{})
 	if newVersion.String() != "1.0.0" {
+		t.Fail()
+	}
+	version, _ = semver.NewVersion("2.0.0-beta")
+	newVersion = ApplyChange(version, Change{true, true, true})
+	if newVersion.String() != "2.0.0-beta.1" {
+		t.Fail()
+	}
+	version, _ = semver.NewVersion("2.0.0-beta.2")
+	newVersion = ApplyChange(version, Change{true, true, true})
+	if newVersion.String() != "2.0.0-beta.3" {
+		t.Fail()
+	}
+	version, _ = semver.NewVersion("2.0.0-beta.1.1")
+	newVersion = ApplyChange(version, Change{true, true, true})
+	if newVersion.String() != "2.0.0-beta.2" {
 		t.Fail()
 	}
 }

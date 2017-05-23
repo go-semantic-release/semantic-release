@@ -9,6 +9,7 @@ import (
 	"golang.org/x/oauth2"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -32,6 +33,20 @@ type Commit struct {
 type Release struct {
 	SHA     string
 	Version *semver.Version
+}
+
+type Releases []*Release
+
+func (r Releases) Len() int {
+	return len(r)
+}
+
+func (r Releases) Less(i, j int) bool {
+	return r[j].Version.LessThan(r[i].Version)
+}
+
+func (r Releases) Swap(i, j int) {
+	r[i], r[j] = r[j], r[i]
 }
 
 type Repository struct {
@@ -98,20 +113,64 @@ func (repo *Repository) GetCommits() ([]*Commit, error) {
 	return ret, nil
 }
 
-func (repo *Repository) GetLatestRelease() (*Release, error) {
-	opts := &github.ListOptions{PerPage: 1}
-	tags, _, err := repo.Client.Repositories.ListTags(repo.Ctx, repo.Owner, repo.Repo, opts)
+func (repo *Repository) GetLatestRelease(vrange string) (*Release, error) {
+	allReleases := make(Releases, 0)
+	opts := &github.ReferenceListOptions{"tags", github.ListOptions{PerPage: 100}}
+	for {
+		refs, resp, err := repo.Client.Git.ListRefs(repo.Ctx, repo.Owner, repo.Repo, opts)
+		if resp != nil && resp.StatusCode == 404 {
+			return &Release{"", &semver.Version{}}, nil
+		}
+		if err != nil {
+			return nil, err
+		}
+		for _, r := range refs {
+			version, err := semver.NewVersion(strings.TrimPrefix(r.GetRef(), "refs/tags/"))
+			if err != nil {
+				continue
+			}
+			allReleases = append(allReleases, &Release{r.Object.GetSHA(), version})
+		}
+		if resp.NextPage == 0 {
+			break
+		}
+		opts.Page = resp.NextPage
+	}
+	sort.Sort(allReleases)
+	if vrange == "" {
+		for _, r := range allReleases {
+			if r.Version.Prerelease() == "" {
+				return r, nil
+			}
+		}
+		return &Release{"", &semver.Version{}}, nil
+	}
+
+	constraint, err := semver.NewConstraint(vrange)
 	if err != nil {
 		return nil, err
 	}
-	if len(tags) == 0 {
-		return &Release{"", &semver.Version{}}, nil
+	for _, r := range allReleases {
+		if constraint.Check(r.Version) {
+			return r, nil
+		}
 	}
-	version, verr := semver.NewVersion(tags[0].GetName())
-	if verr != nil {
-		return nil, verr
+
+	nver, err := semver.NewVersion(vrange)
+	if err != nil {
+		return nil, err
 	}
-	return &Release{tags[0].Commit.GetSHA(), version}, nil
+
+	splitPre := strings.SplitN(vrange, "-", 2)
+	if len(splitPre) == 1 {
+		return &Release{"", nver}, nil
+	}
+
+	npver, err := nver.SetPrerelease(splitPre[1])
+	if err != nil {
+		return nil, err
+	}
+	return &Release{"", &npver}, nil
 }
 
 func (repo *Repository) CreateRelease(commits []*Commit, latestRelease *Release, newVersion *semver.Version) error {
@@ -146,19 +205,34 @@ func ApplyChange(version *semver.Version, change Change) *semver.Version {
 		change.Major = true
 	}
 	var newVersion semver.Version
-	switch {
-	case change.Major:
-		newVersion = version.IncMajor()
-		break
-	case change.Minor:
-		newVersion = version.IncMinor()
-		break
-	case change.Patch:
-		newVersion = version.IncPatch()
-		break
-	default:
-		return nil
+	preRel := version.Prerelease()
+	if preRel == "" {
+		switch {
+		case change.Major:
+			newVersion = version.IncMajor()
+			break
+		case change.Minor:
+			newVersion = version.IncMinor()
+			break
+		case change.Patch:
+			newVersion = version.IncPatch()
+			break
+		default:
+			return nil
+		}
+		return &newVersion
 	}
+	preRelVer := strings.Split(preRel, ".")
+	if len(preRelVer) > 1 {
+		idx, err := strconv.ParseInt(preRelVer[1], 10, 32)
+		if err != nil {
+			idx = 0
+		}
+		preRel = fmt.Sprintf("%s.%d", preRelVer[0], idx+1)
+	} else {
+		preRel += ".1"
+	}
+	newVersion, _ = version.SetPrerelease(preRel)
 	return &newVersion
 }
 
