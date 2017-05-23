@@ -302,22 +302,22 @@ func TestGistsService_ListCommits(t *testing.T) {
 		        "additions": 180,
 		        "total": 180
 		      },
-		      "commited_at": "2010-01-01T00:00:00Z"
+		      "committed_at": "2010-01-01T00:00:00Z"
 		    }
 		  ]
 		`)
 	})
 
-	gistCommits, _, err := client.Gists.ListCommits(context.Background(), "1")
+	gistCommits, _, err := client.Gists.ListCommits(context.Background(), "1", nil)
 	if err != nil {
 		t.Errorf("Gists.ListCommits returned error: %v", err)
 	}
 
 	want := []*GistCommit{{
-		URL:        String("https://api.github.com/gists/1/1"),
-		Version:    String("1"),
-		User:       &User{ID: Int(1)},
-		CommitedAt: &Timestamp{time.Date(2010, 1, 1, 00, 00, 00, 0, time.UTC)},
+		URL:         String("https://api.github.com/gists/1/1"),
+		Version:     String("1"),
+		User:        &User{ID: Int(1)},
+		CommittedAt: &Timestamp{time.Date(2010, 1, 1, 00, 00, 00, 0, time.UTC)},
 		ChangeStatus: &CommitStats{
 			Additions: Int(180),
 			Deletions: Int(0),
@@ -326,6 +326,24 @@ func TestGistsService_ListCommits(t *testing.T) {
 
 	if !reflect.DeepEqual(gistCommits, want) {
 		t.Errorf("Gists.ListCommits returned %+v, want %+v", gistCommits, want)
+	}
+}
+
+func TestGistsService_ListCommits_withOptions(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/gists/1/commits", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"page": "2",
+		})
+		fmt.Fprint(w, `[]`)
+	})
+
+	_, _, err := client.Gists.ListCommits(context.Background(), "1", &ListOptions{Page: 2})
+	if err != nil {
+		t.Errorf("Gists.ListCommits returned error: %v", err)
 	}
 }
 

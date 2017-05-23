@@ -59,7 +59,7 @@ type GistCommit struct {
 	Version      *string      `json:"version,omitempty"`
 	User         *User        `json:"user,omitempty"`
 	ChangeStatus *CommitStats `json:"change_status,omitempty"`
-	CommitedAt   *Timestamp   `json:"commited_at,omitempty"`
+	CommittedAt  *Timestamp   `json:"committed_at,omitempty"`
 }
 
 func (gc GistCommit) String() string {
@@ -241,8 +241,13 @@ func (s *GistsService) Edit(ctx context.Context, id string, gist *Gist) (*Gist, 
 // ListCommits lists commits of a gist.
 //
 // GitHub API docs: https://developer.github.com/v3/gists/#list-gist-commits
-func (s *GistsService) ListCommits(ctx context.Context, id string) ([]*GistCommit, *Response, error) {
+func (s *GistsService) ListCommits(ctx context.Context, id string, opt *ListOptions) ([]*GistCommit, *Response, error) {
 	u := fmt.Sprintf("gists/%v/commits", id)
+	u, err := addOptions(u, opt)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	req, err := s.client.NewRequest("GET", u, nil)
 	if err != nil {
 		return nil, nil, err

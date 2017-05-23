@@ -482,7 +482,7 @@ func TestRepositoriesService_GetBranchProtection(t *testing.T) {
 
 		testMethod(t, r, "GET")
 		testHeader(t, r, "Accept", mediaTypeProtectedBranchesPreview)
-		fmt.Fprintf(w, `{"required_status_checks":{"include_admins":true,"strict":true,"contexts":["continuous-integration"]},"required_pull_request_reviews":{"include_admins":true},"restrictions":{"users":[{"id":1,"login":"u"}],"teams":[{"id":2,"slug":"t"}]}}`)
+		fmt.Fprintf(w, `{"required_status_checks":{"include_admins":true,"strict":true,"contexts":["continuous-integration"]},"required_pull_request_reviews":{"include_admins":true},"enforce_admins":{"url":"/repos/o/r/branches/b/protection/enforce_admins","enabled":true},"restrictions":{"users":[{"id":1,"login":"u"}],"teams":[{"id":2,"slug":"t"}]}}`)
 	})
 
 	protection, _, err := client.Repositories.GetBranchProtection(context.Background(), "o", "r", "b")
@@ -498,6 +498,10 @@ func TestRepositoriesService_GetBranchProtection(t *testing.T) {
 		},
 		RequiredPullRequestReviews: &RequiredPullRequestReviews{
 			IncludeAdmins: true,
+		},
+		EnforceAdmins: &AdminEnforcement{
+			URL:     String("/repos/o/r/branches/b/protection/enforce_admins"),
+			Enabled: true,
 		},
 		Restrictions: &BranchRestrictions{
 			Users: []*User{
@@ -621,5 +625,57 @@ func TestRepositoriesService_License(t *testing.T) {
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Repositories.License returned %+v, want %+v", got, want)
+	}
+}
+
+func TestRepositoriesService_GetRequiredStatusChecks(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/repos/o/r/branches/b/protection/required_status_checks", func(w http.ResponseWriter, r *http.Request) {
+		v := new(ProtectionRequest)
+		json.NewDecoder(r.Body).Decode(v)
+
+		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeProtectedBranchesPreview)
+		fmt.Fprint(w, `{"include_admins": true,"strict": true,"contexts": ["x","y","z"]}`)
+	})
+
+	checks, _, err := client.Repositories.GetRequiredStatusChecks(context.Background(), "o", "r", "b")
+	if err != nil {
+		t.Errorf("Repositories.GetRequiredStatusChecks returned error: %v", err)
+	}
+
+	want := &RequiredStatusChecks{
+		IncludeAdmins: true,
+		Strict:        true,
+		Contexts:      []string{"x", "y", "z"},
+	}
+	if !reflect.DeepEqual(checks, want) {
+		t.Errorf("Repositories.GetRequiredStatusChecks returned %+v, want %+v", checks, want)
+	}
+}
+
+func TestRepositoriesService_ListRequiredStatusChecksContexts(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/repos/o/r/branches/b/protection/required_status_checks/contexts", func(w http.ResponseWriter, r *http.Request) {
+		v := new(ProtectionRequest)
+		json.NewDecoder(r.Body).Decode(v)
+
+		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeProtectedBranchesPreview)
+		fmt.Fprint(w, `["x", "y", "z"]`)
+	})
+
+	contexts, _, err := client.Repositories.ListRequiredStatusChecksContexts(context.Background(), "o", "r", "b")
+	if err != nil {
+		t.Errorf("Repositories.ListRequiredStatusChecksContexts returned error: %v", err)
+	}
+
+	want := []string{"x", "y", "z"}
+	if !reflect.DeepEqual(contexts, want) {
+		t.Errorf("Repositories.ListRequiredStatusChecksContexts returned %+v, want %+v", contexts, want)
 	}
 }

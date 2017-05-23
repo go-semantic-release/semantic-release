@@ -1,4 +1,4 @@
-// Copyright 2016 The go-github AUTHORS. All rights reserved.
+// Copyright 2017 The go-github AUTHORS. All rights reserved.
 //
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
@@ -25,7 +25,7 @@ func TestRepositoriesService_ListProjects(t *testing.T) {
 		fmt.Fprint(w, `[{"id":1}]`)
 	})
 
-	opt := &ListOptions{Page: 2}
+	opt := &ProjectListOptions{ListOptions: ListOptions{Page: 2}}
 	projects, _, err := client.Repositories.ListProjects(context.Background(), "o", "r", opt)
 	if err != nil {
 		t.Errorf("Repositories.ListProjects returned error: %v", err)
