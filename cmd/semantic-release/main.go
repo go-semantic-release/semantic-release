@@ -64,7 +64,7 @@ func main() {
 	}
 
 	logger.Println("getting latest release...")
-	release, err := repo.GetLatestRelease()
+	release, err := repo.GetLatestRelease("")
 	exitIfError(err)
 	logger.Println("found version: " + release.Version.String())
 
