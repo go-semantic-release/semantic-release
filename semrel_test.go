@@ -121,7 +121,7 @@ func compareCommit(c *Commit, t, s string, change Change) bool {
 func TestGetCommits(t *testing.T) {
 	repo, ts := getNewTestRepo(t)
 	defer ts.Close()
-	commits, err := repo.GetCommits()
+	commits, err := repo.GetCommits("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -176,7 +176,7 @@ func TestCreateRelease(t *testing.T) {
 	repo, ts := getNewTestRepo(t)
 	defer ts.Close()
 	newVersion, _ := semver.NewVersion("2.0.0")
-	err := repo.CreateRelease([]*Commit{}, &Release{}, newVersion)
+	err := repo.CreateRelease([]*Commit{}, &Release{}, newVersion, "")
 	if err != nil {
 		t.Fatal(err)
 	}
