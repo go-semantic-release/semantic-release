@@ -164,23 +164,25 @@ func (repo *Repository) GetLatestRelease(vrange string) (*Release, error) {
 
 	splitPre := strings.SplitN(vrange, "-", 2)
 	if len(splitPre) == 1 {
-		return &Release{"", nver}, nil
+		return &Release{allReleases[0].SHA, nver}, nil
 	}
 
 	npver, err := nver.SetPrerelease(splitPre[1])
 	if err != nil {
 		return nil, err
 	}
-	return &Release{"", &npver}, nil
+	return &Release{allReleases[0].SHA, &npver}, nil
 }
 
 func (repo *Repository) CreateRelease(commits []*Commit, latestRelease *Release, newVersion *semver.Version, branch string) error {
 	tag := fmt.Sprintf("v%s", newVersion.String())
 	changelog := GetChangelog(commits, latestRelease, newVersion)
+	hasPrerelease := newVersion.Prerelease() != ""
 	opts := &github.RepositoryRelease{
 		TagName:         &tag,
 		TargetCommitish: &branch,
 		Body:            &changelog,
+		Prerelease:      &hasPrerelease,
 	}
 	_, _, err := repo.Client.Repositories.CreateRelease(repo.Ctx, repo.Owner, repo.Repo, opts)
 	if err != nil {
