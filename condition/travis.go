@@ -22,7 +22,7 @@ func Travis(token, defaultBranch string, private bool) error {
 	if os.Getenv("TRAVIS_TAG") != "" {
 		return errors.New("This test run was triggered by a git tag and therefore a new version won’t be published.")
 	}
-	if branch := os.Getenv("TRAVIS_BRANCH"); branch != defaultBranch {
+	if branch := os.Getenv("TRAVIS_BRANCH"); defaultBranch != "*" && branch != defaultBranch {
 		return fmt.Errorf("This test run was triggered on the branch %s, while semantic-release is configured to only publish from %s.", branch, defaultBranch)
 	}
 	if !strings.HasSuffix(os.Getenv("TRAVIS_JOB_NUMBER"), ".1") {
