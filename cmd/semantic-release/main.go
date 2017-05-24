@@ -43,6 +43,10 @@ func main() {
 	logger := log.New(os.Stderr, "[semantic-release]: ", 0)
 	exitIfError := errorHandler(logger)
 
+	if val, ok := os.LookupEnv("GH_TOKEN"); *token == "" && ok {
+		*token = val
+	}
+
 	if *token == "" {
 		exitIfError(errors.New("github token missing"))
 	}
