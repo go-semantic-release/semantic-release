@@ -116,6 +116,15 @@ branches:
     - /^v\d+\.\d+\.\d+$/
 ```
 
+## Beta release support
+Beta release support empowers you to release beta, rc, etc. versions with `semantic-release` (e.g. v2.0.0-beta.1). To enable this feature you need to create a new branch (e.g. beta/v2) and check in a `.semrelrc` file with the following content:
+```
+{
+  "maintainedVersion": "2-beta"
+}
+```
+If you commit to this branch a new incremental pre-release is created everytime you push. (2.0.0-beta.1, 2.0.0-beta.2, ...)
+
 ## Licence
 
 The [MIT License (MIT)](http://opensource.org/licenses/MIT)
