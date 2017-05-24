@@ -98,8 +98,9 @@ func parseCommit(commit *github.RepositoryCommit) *Commit {
 	return c
 }
 
-func (repo *Repository) GetCommits() ([]*Commit, error) {
+func (repo *Repository) GetCommits(branch string) ([]*Commit, error) {
 	opts := &github.CommitsListOptions{
+		SHA:         branch,
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
 	commits, _, err := repo.Client.Repositories.ListCommits(repo.Ctx, repo.Owner, repo.Repo, opts)
@@ -173,12 +174,13 @@ func (repo *Repository) GetLatestRelease(vrange string) (*Release, error) {
 	return &Release{"", &npver}, nil
 }
 
-func (repo *Repository) CreateRelease(commits []*Commit, latestRelease *Release, newVersion *semver.Version) error {
+func (repo *Repository) CreateRelease(commits []*Commit, latestRelease *Release, newVersion *semver.Version, branch string) error {
 	tag := fmt.Sprintf("v%s", newVersion.String())
 	changelog := GetChangelog(commits, latestRelease, newVersion)
 	opts := &github.RepositoryRelease{
-		TagName: &tag,
-		Body:    &changelog,
+		TagName:         &tag,
+		TargetCommitish: &branch,
+		Body:            &changelog,
 	}
 	_, _, err := repo.Client.Repositories.CreateRelease(repo.Ctx, repo.Owner, repo.Repo, opts)
 	if err != nil {
@@ -204,6 +206,9 @@ func ApplyChange(version *semver.Version, change Change) *semver.Version {
 	if version.Major() == 0 {
 		change.Major = true
 	}
+	if !change.Major && !change.Minor && !change.Patch {
+		return nil
+	}
 	var newVersion semver.Version
 	preRel := version.Prerelease()
 	if preRel == "" {
@@ -217,8 +222,6 @@ func ApplyChange(version *semver.Version, change Change) *semver.Version {
 		case change.Patch:
 			newVersion = version.IncPatch()
 			break
-		default:
-			return nil
 		}
 		return &newVersion
 	}
