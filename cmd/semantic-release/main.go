@@ -27,7 +27,7 @@ func errorHandler(logger *log.Logger) func(error) {
 }
 
 type SemRelConfig struct {
-	MaintainedRange string `json:"maintainedRange"`
+	MaintainedVersion string `json:"maintainedVersion"`
 }
 
 func loadConfig() *SemRelConfig {
@@ -86,12 +86,12 @@ func main() {
 	logger.Println("found current branch: " + currentBranch)
 
 	config := loadConfig()
-	if config.MaintainedRange != "" && currentBranch == defaultBranch {
-		exitIfError(fmt.Errorf("maintained range not allowed on default branch"))
+	if config.MaintainedVersion != "" && currentBranch == defaultBranch {
+		exitIfError(fmt.Errorf("maintained version not allowed on default branch"))
 	}
 
-	if config.MaintainedRange != "" {
-		logger.Println("found maintained range: " + config.MaintainedRange)
+	if config.MaintainedVersion != "" {
+		logger.Println("found maintained version: " + config.MaintainedVersion)
 		defaultBranch = "*"
 	}
 
@@ -101,12 +101,12 @@ func main() {
 	}
 
 	logger.Println("getting latest release...")
-	release, err := repo.GetLatestRelease(config.MaintainedRange)
+	release, err := repo.GetLatestRelease(config.MaintainedVersion)
 	exitIfError(err)
 	logger.Println("found version: " + release.Version.String())
 
-	if strings.Contains(config.MaintainedRange, "-") && release.Version.Prerelease() == "" {
-		exitIfError(fmt.Errorf("no prerelease for this version possible"))
+	if strings.Contains(config.MaintainedVersion, "-") && release.Version.Prerelease() == "" {
+		exitIfError(fmt.Errorf("no pre-release for this version possible"))
 	}
 
 	logger.Println("getting commits...")
