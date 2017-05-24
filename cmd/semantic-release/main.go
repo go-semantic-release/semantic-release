@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 )
 
 var SRVERSION string
@@ -22,6 +24,21 @@ func errorHandler(logger *log.Logger) func(error) {
 			os.Exit(1)
 		}
 	}
+}
+
+type SemRelConfig struct {
+	MaintainedRange string `json:"maintainedRange"`
+}
+
+func loadConfig() *SemRelConfig {
+	f, err := os.OpenFile(".semrelrc", os.O_RDONLY, 0)
+	if err != nil {
+		return &SemRelConfig{}
+	}
+	src := &SemRelConfig{}
+	json.NewDecoder(f).Decode(src)
+	f.Close()
+	return src
 }
 
 func main() {
@@ -62,18 +79,38 @@ func main() {
 	exitIfError(err)
 	logger.Println("found default branch: " + defaultBranch)
 
+	currentBranch := condition.GetCurrentBranch()
+	if currentBranch == "" {
+		exitIfError(fmt.Errorf("current branch not found"))
+	}
+	logger.Println("found current branch: " + currentBranch)
+
+	config := loadConfig()
+	if config.MaintainedRange != "" && currentBranch == defaultBranch {
+		exitIfError(fmt.Errorf("maintained range not allowed on default branch"))
+	}
+
+	if config.MaintainedRange != "" {
+		logger.Println("found maintained range: " + config.MaintainedRange)
+		defaultBranch = "*"
+	}
+
 	if !*noci {
 		logger.Println("running CI condition...")
 		exitIfError(condition.Travis(*token, defaultBranch, isPrivate))
 	}
 
 	logger.Println("getting latest release...")
-	release, err := repo.GetLatestRelease("")
+	release, err := repo.GetLatestRelease(config.MaintainedRange)
 	exitIfError(err)
 	logger.Println("found version: " + release.Version.String())
 
+	if strings.Contains(config.MaintainedRange, "-") && release.Version.Prerelease() == "" {
+		exitIfError(fmt.Errorf("no prerelease for this version possible"))
+	}
+
 	logger.Println("getting commits...")
-	commits, err := repo.GetCommits()
+	commits, err := repo.GetCommits(currentBranch)
 	exitIfError(err)
 
 	logger.Println("calculating new version...")
@@ -88,7 +125,7 @@ func main() {
 	}
 
 	logger.Println("creating release...")
-	exitIfError(repo.CreateRelease(commits, release, newVer))
+	exitIfError(repo.CreateRelease(commits, release, newVer, currentBranch))
 
 	if *ghr {
 		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repo.Owner, repo.Repo, newVer.String())), 0644))
