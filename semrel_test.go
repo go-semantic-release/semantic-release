@@ -167,7 +167,7 @@ func TestGetLatestRelease(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if release.SHA != "" || release.Version.String() != "4.0.0-beta" {
+	if release.SHA != "deadbeef" || release.Version.String() != "4.0.0-beta" {
 		t.Fatal("invalid tag")
 	}
 }
