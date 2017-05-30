@@ -6,4 +6,5 @@ set -e
 export VERSION=$(cat .version)
 gox -ldflags="-s -w -X main.SRVERSION=$VERSION" -output="bin/{{.Dir}}_v"$VERSION"_{{.OS}}_{{.Arch}}" ./cmd/semantic-release/
 ghr $(cat .ghr) bin/
+
 cd ./npm-package && npm publish

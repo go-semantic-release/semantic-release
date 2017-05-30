@@ -2,6 +2,8 @@ language: go
 go:
   - 1.8.x
 install:
+  - nvm install 7
+  - node -v && npm -v
   - go get github.com/Masterminds/glide
   - go get github.com/mitchellh/gox
   - go get github.com/tcnksm/ghr
