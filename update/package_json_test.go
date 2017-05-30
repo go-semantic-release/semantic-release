@@ -16,8 +16,8 @@ func TestPackageJson(t *testing.T) {
 	defer f.Close()
 	nVer := "1.2.3"
 	packageJson(nVer, f)
-	npmfile, err := ioutil.ReadFile("./.npmrc")
-	if bytes.Compare(npmfile, []byte(npmrc)) != 0 {
+	npmfile, err := ioutil.ReadFile("../test-fixtures/.npmrc")
+	if err != nil || bytes.Compare(npmfile, []byte(npmrc)) != 0 {
 		t.Fatal("invalid .npmrc")
 	}
 	f.Seek(0, 0)
