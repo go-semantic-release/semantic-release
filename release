@@ -2,8 +2,8 @@
 
 set -e
 
-./semantic-release -ghr -vf -update package.json
+./semantic-release -ghr -vf -update ./npm-package/package.json
 export VERSION=$(cat .version)
 gox -ldflags="-s -w -X main.SRVERSION=$VERSION" -output="bin/{{.Dir}}_v"$VERSION"_{{.OS}}_{{.Arch}}" ./cmd/semantic-release/
 ghr $(cat .ghr) bin/
-npm publish
+cd ./npm-package && npm publish
