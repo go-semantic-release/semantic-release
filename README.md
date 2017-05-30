@@ -109,7 +109,6 @@ node_js:
   - '4'
 after_success:
   - curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o ~/semantic-release && chmod +x ~/semantic-release
-  - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
   - ~/semantic-release -update package.json && npm publish
 branches:
   except:
