@@ -2,8 +2,11 @@ package update
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"os"
 )
+
+const npmrc = "//registry.npmjs.org/:_authToken=$NPM_TOKEN\n"
 
 func init() {
 	Register("package.json", packageJson)
@@ -22,5 +25,5 @@ func packageJson(newVersion string, file *os.File) error {
 	if err := enc.Encode(data); err != nil {
 		return err
 	}
-	return nil
+	return ioutil.WriteFile("./.npmrc", []byte(npmrc), 0644)
 }
