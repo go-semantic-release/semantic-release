@@ -3,6 +3,7 @@ package semrel
 import (
 	"context"
 	"errors"
+	"log"
 	"fmt"
 	"github.com/Masterminds/semver"
 	"github.com/google/go-github/github"
@@ -156,7 +157,9 @@ func (repo *Repository) GetLatestRelease(vrange string, prerelease string) (*Rel
 	for _, r := range allReleases {
 		prereleaseParts := strings.Split(r.Version.Prerelease(), ".")
 
-		if r.Version.Prerelease() == "" {
+		log.Println("Examining:", r)
+
+		if r.Version.Prerelease() == "" && lastRelease == nil {
 			lastRelease = r
 
 			// If there is no pre-release version, its safe to bail out here.
@@ -229,6 +232,7 @@ func (repo *Repository) CreateRelease(commits []*Commit, latestRelease *Release,
 func CalculateChange(commits []*Commit, latestRelease *Release) Change {
 	var change Change
 	for _, commit := range commits {
+		log.Println("Examining:", commit)
 
 		if latestRelease.SHA == commit.SHA {
 			break
