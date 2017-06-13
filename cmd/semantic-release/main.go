@@ -47,6 +47,7 @@ func main() {
 	ghr := flag.Bool("ghr", false, "create a .ghr file with the parameters for ghr")
 	noci := flag.Bool("noci", false, "run semantic-release locally")
 	dry := flag.Bool("dry", false, "do not create release")
+	flow := flag.Bool("flow", false, "follow branch naming conventions")
 	vFile := flag.Bool("vf", false, "create a .version file")
 	showVersion := flag.Bool("version", false, "outputs the semantic-release version")
 	updateFile := flag.String("update", "", "updates the version of a certain file")
@@ -79,14 +80,12 @@ func main() {
 	exitIfError(err)
 	logger.Println("found default branch: " + defaultBranch)
 
-	currentBranch := condition.GetCurrentBranch()
-	if currentBranch == "" {
-		exitIfError(fmt.Errorf("current branch not found"))
-	}
-	logger.Println("found current branch: " + currentBranch)
+	curCommitInfo, err := condition.GetCurCommitInfo()
+	exitIfError(err)
+	logger.Println("found current branch: " + curCommitInfo.Branch)
 
 	config := loadConfig()
-	if config.MaintainedVersion != "" && currentBranch == defaultBranch {
+	if config.MaintainedVersion != "" && curCommitInfo.Branch == defaultBranch {
 		exitIfError(fmt.Errorf("maintained version not allowed on default branch"))
 	}
 
@@ -95,26 +94,48 @@ func main() {
 		defaultBranch = "*"
 	}
 
+	prerelease := ""
+	if *flow && config.MaintainedVersion == "" {
+
+		switch curCommitInfo.Branch {
+		// If branch is master -> no pre-latestRelease version
+		case "master":
+			prerelease = ""
+			break
+		// If branch is develop -> beta latestRelease
+		case "develop":
+			prerelease = "beta"
+			break
+		default:
+			branchPath := strings.Split(curCommitInfo.Branch, "/")
+			prerelease = branchPath[len(branchPath) - 1]
+		}
+	}
+
+	if prerelease != "" {
+		logger.Println("Determined prerelease version: " + prerelease)
+	}
+
 	if !*noci {
 		logger.Println("running CI condition...")
 		exitIfError(condition.Travis(*token, defaultBranch, isPrivate))
 	}
 
 	logger.Println("getting latest release...")
-	release, err := repo.GetLatestRelease(config.MaintainedVersion)
+	latestRelease, err := repo.GetLatestRelease(config.MaintainedVersion, prerelease)
 	exitIfError(err)
-	logger.Println("found version: " + release.Version.String())
+	logger.Println("found version: " + latestRelease.Version.String())
 
-	if strings.Contains(config.MaintainedVersion, "-") && release.Version.Prerelease() == "" {
+	if strings.Contains(config.MaintainedVersion, "-") && latestRelease.Version.Prerelease() == "" {
 		exitIfError(fmt.Errorf("no pre-release for this version possible"))
 	}
 
 	logger.Println("getting commits...")
-	commits, err := repo.GetCommits(currentBranch)
+	commits, err := repo.GetCommits(curCommitInfo.Branch)
 	exitIfError(err)
 
 	logger.Println("calculating new version...")
-	newVer := semrel.GetNewVersion(commits, release)
+	newVer := semrel.GetNewVersion(commits, latestRelease, prerelease)
 	if newVer == nil {
 		exitIfError(errors.New("no change"))
 	}
@@ -125,7 +146,7 @@ func main() {
 	}
 
 	logger.Println("creating release...")
-	exitIfError(repo.CreateRelease(commits, release, newVer, currentBranch))
+	exitIfError(repo.CreateRelease(commits, latestRelease, newVer, curCommitInfo.Branch))
 
 	if *ghr {
 		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repo.Owner, repo.Repo, newVer.String())), 0644))

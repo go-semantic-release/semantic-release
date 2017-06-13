@@ -140,14 +140,14 @@ func TestGetCommits(t *testing.T) {
 func TestGetLatestRelease(t *testing.T) {
 	repo, ts := getNewTestRepo(t)
 	defer ts.Close()
-	release, err := repo.GetLatestRelease("")
+	release, err := repo.GetLatestRelease("", "")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if release.SHA != "deadbeef" || release.Version.String() != "2.0.0" {
 		t.Fatal("invalid tag")
 	}
-	release, err = repo.GetLatestRelease("2-beta")
+	release, err = repo.GetLatestRelease("2-beta", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -155,7 +155,7 @@ func TestGetLatestRelease(t *testing.T) {
 		t.Fatal("invalid tag")
 	}
 
-	release, err = repo.GetLatestRelease("3-beta")
+	release, err = repo.GetLatestRelease("3-beta", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -163,7 +163,7 @@ func TestGetLatestRelease(t *testing.T) {
 		t.Fatal("invalid tag")
 	}
 
-	release, err = repo.GetLatestRelease("4-beta")
+	release, err = repo.GetLatestRelease("4-beta", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -182,22 +182,22 @@ func TestCreateRelease(t *testing.T) {
 	}
 }
 
-func TestCaluclateChange(t *testing.T) {
+func TestCalculateChange(t *testing.T) {
 	commits := []*Commit{
 		{SHA: "a", Change: Change{true, false, false}},
 		{SHA: "b", Change: Change{false, true, false}},
 		{SHA: "c", Change: Change{false, false, true}},
 	}
-	change := CaluclateChange(commits, &Release{})
+	change := CalculateChange(commits, &Release{})
 	if !change.Major || !change.Minor || !change.Patch {
 		t.Fail()
 	}
-	change = CaluclateChange(commits, &Release{SHA: "a"})
+	change = CalculateChange(commits, &Release{SHA: "a"})
 	if change.Major || change.Minor || change.Patch {
 		t.Fail()
 	}
 	version, _ := semver.NewVersion("1.0.0")
-	newVersion := GetNewVersion(commits, &Release{SHA: "b", Version: version})
+	newVersion := GetNewVersion(commits, &Release{SHA: "b", Version: version},"")
 	if newVersion.String() != "2.0.0" {
 		t.Fail()
 	}
@@ -205,41 +205,41 @@ func TestCaluclateChange(t *testing.T) {
 
 func TestApplyChange(t *testing.T) {
 	version, _ := semver.NewVersion("1.0.0")
-	newVersion := ApplyChange(version, Change{false, false, false})
+	newVersion := ApplyChange(version, "", Change{false, false, false})
 	if newVersion != nil {
-		t.Fail()
+		t.Errorf("newVersion should be nil")
 	}
-	newVersion = ApplyChange(version, Change{false, false, true})
+	newVersion = ApplyChange(version, "", Change{false, false, true})
 	if newVersion.String() != "1.0.1" {
-		t.Fail()
+		t.Errorf("Expected newVersion to be 1.0.1 but was %s", newVersion.String())
 	}
-	newVersion = ApplyChange(version, Change{false, true, true})
+	newVersion = ApplyChange(version, "", Change{false, true, true})
 	if newVersion.String() != "1.1.0" {
-		t.Fail()
+		t.Errorf("Expected newVersion to be 1.1.0 but was %s", newVersion.String())
 	}
-	newVersion = ApplyChange(version, Change{true, true, true})
+	newVersion = ApplyChange(version, "", Change{true, true, true})
 	if newVersion.String() != "2.0.0" {
-		t.Fail()
+		t.Errorf("Expected newVersion to be 2.0.0 but was %s", newVersion.String())
 	}
 	version, _ = semver.NewVersion("0.1.0")
-	newVersion = ApplyChange(version, Change{})
+	newVersion = ApplyChange(version, "", Change{})
 	if newVersion.String() != "1.0.0" {
-		t.Fail()
+		t.Errorf("Expected newVersion to be 1.0.0 but was %s", newVersion.String())
 	}
 	version, _ = semver.NewVersion("2.0.0-beta")
-	newVersion = ApplyChange(version, Change{true, true, true})
+	newVersion = ApplyChange(version, "", Change{true, true, true})
 	if newVersion.String() != "2.0.0-beta.1" {
-		t.Fail()
+		t.Errorf("Expected newVersion to be 2.0.0-beta.1 but was %s", newVersion.String())
 	}
 	version, _ = semver.NewVersion("2.0.0-beta.2")
-	newVersion = ApplyChange(version, Change{true, true, true})
+	newVersion = ApplyChange(version, "", Change{true, true, true})
 	if newVersion.String() != "2.0.0-beta.3" {
-		t.Fail()
+		t.Errorf("Expected newVersion to be 2.0.0-beta.3 but was %s", newVersion.String())
 	}
 	version, _ = semver.NewVersion("2.0.0-beta.1.1")
-	newVersion = ApplyChange(version, Change{true, true, true})
+	newVersion = ApplyChange(version, "", Change{true, true, true})
 	if newVersion.String() != "2.0.0-beta.2" {
-		t.Fail()
+		t.Errorf("Expected newVersion to be 2.0.0-beta.2 but was %s", newVersion.String())
 	}
 }
 

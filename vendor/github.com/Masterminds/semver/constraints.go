@@ -179,7 +179,7 @@ func parseConstraint(c string) (*constraint, error) {
 		minorDirty = true
 		dirty = true
 		ver = fmt.Sprintf("%s.0.0%s", m[3], m[6])
-	} else if isX(strings.TrimPrefix(m[5], ".")) || m[5] == "" {
+	} else if isX(strings.TrimPrefix(m[5], ".")) {
 		dirty = true
 		patchDirty = true
 		ver = fmt.Sprintf("%s%s.0%s", m[3], m[4], m[6])

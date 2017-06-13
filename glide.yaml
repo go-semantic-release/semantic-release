@@ -6,3 +6,6 @@ import:
   - github
 - package: golang.org/x/oauth2
 - package: github.com/Ableton/go-travis
+- package: gopkg.in/src-d/go-git.v4
+  repo:    git@github.com:src-d/go-git
+  vcs:     git
