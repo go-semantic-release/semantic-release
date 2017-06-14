@@ -13,6 +13,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"github.com/jbcpollak/strcase"
 )
 
 var SRVERSION string
@@ -109,6 +110,7 @@ func main() {
 		default:
 			branchPath := strings.Split(curCommitInfo.Branch, "/")
 			prerelease = branchPath[len(branchPath) - 1]
+			prerelease = strcase.ToLowerCamel(prerelease)
 		}
 	}
 
