@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"log"
+	//"log"
 )
 
 var commitPattern = regexp.MustCompile("^(\\w*)(?:\\((.*)\\))?\\: (.*)$")
@@ -101,31 +101,24 @@ func parseCommit(commit *github.RepositoryCommit) *Commit {
 }
 
 func (repo *Repository) GetCommits(branch string) ([]*Commit, error) {
-	allCommits := make(Commits, 0)
 	opts := &github.CommitsListOptions{
 		SHA:         branch,
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
 
-	for {
-		commits, resp, err := repo.Client.Repositories.ListCommits(repo.Ctx, repo.Owner, repo.Repo, opts)
+	commits, _, err := repo.Client.Repositories.ListCommits(repo.Ctx, repo.Owner, repo.Repo, opts)
 
-		if err != nil {
-			return nil, err
-		}
-
-		for _, commit := range commits {
-			allCommits = append(allCommits, parseCommit(commit))
-		}
-
-		if resp.NextPage == 0 {
-			break
-		}
-		opts.Page = resp.NextPage
-
+	if err != nil {
+		return nil, err
 	}
 
-	return allCommits, nil
+	ret := make([]*Commit, len(commits))
+
+	for i, commit := range commits {
+		ret[i] = parseCommit(commit)
+	}
+
+	return ret, nil
 }
 
 func (repo *Repository) GetLatestRelease(vrange string, prerelease string) (*Release, error) {
@@ -156,7 +149,7 @@ func (repo *Repository) GetLatestRelease(vrange string, prerelease string) (*Rel
 	var lastRelease *Release
 	for _, r := range allReleases {
 
-		log.Println("Checking version", r.Version.String())
+		//log.Println("Checking version", r.Version.String())
 
 		if r.Version.Prerelease() == "" && lastRelease == nil {
 			lastRelease = r
@@ -238,7 +231,7 @@ func (repo *Repository) CreateRelease(commits []*Commit, latestRelease *Release,
 func CalculateChange(commits []*Commit, latestRelease *Release) Change {
 	var change Change
 	for _, commit := range commits {
-		log.Println("Examining commit", commit.SHA)
+		//log.Println("Examining commit", commit.SHA)
 
 		if latestRelease.SHA == commit.SHA {
 			break
