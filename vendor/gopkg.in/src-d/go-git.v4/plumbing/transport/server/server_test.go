@@ -53,14 +53,14 @@ func (s *BaseSuite) prepareRepositories(c *C, basic *transport.Endpoint,
 	*basic = ep
 	sto, err := filesystem.NewStorage(fs)
 	c.Assert(err, IsNil)
-	s.loader[ep.String()] = sto
+	s.loader[ep] = sto
 
 	path = "/empty.git"
 	url = fmt.Sprintf("%s://%s", inprocScheme, path)
 	ep, err = transport.NewEndpoint(url)
 	c.Assert(err, IsNil)
 	*empty = ep
-	s.loader[ep.String()] = memory.NewStorage()
+	s.loader[ep] = memory.NewStorage()
 
 	path = "/non-existent.git"
 	url = fmt.Sprintf("%s://%s", inprocScheme, path)

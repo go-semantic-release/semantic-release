@@ -1,7 +1,6 @@
 package object
 
 import (
-	"errors"
 	"fmt"
 
 	"gopkg.in/src-d/go-git.v4/utils/merkletrie"
@@ -16,11 +15,11 @@ func newChange(c merkletrie.Change) (*Change, error) {
 
 	var err error
 	if ret.From, err = newChangeEntry(c.From); err != nil {
-		return nil, fmt.Errorf("From field: %s", err)
+		return nil, fmt.Errorf("From field: ", err)
 	}
 
 	if ret.To, err = newChangeEntry(c.To); err != nil {
-		return nil, fmt.Errorf("To field: %s", err)
+		return nil, fmt.Errorf("To field: ", err)
 	}
 
 	return ret, nil
@@ -33,7 +32,7 @@ func newChangeEntry(p noder.Path) (ChangeEntry, error) {
 
 	asTreeNoder, ok := p.Last().(*treeNoder)
 	if !ok {
-		return ChangeEntry{}, errors.New("cannot transform non-TreeNoders")
+		return ChangeEntry{}, fmt.Errorf("cannot transform non-TreeNoders")
 	}
 
 	return ChangeEntry{
@@ -53,7 +52,7 @@ func newChanges(src merkletrie.Changes) (Changes, error) {
 	for i, e := range src {
 		ret[i], err = newChange(e)
 		if err != nil {
-			return nil, fmt.Errorf("change #%d: %s", i, err)
+			return nil, fmt.Errorf("change #%d: %s", err)
 		}
 	}
 

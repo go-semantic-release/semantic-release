@@ -22,18 +22,14 @@ type ObjectStorage struct {
 
 func newObjectStorage(dir *dotgit.DotGit) (ObjectStorage, error) {
 	s := ObjectStorage{
-		dir: dir,
+		dir:   dir,
+		index: make(map[plumbing.Hash]idx, 0),
 	}
 
-	return s, nil
+	return s, s.loadIdxFiles()
 }
 
-func (s *ObjectStorage) requireIndex() error {
-	if s.index != nil {
-		return nil
-	}
-
-	s.index = make(map[plumbing.Hash]idx, 0)
+func (s *ObjectStorage) loadIdxFiles() error {
 	packs, err := s.dir.ObjectPacks()
 	if err != nil {
 		return err
@@ -53,7 +49,6 @@ func (s *ObjectStorage) loadIdxFile(h plumbing.Hash) error {
 	if err != nil {
 		return err
 	}
-	defer idxfile.Close()
 
 	s.index[h] = make(idx)
 	return s.index[h].Decode(idxfile)
@@ -64,10 +59,6 @@ func (s *ObjectStorage) NewEncodedObject() plumbing.EncodedObject {
 }
 
 func (s *ObjectStorage) PackfileWriter() (io.WriteCloser, error) {
-	if err := s.requireIndex(); err != nil {
-		return nil, err
-	}
-
 	w, err := s.dir.NewObjectPack()
 	if err != nil {
 		return nil, err
@@ -172,10 +163,6 @@ func (s *ObjectStorage) getFromUnpacked(h plumbing.Hash) (obj plumbing.EncodedOb
 // Get returns the object with the given hash, by searching for it in
 // the packfile.
 func (s *ObjectStorage) getFromPackfile(h plumbing.Hash) (plumbing.EncodedObject, error) {
-	if err := s.requireIndex(); err != nil {
-		return nil, err
-	}
-
 	pack, offset := s.findObjectInPackfile(h)
 	if offset == -1 {
 		return nil, plumbing.ErrObjectNotFound
@@ -232,11 +219,8 @@ func (s *ObjectStorage) IterEncodedObjects(t plumbing.ObjectType) (storer.Encode
 	return storer.NewMultiEncodedObjectIter(iters), nil
 }
 
-func (s *ObjectStorage) buildPackfileIters(t plumbing.ObjectType, seen map[plumbing.Hash]bool) ([]storer.EncodedObjectIter, error) {
-	if err := s.requireIndex(); err != nil {
-		return nil, err
-	}
-
+func (s *ObjectStorage) buildPackfileIters(
+	t plumbing.ObjectType, seen map[plumbing.Hash]bool) ([]storer.EncodedObjectIter, error) {
 	packs, err := s.dir.ObjectPacks()
 	if err != nil {
 		return nil, err

@@ -7,7 +7,6 @@ import (
 	"github.com/src-d/go-git-fixtures"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
-	"gopkg.in/src-d/go-git.v4/storage/memory"
 
 	. "gopkg.in/check.v1"
 )
@@ -288,26 +287,6 @@ var referencesTests = [...]struct {
 	*/
 }
 
-func (s *ReferencesSuite) TestObjectNotFoundError(c *C) {
-	h1 := plumbing.NewHash("af2d6a6954d532f8ffb47615169c8fdf9d383a1a")
-	hParent := plumbing.NewHash("1669dce138d9b841a518c64b10914d88f5e488ea")
-
-	url := fixtures.ByURL("https://github.com/git-fixtures/basic.git").One().DotGit().Base()
-	storer := memory.NewStorage()
-	r, err := Clone(storer, nil, &CloneOptions{
-		URL: url,
-	})
-	c.Assert(err, IsNil)
-
-	delete(storer.Objects, hParent)
-
-	commit, err := r.CommitObject(h1)
-	c.Assert(err, IsNil)
-
-	_, err = references(commit, "LICENSE")
-	c.Assert(err, Equals, plumbing.ErrObjectNotFound)
-}
-
 func (s *ReferencesSuite) TestRevList(c *C) {
 	for _, t := range referencesTests {
 		r := s.NewRepositoryFromPackfile(fixtures.ByURL(t.repo).One())
@@ -315,7 +294,7 @@ func (s *ReferencesSuite) TestRevList(c *C) {
 		commit, err := r.CommitObject(plumbing.NewHash(t.commit))
 		c.Assert(err, IsNil)
 
-		revs, err := references(commit, t.path)
+		revs, err := References(commit, t.path)
 		c.Assert(err, IsNil)
 		c.Assert(len(revs), Equals, len(t.revs))
 

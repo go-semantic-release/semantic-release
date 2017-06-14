@@ -5,7 +5,6 @@ import (
 
 	"gopkg.in/src-d/go-git.v4"
 	. "gopkg.in/src-d/go-git.v4/_examples"
-	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"gopkg.in/src-d/go-git.v4/storage/memory"
 )
 
@@ -30,15 +29,16 @@ func main() {
 	ref, err := r.Head()
 	CheckIfError(err)
 
+	// ... retrieves the commit object
+	commit, err := r.CommitObject(ref.Hash())
+	CheckIfError(err)
+
 	// ... retrieves the commit history
-	cIter, err := r.Log(&git.LogOptions{From: ref.Hash()})
+	history, err := commit.History()
 	CheckIfError(err)
 
 	// ... just iterates over the commits, printing it
-	err = cIter.ForEach(func(c *object.Commit) error {
+	for _, c := range history {
 		fmt.Println(c)
-
-		return nil
-	})
-	CheckIfError(err)
+	}
 }

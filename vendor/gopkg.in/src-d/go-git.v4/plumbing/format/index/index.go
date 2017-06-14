@@ -1,9 +1,7 @@
 package index
 
 import (
-	"bytes"
 	"errors"
-	"fmt"
 	"time"
 
 	"gopkg.in/src-d/go-git.v4/plumbing"
@@ -11,11 +9,9 @@ import (
 )
 
 var (
-	// ErrUnsupportedVersion is returned by Decode when the index file version
-	// is not supported.
-	ErrUnsupportedVersion = errors.New("unsupported version")
-	// ErrEntryNotFound is returned by Index.Entry, if an entry is not found.
-	ErrEntryNotFound = errors.New("entry not found")
+	// ErrUnsupportedVersion is returned by Decode when the idxindex file
+	// version is not supported.
+	ErrUnsupportedVersion = errors.New("Unsuported version")
 
 	indexSignature          = []byte{'D', 'I', 'R', 'C'}
 	treeExtSignature        = []byte{'T', 'R', 'E', 'E'}
@@ -44,44 +40,11 @@ type Index struct {
 	Version uint32
 	// Entries collection of entries represented by this Index. The order of
 	// this collection is not guaranteed
-	Entries []*Entry
+	Entries []Entry
 	// Cache represents the 'Cached tree' extension
 	Cache *Tree
 	// ResolveUndo represents the 'Resolve undo' extension
 	ResolveUndo *ResolveUndo
-}
-
-// Entry returns the entry that match the given path, if any.
-func (i *Index) Entry(path string) (*Entry, error) {
-	for _, e := range i.Entries {
-		if e.Name == path {
-			return e, nil
-		}
-	}
-
-	return nil, ErrEntryNotFound
-}
-
-// Remove remove the entry that match the give path and returns deleted entry.
-func (i *Index) Remove(path string) (*Entry, error) {
-	for index, e := range i.Entries {
-		if e.Name == path {
-			i.Entries = append(i.Entries[:index], i.Entries[index+1:]...)
-			return e, nil
-		}
-	}
-
-	return nil, ErrEntryNotFound
-}
-
-// String is equivalent to `git ls-files --stage --debug`
-func (i *Index) String() string {
-	buf := bytes.NewBuffer(nil)
-	for _, e := range i.Entries {
-		buf.WriteString(e.String())
-	}
-
-	return buf.String()
 }
 
 // Entry represents a single file (or stage of a file) in the cache. An entry
@@ -113,19 +76,6 @@ type Entry struct {
 	// IntentToAdd record only the fact that the path will be added later
 	// https://git-scm.com/docs/git-add ("git add -N")
 	IntentToAdd bool
-}
-
-func (e Entry) String() string {
-	buf := bytes.NewBuffer(nil)
-
-	fmt.Fprintf(buf, "%06o %s %d\t%s\n", e.Mode, e.Hash, e.Stage, e.Name)
-	fmt.Fprintf(buf, "  ctime: %d:%d\n", e.CreatedAt.Unix(), e.CreatedAt.Nanosecond())
-	fmt.Fprintf(buf, "  mtime: %d:%d\n", e.ModifiedAt.Unix(), e.ModifiedAt.Nanosecond())
-	fmt.Fprintf(buf, "  dev: %d\tino: %d\n", e.Dev, e.Inode)
-	fmt.Fprintf(buf, "  uid: %d\tgid: %d\n", e.UID, e.GID)
-	fmt.Fprintf(buf, "  size: %d\tflags: %x\n", e.Size, 0)
-
-	return buf.String()
 }
 
 // Tree contains pre-computed hashes for trees that can be derived from the

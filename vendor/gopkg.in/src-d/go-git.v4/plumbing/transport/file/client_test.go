@@ -1,9 +1,9 @@
 package file
 
 import (
+	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -20,12 +20,13 @@ filemode = true
 bare = true`
 
 func prepareRepo(c *C, path string) transport.Endpoint {
-	ep, err := transport.NewEndpoint(path)
+	url := fmt.Sprintf("file://%s", path)
+	ep, err := transport.NewEndpoint(url)
 	c.Assert(err, IsNil)
 
 	// git-receive-pack refuses to update refs/heads/master on non-bare repo
 	// so we ensure bare repo config.
-	config := filepath.Join(path, "config")
+	config := fmt.Sprintf("%s/config", path)
 	if _, err := os.Stat(config); err == nil {
 		f, err := os.OpenFile(config, os.O_TRUNC|os.O_WRONLY, 0)
 		c.Assert(err, IsNil)

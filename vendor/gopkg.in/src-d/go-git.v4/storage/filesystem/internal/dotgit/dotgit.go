@@ -66,33 +66,6 @@ func New(fs billy.Filesystem) *DotGit {
 	return &DotGit{fs: fs}
 }
 
-// Initialize creates all the folder scaffolding.
-func (d *DotGit) Initialize() error {
-	mustExists := []string{
-		d.fs.Join("objects", "info"),
-		d.fs.Join("objects", "pack"),
-		d.fs.Join("refs", "heads"),
-		d.fs.Join("refs", "tags"),
-	}
-
-	for _, path := range mustExists {
-		_, err := d.fs.Stat(path)
-		if err == nil {
-			continue
-		}
-
-		if !os.IsNotExist(err) {
-			return err
-		}
-
-		if err := d.fs.MkdirAll(path, os.ModeDir|os.ModePerm); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 // ConfigWriter returns a file pointer for write to the config file
 func (d *DotGit) ConfigWriter() (billy.File, error) {
 	return d.fs.Create(configPath)
@@ -231,7 +204,7 @@ func (d *DotGit) Objects() ([]plumbing.Hash, error) {
 	return objects, nil
 }
 
-// Object return a fs.File pointing the object file, if exists
+// Object return a fs.File poiting the object file, if exists
 func (d *DotGit) Object(h plumbing.Hash) (billy.File, error) {
 	hash := h.String()
 	file := d.fs.Join(objectsPath, hash[0:2], hash[2:40])

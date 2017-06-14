@@ -2,7 +2,6 @@ package packfile
 
 import (
 	"fmt"
-	"math/rand"
 
 	. "gopkg.in/check.v1"
 )
@@ -62,23 +61,7 @@ func (s *DeltaSuite) SetUpSuite(c *C) {
 			{"4", 400}, {"5", 23}},
 		target: []piece{{"1", 30}, {"2", 20}, {"7", 40}, {"4", 400},
 			{"5", 10}},
-	}, {
-		description: "A copy operation bigger tan 64kb",
-		base:        []piece{{bigRandStr, 1}, {"1", 200}},
-		target:      []piece{{bigRandStr, 1}},
 	}}
-}
-
-var bigRandStr = randStringBytes(100 * 1024)
-
-const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-func randStringBytes(n int) string {
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = letterBytes[rand.Intn(len(letterBytes))]
-	}
-	return string(b)
 }
 
 func (s *DeltaSuite) TestAddDelta(c *C) {

@@ -1,6 +1,7 @@
 package file
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 
@@ -14,6 +15,7 @@ type ServerSuite struct {
 	RemoteName string
 	SrcPath    string
 	DstPath    string
+	DstURL     string
 }
 
 var _ = Suite(&ServerSuite{})
@@ -28,8 +30,9 @@ func (s *ServerSuite) SetUpSuite(c *C) {
 
 	fixture = fixtures.ByTag("empty").One()
 	s.DstPath = fixture.DotGit().Base()
+	s.DstURL = fmt.Sprintf("file://%s", s.DstPath)
 
-	cmd := exec.Command("git", "remote", "add", s.RemoteName, s.DstPath)
+	cmd := exec.Command("git", "remote", "add", s.RemoteName, s.DstURL)
 	cmd.Dir = s.SrcPath
 	c.Assert(cmd.Run(), IsNil)
 }

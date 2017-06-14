@@ -234,32 +234,33 @@ func (s *TagSuite) TestString(c *C) {
 	)
 }
 
-func (s *TagSuite) TestStringNonCommit(c *C) {
+func (s *TagSuite) TestTagToTagString(c *C) {
 	store := memory.NewStorage()
 
-	target := &Tag{
-		Target:     plumbing.NewHash("TAGONE"),
+	tagOneHash := plumbing.NewHash("TAGONE")
+	tagTwoHash := plumbing.NewHash("TAGTWO")
+
+	tagOne := &Tag{
+		Target:     tagTwoHash,
+		Hash:       tagOneHash,
 		Name:       "TAG ONE",
-		Message:    "tag one",
 		TargetType: plumbing.TagObject,
 	}
-
-	targetObj := &plumbing.MemoryObject{}
-	target.Encode(targetObj)
-	store.SetEncodedObject(targetObj)
-
-	tag := &Tag{
-		Target:     targetObj.Hash(),
+	tagTwo := &Tag{
+		Target:     tagOneHash,
+		Hash:       tagTwoHash,
 		Name:       "TAG TWO",
-		Message:    "tag two",
 		TargetType: plumbing.TagObject,
 	}
+	oOne := &plumbing.MemoryObject{}
+	tagOne.Encode(oOne)
+	oTwo := &plumbing.MemoryObject{}
+	tagTwo.Encode(oTwo)
 
-	tagObj := &plumbing.MemoryObject{}
-	tag.Encode(tagObj)
-	store.SetEncodedObject(tagObj)
+	store.SetEncodedObject(oOne)
+	store.SetEncodedObject(oTwo)
 
-	tag, err := GetTag(store, tagObj.Hash())
+	tag, err := GetTag(store, tagOneHash)
 	c.Assert(err, IsNil)
 
 	c.Assert(tag.String(), Equals,
@@ -267,7 +268,7 @@ func (s *TagSuite) TestStringNonCommit(c *C) {
 			"Tagger:  <>\n"+
 			"Date:   Mon Jan 01 00:00:00 0001 +0000\n"+
 			"\n"+
-			"tag two\n")
+			"\n")
 }
 
 func (s *TagSuite) TestLongTagNameSerialization(c *C) {

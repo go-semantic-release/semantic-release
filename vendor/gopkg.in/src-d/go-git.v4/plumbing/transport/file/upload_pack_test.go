@@ -1,8 +1,8 @@
 package file
 
 import (
+	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/src-d/go-git-fixtures"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport"
@@ -25,18 +25,20 @@ func (s *UploadPackSuite) SetUpSuite(c *C) {
 
 	fixture := fixtures.Basic().One()
 	path := fixture.DotGit().Base()
-	ep, err := transport.NewEndpoint(path)
+	url := fmt.Sprintf("file://%s", path)
+	ep, err := transport.NewEndpoint(url)
 	c.Assert(err, IsNil)
 	s.Endpoint = ep
 
 	fixture = fixtures.ByTag("empty").One()
 	path = fixture.DotGit().Base()
-	ep, err = transport.NewEndpoint(path)
+	url = fmt.Sprintf("file://%s", path)
+	ep, err = transport.NewEndpoint(url)
 	c.Assert(err, IsNil)
 	s.EmptyEndpoint = ep
 
-	path = filepath.Join(fixtures.DataFolder, "non-existent")
-	ep, err = transport.NewEndpoint(path)
+	url = fmt.Sprintf("file://%s/%s", fixtures.DataFolder, "non-existent")
+	ep, err = transport.NewEndpoint(url)
 	c.Assert(err, IsNil)
 	s.NonExistentEndpoint = ep
 }

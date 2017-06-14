@@ -73,12 +73,18 @@ type AuthMethod interface {
 }
 
 func basicAuthFromEndpoint(ep transport.Endpoint) *BasicAuth {
-	u := ep.User()
-	if u == "" {
+	info := ep.User
+	if info == nil {
 		return nil
 	}
 
-	return NewBasicAuth(u, ep.Password())
+	p, ok := info.Password()
+	if !ok {
+		return nil
+	}
+
+	u := info.Username()
+	return NewBasicAuth(u, p)
 }
 
 // BasicAuth represent a HTTP basic auth
@@ -126,9 +132,7 @@ func NewErr(r *http.Response) error {
 
 	switch r.StatusCode {
 	case http.StatusUnauthorized:
-		return transport.ErrAuthenticationRequired
-	case http.StatusForbidden:
-		return transport.ErrAuthorizationFailed
+		return transport.ErrAuthorizationRequired
 	case http.StatusNotFound:
 		return transport.ErrRepositoryNotFound
 	}

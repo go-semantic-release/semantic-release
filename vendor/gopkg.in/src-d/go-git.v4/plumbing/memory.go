@@ -51,8 +51,6 @@ func (o *MemoryObject) Writer() (io.WriteCloser, error) {
 
 func (o *MemoryObject) Write(p []byte) (n int, err error) {
 	o.cont = append(o.cont, p...)
-	o.sz = int64(len(o.cont))
-
 	return len(p), nil
 }
 

@@ -5,7 +5,6 @@ import (
 
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/filemode"
-	"gopkg.in/src-d/go-git.v4/plumbing/format/diff"
 	"gopkg.in/src-d/go-git.v4/plumbing/storer"
 	"gopkg.in/src-d/go-git.v4/storage/filesystem"
 	"gopkg.in/src-d/go-git.v4/utils/merkletrie"
@@ -76,12 +75,6 @@ func (s *ChangeSuite) TestInsert(c *C) {
 	c.Assert(to.Name, Equals, name)
 	c.Assert(to.Blob.Hash, Equals, blob)
 
-	p, err := change.Patch()
-	c.Assert(err, IsNil)
-	c.Assert(len(p.FilePatches()), Equals, 1)
-	c.Assert(len(p.FilePatches()[0].Chunks()), Equals, 1)
-	c.Assert(p.FilePatches()[0].Chunks()[0].Type(), Equals, diff.Add)
-
 	str := change.String()
 	c.Assert(str, Equals, "<Action: Insert, Path: examples/clone/main.go>")
 }
@@ -127,12 +120,6 @@ func (s *ChangeSuite) TestDelete(c *C) {
 	c.Assert(to, IsNil)
 	c.Assert(from.Name, Equals, name)
 	c.Assert(from.Blob.Hash, Equals, blob)
-
-	p, err := change.Patch()
-	c.Assert(err, IsNil)
-	c.Assert(len(p.FilePatches()), Equals, 1)
-	c.Assert(len(p.FilePatches()[0].Chunks()), Equals, 1)
-	c.Assert(p.FilePatches()[0].Chunks()[0].Type(), Equals, diff.Delete)
 
 	str := change.String()
 	c.Assert(str, Equals, "<Action: Delete, Path: utils/difftree/difftree.go>")
@@ -194,18 +181,6 @@ func (s *ChangeSuite) TestModify(c *C) {
 	c.Assert(to.Name, Equals, name)
 	c.Assert(to.Blob.Hash, Equals, toBlob)
 
-	p, err := change.Patch()
-	c.Assert(err, IsNil)
-	c.Assert(len(p.FilePatches()), Equals, 1)
-	c.Assert(len(p.FilePatches()[0].Chunks()), Equals, 7)
-	c.Assert(p.FilePatches()[0].Chunks()[0].Type(), Equals, diff.Equal)
-	c.Assert(p.FilePatches()[0].Chunks()[1].Type(), Equals, diff.Delete)
-	c.Assert(p.FilePatches()[0].Chunks()[2].Type(), Equals, diff.Add)
-	c.Assert(p.FilePatches()[0].Chunks()[3].Type(), Equals, diff.Equal)
-	c.Assert(p.FilePatches()[0].Chunks()[4].Type(), Equals, diff.Delete)
-	c.Assert(p.FilePatches()[0].Chunks()[5].Type(), Equals, diff.Add)
-	c.Assert(p.FilePatches()[0].Chunks()[6].Type(), Equals, diff.Equal)
-
 	str := change.String()
 	c.Assert(str, Equals, "<Action: Modify, Path: utils/difftree/difftree.go>")
 }
@@ -221,51 +196,6 @@ func (s *ChangeSuite) TestEmptyChangeFails(c *C) {
 
 	str := change.String()
 	c.Assert(str, Equals, "malformed change")
-}
-
-// test reproducing bug #317
-func (s *ChangeSuite) TestNoFileFilemodes(c *C) {
-	s.Suite.SetUpSuite(c)
-	f := fixtures.ByURL("https://github.com/git-fixtures/submodule.git").One()
-
-	sto, err := filesystem.NewStorage(f.DotGit())
-	c.Assert(err, IsNil)
-
-	iter, err := sto.IterEncodedObjects(plumbing.AnyObject)
-	c.Assert(err, IsNil)
-	var commits []*Commit
-	iter.ForEach(func(o plumbing.EncodedObject) error {
-		if o.Type() == plumbing.CommitObject {
-			commit, err := GetCommit(sto, o.Hash())
-			c.Assert(err, IsNil)
-			commits = append(commits, commit)
-
-		}
-
-		return nil
-	})
-
-	c.Assert(len(commits), Not(Equals), 0)
-
-	var prev *Commit
-	for _, commit := range commits {
-		if prev == nil {
-			prev = commit
-			continue
-		}
-		tree, err := commit.Tree()
-		c.Assert(err, IsNil)
-		prevTree, err := prev.Tree()
-		c.Assert(err, IsNil)
-		changes, err := DiffTree(tree, prevTree)
-		c.Assert(err, IsNil)
-		for _, change := range changes {
-			_, _, err := change.Files()
-			c.Assert(err, IsNil)
-		}
-
-		prev = commit
-	}
 }
 
 func (s *ChangeSuite) TestErrorsFindingChildsAreDetected(c *C) {

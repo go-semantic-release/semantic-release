@@ -46,10 +46,6 @@ func (c *Change) Files() (from, to *File, err error) {
 
 	if action == merkletrie.Insert || action == merkletrie.Modify {
 		to, err = c.To.Tree.TreeEntryFile(&c.To.TreeEntry)
-		if !c.To.TreeEntry.Mode.IsFile() {
-			return nil, nil, nil
-		}
-
 		if err != nil {
 			return
 		}
@@ -57,10 +53,6 @@ func (c *Change) Files() (from, to *File, err error) {
 
 	if action == merkletrie.Delete || action == merkletrie.Modify {
 		from, err = c.From.Tree.TreeEntryFile(&c.From.TreeEntry)
-		if !c.From.TreeEntry.Mode.IsFile() {
-			return nil, nil, nil
-		}
-
 		if err != nil {
 			return
 		}
@@ -76,12 +68,6 @@ func (c *Change) String() string {
 	}
 
 	return fmt.Sprintf("<Action: %s, Path: %s>", action, c.name())
-}
-
-// Patch returns a Patch with all the file changes in chunks. This
-// representation can be used to create several diff outputs.
-func (c *Change) Patch() (*Patch, error) {
-	return getPatch("", c)
 }
 
 func (c *Change) name() string {
@@ -131,10 +117,4 @@ func (c Changes) String() string {
 	buffer.WriteString("]")
 
 	return buffer.String()
-}
-
-// Patch returns a Patch with all the changes in chunks. This
-// representation can be used to create several diff outputs.
-func (c Changes) Patch() (*Patch, error) {
-	return getPatch("", c...)
 }

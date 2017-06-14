@@ -67,7 +67,7 @@ type TreeEntry struct {
 // File returns the hash of the file identified by the `path` argument.
 // The path is interpreted as relative to the tree receiver.
 func (t *Tree) File(path string) (*File, error) {
-	e, err := t.FindEntry(path)
+	e, err := t.findEntry(path)
 	if err != nil {
 		return nil, ErrFileNotFound
 	}
@@ -86,7 +86,7 @@ func (t *Tree) File(path string) (*File, error) {
 // Tree returns the tree identified by the `path` argument.
 // The path is interpreted as relative to the tree receiver.
 func (t *Tree) Tree(path string) (*Tree, error) {
-	e, err := t.FindEntry(path)
+	e, err := t.findEntry(path)
 	if err != nil {
 		return nil, ErrDirectoryNotFound
 	}
@@ -109,8 +109,7 @@ func (t *Tree) TreeEntryFile(e *TreeEntry) (*File, error) {
 	return NewFile(e.Name, e.Mode, blob), nil
 }
 
-// FindEntry search a TreeEntry in this tree or any subtree.
-func (t *Tree) FindEntry(path string) (*TreeEntry, error) {
+func (t *Tree) findEntry(path string) (*TreeEntry, error) {
 	pathParts := strings.Split(path, "/")
 
 	var tree *Tree
@@ -147,7 +146,6 @@ func (t *Tree) entry(baseName string) (*TreeEntry, error) {
 	if t.m == nil {
 		t.buildMap()
 	}
-
 	entry, ok := t.m[baseName]
 	if !ok {
 		return nil, errEntryNotFound
@@ -240,21 +238,29 @@ func (t *Tree) Encode(o plumbing.EncodedObject) error {
 		return err
 	}
 
+	var size int
 	defer ioutil.CheckClose(w, &err)
 	for _, entry := range t.Entries {
-		if _, err := fmt.Fprintf(w, "%o %s", entry.Mode, entry.Name); err != nil {
+		n, err := fmt.Fprintf(w, "%o %s", entry.Mode, entry.Name)
+		if err != nil {
 			return err
 		}
 
-		if _, err = w.Write([]byte{0x00}); err != nil {
+		size += n
+		n, err = w.Write([]byte{0x00})
+		if err != nil {
 			return err
 		}
 
-		if _, err = w.Write([]byte(entry.Hash[:])); err != nil {
+		size += n
+		n, err = w.Write([]byte(entry.Hash[:]))
+		if err != nil {
 			return err
 		}
+		size += n
 	}
 
+	o.SetSize(int64(size))
 	return err
 }
 
@@ -268,17 +274,6 @@ func (t *Tree) buildMap() {
 // Diff returns a list of changes between this tree and the provided one
 func (from *Tree) Diff(to *Tree) (Changes, error) {
 	return DiffTree(from, to)
-}
-
-// Patch returns a slice of Patch objects with all the changes between trees
-// in chunks. This representation can be used to create several diff outputs.
-func (from *Tree) Patch(to *Tree) (*Patch, error) {
-	changes, err := DiffTree(from, to)
-	if err != nil {
-		return nil, err
-	}
-
-	return changes.Patch()
 }
 
 // treeEntryIter facilitates iterating through the TreeEntry objects in a Tree.

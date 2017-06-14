@@ -77,7 +77,7 @@ ref, err := r.Head()
 CheckIfError(err)
 
 // ... retrieves the commit object
-commit, err := r.CommitObject(ref.Hash())
+commit, err := r.Commit(ref.Hash())
 CheckIfError(err)
 
 // ... retrieves the commit history
@@ -110,12 +110,6 @@ Date:   Fri Nov 11 13:23:22 2016 +0100
 ```
 
 You can find this [example](_examples/log/main.go) and many other at the [examples](_examples) folder
-
-Comparison With Git
--------------------
-
-In the [compatibility documentation](COMPATIBILITY.md) you can find a comparison
-table of git with go-git.
 
 Contribute
 ----------

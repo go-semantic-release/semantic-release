@@ -1,5 +1,5 @@
-hash: 570d64dbf60c24451ce7e4b802e2980b9e5d019fc23d0d5513694cc9b936668b
-updated: 2017-06-13T12:27:07.595134856-04:00
+hash: 9e4e9f7283534259b6b4183f0f9bf3a4ac2e28179f6abfe18ca9ea87115f415b
+updated: 2017-06-13T22:09:02.644578191-04:00
 imports:
 - name: github.com/Ableton/go-travis
   version: 1cdf3cca2f3ac6e6af8df7a2567d8cd0f402c942
@@ -31,8 +31,6 @@ imports:
   - scanner
   - token
   - types
-- name: github.com/xanzy/ssh-agent
-  version: ba9c9e33906f58169366275e3450db66139a31a9
 - name: golang.org/x/crypto
   version: ab89591268e0c8b748cbe4047b00197516011af5
   subpackages:
@@ -41,7 +39,6 @@ imports:
   - ed25519/internal/edwards25519
   - ssh
   - ssh/agent
-  - ssh/knownhosts
 - name: golang.org/x/net
   version: 5961165da77ad3a2abf3a77ea904c13a76b0b073
   subpackages:
@@ -67,9 +64,7 @@ imports:
   subpackages:
   - osfs
 - name: gopkg.in/src-d/go-git.v4
-  version: e6ee8061c63e874f0bdbf719050524367c838428
-  repo: git@github.com:src-d/go-git
-  vcs: git
+  version: 36c78b9d1b1eea682703fb1cbb0f4f3144354389
   subpackages:
   - config
   - internal/revision
@@ -77,7 +72,6 @@ imports:
   - plumbing/cache
   - plumbing/filemode
   - plumbing/format/config
-  - plumbing/format/diff
   - plumbing/format/idxfile
   - plumbing/format/index
   - plumbing/format/objfile
@@ -105,8 +99,6 @@ imports:
   - utils/diff
   - utils/ioutil
   - utils/merkletrie
-  - utils/merkletrie/filesystem
-  - utils/merkletrie/index
   - utils/merkletrie/internal/frame
   - utils/merkletrie/noder
 - name: gopkg.in/warnings.v0

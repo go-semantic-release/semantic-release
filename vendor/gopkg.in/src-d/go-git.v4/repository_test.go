@@ -3,7 +3,6 @@ package git
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -272,93 +271,6 @@ func (s *RepositorySuite) TestPlainOpenNotBare(c *C) {
 	c.Assert(r, IsNil)
 }
 
-func (s *RepositorySuite) testPlainOpenGitFile(c *C, f func(string, string) string) {
-	dir, err := ioutil.TempDir("", "plain-open")
-	c.Assert(err, IsNil)
-	defer os.RemoveAll(dir)
-
-	r, err := PlainInit(dir, true)
-	c.Assert(err, IsNil)
-	c.Assert(r, NotNil)
-
-	altDir, err := ioutil.TempDir("", "plain-open")
-	c.Assert(err, IsNil)
-	defer os.RemoveAll(altDir)
-
-	err = ioutil.WriteFile(filepath.Join(altDir, ".git"), []byte(f(dir, altDir)), 0644)
-	c.Assert(err, IsNil)
-
-	r, err = PlainOpen(altDir)
-	c.Assert(err, IsNil)
-	c.Assert(r, NotNil)
-}
-
-func (s *RepositorySuite) TestPlainOpenBareAbsoluteGitDirFile(c *C) {
-	s.testPlainOpenGitFile(c, func(dir, altDir string) string {
-		return fmt.Sprintf("gitdir: %s\n", dir)
-	})
-}
-
-func (s *RepositorySuite) TestPlainOpenBareAbsoluteGitDirFileNoEOL(c *C) {
-	s.testPlainOpenGitFile(c, func(dir, altDir string) string {
-		return fmt.Sprintf("gitdir: %s", dir)
-	})
-}
-
-func (s *RepositorySuite) TestPlainOpenBareRelativeGitDirFile(c *C) {
-	s.testPlainOpenGitFile(c, func(dir, altDir string) string {
-		dir, err := filepath.Rel(altDir, dir)
-		c.Assert(err, IsNil)
-		return fmt.Sprintf("gitdir: %s\n", dir)
-	})
-}
-
-func (s *RepositorySuite) TestPlainOpenBareRelativeGitDirFileNoEOL(c *C) {
-	s.testPlainOpenGitFile(c, func(dir, altDir string) string {
-		dir, err := filepath.Rel(altDir, dir)
-		c.Assert(err, IsNil)
-		return fmt.Sprintf("gitdir: %s\n", dir)
-	})
-}
-
-func (s *RepositorySuite) TestPlainOpenBareRelativeGitDirFileTrailingGarbage(c *C) {
-	dir, err := ioutil.TempDir("", "plain-open")
-	c.Assert(err, IsNil)
-	defer os.RemoveAll(dir)
-
-	r, err := PlainInit(dir, true)
-	c.Assert(err, IsNil)
-	c.Assert(r, NotNil)
-
-	altDir, err := ioutil.TempDir("", "plain-open")
-	c.Assert(err, IsNil)
-	err = ioutil.WriteFile(filepath.Join(altDir, ".git"), []byte(fmt.Sprintf("gitdir: %s\nTRAILING", dir)), 0644)
-	c.Assert(err, IsNil)
-
-	r, err = PlainOpen(altDir)
-	c.Assert(err, Equals, ErrRepositoryNotExists)
-	c.Assert(r, IsNil)
-}
-
-func (s *RepositorySuite) TestPlainOpenBareRelativeGitDirFileBadPrefix(c *C) {
-	dir, err := ioutil.TempDir("", "plain-open")
-	c.Assert(err, IsNil)
-	defer os.RemoveAll(dir)
-
-	r, err := PlainInit(dir, true)
-	c.Assert(err, IsNil)
-	c.Assert(r, NotNil)
-
-	altDir, err := ioutil.TempDir("", "plain-open")
-	c.Assert(err, IsNil)
-	err = ioutil.WriteFile(filepath.Join(altDir, ".git"), []byte(fmt.Sprintf("xgitdir: %s\n", dir)), 0644)
-	c.Assert(err, IsNil)
-
-	r, err = PlainOpen(altDir)
-	c.Assert(err, ErrorMatches, ".*gitdir.*")
-	c.Assert(r, IsNil)
-}
-
 func (s *RepositorySuite) TestPlainOpenNotExists(c *C) {
 	r, err := PlainOpen("/not-exists/")
 	c.Assert(err, Equals, ErrRepositoryNotExists)
@@ -388,7 +300,7 @@ func (s *RepositorySuite) TestPlainCloneWithRecurseSubmodules(c *C) {
 
 	path := fixtures.ByTag("submodule").One().Worktree().Base()
 	r, err := PlainClone(dir, false, &CloneOptions{
-		URL:               path,
+		URL:               fmt.Sprintf("file://%s", path),
 		RecurseSubmodules: DefaultSubmoduleRecursionDepth,
 	})
 
@@ -678,7 +590,7 @@ func (s *RepositorySuite) TestPullProgressWithRecursion(c *C) {
 	r, _ := PlainInit(dir, false)
 	r.CreateRemote(&config.RemoteConfig{
 		Name: DefaultRemoteName,
-		URL:  path,
+		URL:  fmt.Sprintf("file://%s", path),
 	})
 
 	err = r.Pull(&PullOptions{
@@ -694,7 +606,7 @@ func (s *RepositorySuite) TestPullAdd(c *C) {
 	path := fixtures.Basic().ByTag("worktree").One().Worktree().Base()
 
 	r, err := Clone(memory.NewStorage(), nil, &CloneOptions{
-		URL: filepath.Join(path, ".git"),
+		URL: fmt.Sprintf("file://%s", filepath.Join(path, ".git")),
 	})
 
 	c.Assert(err, IsNil)
@@ -729,7 +641,7 @@ func (s *RepositorySuite) TestPushToEmptyRepository(c *C) {
 	c.Assert(err, IsNil)
 
 	dstFs := fixtures.ByTag("empty").One().DotGit()
-	url := dstFs.Base()
+	url := fmt.Sprintf("file://%s", dstFs.Base())
 
 	r, err := Open(sto, srcFs)
 	c.Assert(err, IsNil)
@@ -774,80 +686,6 @@ func (s *RepositorySuite) TestPushNonExistentRemote(c *C) {
 
 	err = r.Push(&PushOptions{RemoteName: "myremote"})
 	c.Assert(err, ErrorMatches, ".*remote not found.*")
-}
-
-func (s *RepositorySuite) TestLog(c *C) {
-	r, _ := Init(memory.NewStorage(), nil)
-	err := r.clone(&CloneOptions{
-		URL: s.GetBasicLocalRepositoryURL(),
-	})
-
-	c.Assert(err, IsNil)
-
-	cIter, err := r.Log(&LogOptions{
-		plumbing.NewHash("b8e471f58bcbca63b07bda20e428190409c2db47"),
-	})
-
-	c.Assert(err, IsNil)
-
-	commitOrder := []plumbing.Hash{
-		plumbing.NewHash("b8e471f58bcbca63b07bda20e428190409c2db47"),
-		plumbing.NewHash("b029517f6300c2da0f4b651b8642506cd6aaf45d"),
-	}
-
-	for _, o := range commitOrder {
-		commit, err := cIter.Next()
-		c.Assert(err, IsNil)
-		c.Assert(commit.Hash, Equals, o)
-	}
-	_, err = cIter.Next()
-	c.Assert(err, Equals, io.EOF)
-}
-
-func (s *RepositorySuite) TestLogHead(c *C) {
-	r, _ := Init(memory.NewStorage(), nil)
-	err := r.clone(&CloneOptions{
-		URL: s.GetBasicLocalRepositoryURL(),
-	})
-
-	c.Assert(err, IsNil)
-
-	cIter, err := r.Log(&LogOptions{})
-
-	c.Assert(err, IsNil)
-
-	commitOrder := []plumbing.Hash{
-		plumbing.NewHash("6ecf0ef2c2dffb796033e5a02219af86ec6584e5"),
-		plumbing.NewHash("918c48b83bd081e863dbe1b80f8998f058cd8294"),
-		plumbing.NewHash("af2d6a6954d532f8ffb47615169c8fdf9d383a1a"),
-		plumbing.NewHash("1669dce138d9b841a518c64b10914d88f5e488ea"),
-		plumbing.NewHash("35e85108805c84807bc66a02d91535e1e24b38b9"),
-		plumbing.NewHash("b029517f6300c2da0f4b651b8642506cd6aaf45d"),
-		plumbing.NewHash("a5b8b09e2f8fcb0bb99d3ccb0958157b40890d69"),
-		plumbing.NewHash("b8e471f58bcbca63b07bda20e428190409c2db47"),
-	}
-
-	for _, o := range commitOrder {
-		commit, err := cIter.Next()
-		c.Assert(err, IsNil)
-		c.Assert(commit.Hash, Equals, o)
-	}
-	_, err = cIter.Next()
-	c.Assert(err, Equals, io.EOF)
-}
-
-func (s *RepositorySuite) TestLogError(c *C) {
-	r, _ := Init(memory.NewStorage(), nil)
-	err := r.clone(&CloneOptions{
-		URL: s.GetBasicLocalRepositoryURL(),
-	})
-
-	c.Assert(err, IsNil)
-
-	_, err = r.Log(&LogOptions{
-		plumbing.NewHash("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
-	})
-	c.Assert(err, NotNil)
 }
 
 func (s *RepositorySuite) TestCommit(c *C) {

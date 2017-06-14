@@ -5,7 +5,6 @@ import (
 
 	"gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing"
-	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"gopkg.in/src-d/go-git.v4/plumbing/protocol/packp/sideband"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport"
 )
@@ -73,7 +72,7 @@ func (o *CloneOptions) Validate() error {
 type PullOptions struct {
 	// Name of the remote to be pulled. If empty, uses the default.
 	RemoteName string
-	// Remote branch to clone. If empty, uses HEAD.
+	// Remote branch to clone.  If empty, uses HEAD.
 	ReferenceName plumbing.ReferenceName
 	// Fetch only ReferenceName if true.
 	SingleBranch bool
@@ -177,121 +176,4 @@ type SubmoduleUpdateOptions struct {
 	// the current repository but also in any nested submodules inside those
 	// submodules (and so on). Until the SubmoduleRescursivity is reached.
 	RecurseSubmodules SubmoduleRescursivity
-}
-
-// CheckoutOptions describes how a checkout 31operation should be performed.
-type CheckoutOptions struct {
-	// Hash to be checked out, if used HEAD will in detached mode. Branch and
-	// Hash are mutual exclusive.
-	Hash plumbing.Hash
-	// Branch to be checked out, if Branch and Hash are empty is set to `master`.
-	Branch plumbing.ReferenceName
-	// Force, if true when switching branches, proceed even if the index or the
-	// working tree differs from HEAD. This is used to throw away local changes
-	Force bool
-}
-
-// Validate validates the fields and sets the default values.
-func (o *CheckoutOptions) Validate() error {
-	if o.Branch == "" {
-		o.Branch = plumbing.Master
-	}
-
-	return nil
-}
-
-// ResetMode defines the mode of a reset operation.
-type ResetMode int8
-
-const (
-	// HardReset resets the index and working tree. Any changes to tracked files
-	// in the working tree are discarded.
-	HardReset ResetMode = iota
-	// MixedReset resets the index but not the working tree (i.e., the changed
-	// files are preserved but not marked for commit) and reports what has not
-	// been updated. This is the default action.
-	MixedReset
-	// MergeReset resets the index and updates the files in the working tree
-	// that are different between Commit and HEAD, but keeps those which are
-	// different between the index and working tree (i.e. which have changes
-	// which have not been added).
-	//
-	// If a file that is different between Commit and the index has unstaged
-	// changes, reset is aborted.
-	MergeReset
-)
-
-// ResetOptions describes how a reset operation should be performed.
-type ResetOptions struct {
-	// Commit, if commit is pressent set the current branch head (HEAD) to it.
-	Commit plumbing.Hash
-	// Mode, form resets the current branch head to Commit and possibly updates
-	// the index (resetting it to the tree of Commit) and the working tree
-	// depending on Mode. If empty MixedReset is used.
-	Mode ResetMode
-}
-
-// Validate validates the fields and sets the default values.
-func (o *ResetOptions) Validate(r *Repository) error {
-	if o.Commit == plumbing.ZeroHash {
-		ref, err := r.Head()
-		if err != nil {
-			return err
-		}
-
-		o.Commit = ref.Hash()
-	}
-
-	return nil
-}
-
-// LogOptions describes how a log action should be performed.
-type LogOptions struct {
-	// When the From option is set the log will only contain commits
-	// reachable from it. If this option is not set, HEAD will be used as
-	// the default From.
-	From plumbing.Hash
-}
-
-var (
-	ErrMissingAuthor = errors.New("author field is required")
-)
-
-// CommitOptions describes how a commit operation should be performed.
-type CommitOptions struct {
-	// All automatically stage files that have been modified and deleted, but
-	// new files you have not told Git about are not affected.
-	All bool
-	// Author is the author's signature of the commit.
-	Author *object.Signature
-	// Committer is the committer's signature of the commit. If Committer is
-	// nil the Author signature is used.
-	Committer *object.Signature
-	// Parents are the parents commits for the new commit, by default when
-	// len(Parents) is zero, the hash of HEAD reference is used.
-	Parents []plumbing.Hash
-}
-
-// Validate validates the fields and sets the default values.
-func (o *CommitOptions) Validate(r *Repository) error {
-	if o.Author == nil {
-		return ErrMissingAuthor
-	}
-
-	if o.Committer == nil {
-		o.Committer = o.Author
-	}
-
-	if len(o.Parents) == 0 {
-		head, err := r.Head()
-		if err != nil && err != plumbing.ErrReferenceNotFound {
-			return err
-		}
-
-		if head != nil {
-			o.Parents = []plumbing.Hash{head.Hash()}
-		}
-	}
-
-	return nil
 }

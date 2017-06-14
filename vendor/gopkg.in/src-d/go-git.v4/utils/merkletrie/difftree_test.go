@@ -120,7 +120,7 @@ func newChanges(original merkletrie.Changes) (changes, error) {
 				path:   c.From.String(),
 			}
 		default:
-			panic(fmt.Sprintf("unsupported action %d", action))
+			panic(fmt.Sprintf("unsupported action %d", c.Action))
 		}
 	}
 

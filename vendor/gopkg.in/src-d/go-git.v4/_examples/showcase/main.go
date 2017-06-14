@@ -59,15 +59,12 @@ func main() {
 	// List the history of the repository
 	Info("git log --oneline")
 
-	commitIter, err := r.Log(&git.LogOptions{From: commit.Hash})
+	commits, err := commit.History()
 	CheckIfError(err)
 
-	err = commitIter.ForEach(func(c *object.Commit) error {
+	for _, c := range commits {
 		hash := c.Hash.String()
 		line := strings.Split(c.Message, "\n")
 		fmt.Println(hash[:7], line[0])
-
-		return nil
-	})
-	CheckIfError(err)
+	}
 }

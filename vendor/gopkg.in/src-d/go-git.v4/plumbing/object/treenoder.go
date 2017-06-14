@@ -1,13 +1,5 @@
 package object
 
-import (
-	"io"
-
-	"gopkg.in/src-d/go-git.v4/plumbing"
-	"gopkg.in/src-d/go-git.v4/plumbing/filemode"
-	"gopkg.in/src-d/go-git.v4/utils/merkletrie/noder"
-)
-
 // A treenoder is a helper type that wraps git trees into merkletrie
 // noders.
 //
@@ -16,6 +8,14 @@ import (
 // the hash, so changes in the modes will be detected as modifications
 // to the file contents by the merkletrie difftree algorithm.  This is
 // consistent with how the "git diff-tree" command works.
+import (
+	"io"
+
+	"gopkg.in/src-d/go-git.v4/plumbing"
+	"gopkg.in/src-d/go-git.v4/plumbing/filemode"
+	"gopkg.in/src-d/go-git.v4/utils/merkletrie/noder"
+)
+
 type treeNoder struct {
 	parent   *Tree  // the root node is its own parent
 	name     string // empty string for the root node
@@ -24,8 +24,7 @@ type treeNoder struct {
 	children []noder.Noder // memoized
 }
 
-// NewTreeRootNode returns the root node of a Tree
-func NewTreeRootNode(t *Tree) noder.Noder {
+func newTreeNoder(t *Tree) *treeNoder {
 	if t == nil {
 		return &treeNoder{}
 	}
@@ -46,6 +45,13 @@ func (t *treeNoder) String() string {
 	return "treeNoder <" + t.name + ">"
 }
 
+// The hash of a treeNoder is the result of concatenating the hash of
+// its contents and its mode; that way the difftree algorithm will
+// detect changes in the contents of files and also in their mode.
+//
+// Files with Regular and Deprecated file modes are considered the same
+// for the purpose of difftree, so Regular will be used as the mode for
+// Deprecated files here.
 func (t *treeNoder) Hash() []byte {
 	if t.mode == filemode.Deprecated {
 		return append(t.hash[:], filemode.Regular.Bytes()...)
