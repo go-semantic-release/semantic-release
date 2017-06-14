@@ -155,28 +155,34 @@ func (repo *Repository) GetLatestRelease(vrange string, prerelease string) (*Rel
 
 	var lastRelease *Release
 	for _, r := range allReleases {
-		prereleaseParts := strings.Split(r.Version.Prerelease(), ".")
 
-		log.Println("Examining:", r)
+		log.Println("Checking version", r.Version.String())
 
 		if r.Version.Prerelease() == "" && lastRelease == nil {
 			lastRelease = r
 
-			// If there is no pre-release version, its safe to bail out here.
+			// If there is no prerelease requested, its safe to stop here.
 			if (prerelease == "") {
 				break
 			}
 		}
 
-		if prerelease != "" {
-			if prereleaseParts[0] == prerelease {
+		prereleaseParts := strings.Split(r.Version.Prerelease(), ".")
+
+		if prereleaseParts[0] == prerelease {
+			// If it is a beta release and the last production release is newer
+			// just stop here and go with the last production release version.
+			if prerelease == "beta" && lastRelease != nil && r.Version.LessThan(lastRelease.Version) {
+				break;
+			}
+
+			if prerelease != "" {
 				lastRelease = r
 				break
 			}
 		}
-
-
 	}
+
 
 	if vrange == "" {
 		if lastRelease != nil {
@@ -232,7 +238,7 @@ func (repo *Repository) CreateRelease(commits []*Commit, latestRelease *Release,
 func CalculateChange(commits []*Commit, latestRelease *Release) Change {
 	var change Change
 	for _, commit := range commits {
-		log.Println("Examining:", commit)
+		log.Println("Examining commit", commit.SHA)
 
 		if latestRelease.SHA == commit.SHA {
 			break
