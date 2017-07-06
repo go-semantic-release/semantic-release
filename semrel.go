@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	//"log"
+	"log"
 )
 
 var commitPattern = regexp.MustCompile("^(\\w*)(?:\\((.*)\\))?\\: (.*)$")
@@ -149,7 +149,7 @@ func (repo *Repository) GetLatestRelease(vrange string, prerelease string) (*Rel
 	var lastRelease *Release
 	for _, r := range allReleases {
 
-		//log.Println("Checking version", r.Version.String())
+		log.Println("Checking version: ", r.Version.String())
 
 		if r.Version.Prerelease() == "" && lastRelease == nil {
 			lastRelease = r
@@ -231,7 +231,7 @@ func (repo *Repository) CreateRelease(commits []*Commit, latestRelease *Release,
 func CalculateChange(commits []*Commit, latestRelease *Release) Change {
 	var change Change
 	for _, commit := range commits {
-		//log.Println("Examining commit", commit.SHA)
+		log.Println("Examining commit", commit.SHA)
 
 		if latestRelease.SHA == commit.SHA {
 			break
