@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"log"
 )
 
 var commitPattern = regexp.MustCompile("^(\\w*)(?:\\((.*)\\))?\\: (.*)$")
@@ -29,6 +30,7 @@ type Commit struct {
 	Message string
 	Change  Change
 }
+type Commits []*Commit
 
 type Release struct {
 	SHA     string
@@ -103,18 +105,23 @@ func (repo *Repository) GetCommits(branch string) ([]*Commit, error) {
 		SHA:         branch,
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
+
 	commits, _, err := repo.Client.Repositories.ListCommits(repo.Ctx, repo.Owner, repo.Repo, opts)
+
 	if err != nil {
 		return nil, err
 	}
+
 	ret := make([]*Commit, len(commits))
+
 	for i, commit := range commits {
 		ret[i] = parseCommit(commit)
 	}
+
 	return ret, nil
 }
 
-func (repo *Repository) GetLatestRelease(vrange string) (*Release, error) {
+func (repo *Repository) GetLatestRelease(vrange string, prerelease string) (*Release, error) {
 	allReleases := make(Releases, 0)
 	opts := &github.ReferenceListOptions{"tags", github.ListOptions{PerPage: 100}}
 	for {
@@ -141,11 +148,34 @@ func (repo *Repository) GetLatestRelease(vrange string) (*Release, error) {
 
 	var lastRelease *Release
 	for _, r := range allReleases {
-		if r.Version.Prerelease() == "" {
+
+		log.Println("Checking version: ", r.Version.String())
+
+		if r.Version.Prerelease() == "" && lastRelease == nil {
 			lastRelease = r
-			break
+
+			// If there is no prerelease requested, its safe to stop here.
+			if (prerelease == "") {
+				break
+			}
+		}
+
+		prereleaseParts := strings.Split(r.Version.Prerelease(), ".")
+
+		if prereleaseParts[0] == prerelease {
+			// If it is a beta release and the last production release is newer
+			// just stop here and go with the last production release version.
+			if prerelease == "beta" && lastRelease != nil && r.Version.LessThan(lastRelease.Version) {
+				break;
+			}
+
+			if prerelease != "" {
+				lastRelease = r
+				break
+			}
 		}
 	}
+
 
 	if vrange == "" {
 		if lastRelease != nil {
@@ -198,9 +228,11 @@ func (repo *Repository) CreateRelease(commits []*Commit, latestRelease *Release,
 	return nil
 }
 
-func CaluclateChange(commits []*Commit, latestRelease *Release) Change {
+func CalculateChange(commits []*Commit, latestRelease *Release) Change {
 	var change Change
 	for _, commit := range commits {
+		log.Println("Examining commit", commit.SHA)
+
 		if latestRelease.SHA == commit.SHA {
 			break
 		}
@@ -211,45 +243,58 @@ func CaluclateChange(commits []*Commit, latestRelease *Release) Change {
 	return change
 }
 
-func ApplyChange(version *semver.Version, change Change) *semver.Version {
-	if version.Major() == 0 {
+func ApplyChange(latestVersion *semver.Version, prerelease string, change Change) *semver.Version {
+	if latestVersion.Major() == 0 {
 		change.Major = true
 	}
 	if !change.Major && !change.Minor && !change.Patch {
 		return nil
 	}
 	var newVersion semver.Version
-	preRel := version.Prerelease()
-	if preRel == "" {
+
+	preRel := latestVersion.Prerelease()
+	preRelVer := strings.Split(preRel, ".")
+	preRelLabel := preRelVer[0]
+
+	if (preRelLabel == "") {
 		switch {
 		case change.Major:
-			newVersion = version.IncMajor()
+			newVersion = latestVersion.IncMajor()
 			break
 		case change.Minor:
-			newVersion = version.IncMinor()
+			newVersion = latestVersion.IncMinor()
 			break
 		case change.Patch:
-			newVersion = version.IncPatch()
+			newVersion = latestVersion.IncPatch()
 			break
 		}
-		return &newVersion
-	}
-	preRelVer := strings.Split(preRel, ".")
-	if len(preRelVer) > 1 {
-		idx, err := strconv.ParseInt(preRelVer[1], 10, 32)
-		if err != nil {
-			idx = 0
-		}
-		preRel = fmt.Sprintf("%s.%d", preRelVer[0], idx+1)
 	} else {
-		preRel += ".1"
+		newVersion = *latestVersion
 	}
-	newVersion, _ = version.SetPrerelease(preRel)
+
+	if prerelease != "" && preRelVer[0] != prerelease {
+		 preRel = prerelease + ".1"
+	} else {
+		if len(preRelVer) > 1 {
+			idx, err := strconv.ParseInt(preRelVer[1], 10, 32)
+			if err != nil {
+				idx = 0
+			}
+			preRel = fmt.Sprintf("%s.%d", preRelVer[0], idx+1)
+		} else {
+			preRel += ".1"
+		}
+	}
+
+	newVersion, _ = newVersion.SetPrerelease(preRel)
 	return &newVersion
 }
 
-func GetNewVersion(commits []*Commit, latestRelease *Release) *semver.Version {
-	return ApplyChange(latestRelease.Version, CaluclateChange(commits, latestRelease))
+func GetNewVersion(commits []*Commit, latestRelease *Release, prerelease string) *semver.Version {
+
+	newVersion := ApplyChange(latestRelease.Version, prerelease, CalculateChange(commits, latestRelease))
+
+	return newVersion
 }
 
 func trimSHA(sha string) string {
