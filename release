@@ -3,7 +3,7 @@
 set -e
 
 rm -rf ./bin
-./semantic-release -flow -noci -ghr -vf -update ./npm-package/package.json
+semantic-release -flow -noci -ghr -vf -update ./npm-package/package.json
 export VERSION=$(cat .version)
 gox -ldflags="-s -w -X main.SRVERSION=$VERSION" -output="bin/{{.Dir}}_v"$VERSION"_{{.OS}}_{{.Arch}}" ./cmd/semantic-release/
 ghr $(cat .ghr) ./bin/

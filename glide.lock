@@ -1,5 +1,5 @@
-hash: 8289fbbd49328b78f079f324c286fac52f28e85576b0c194cded0b10e7b80cb6
-updated: 2017-06-14T14:30:37.204631578-04:00
+hash: 996628f5a1d72b93703c0f6f8357490c03c6ce08200ec298aa2a4a6b1f8c1b97
+updated: 2017-08-02T15:02:51.71874899-04:00
 imports:
 - name: github.com/Ableton/go-travis
   version: 1cdf3cca2f3ac6e6af8df7a2567d8cd0f402c942
@@ -20,7 +20,7 @@ imports:
 - name: github.com/jbcpollak/strcase
   version: a2c126df64d8a60bbbff7637a51996ee7aae768c
 - name: github.com/Masterminds/semver
-  version: abff1900528dbdaf6f3f5aa92c398be1eaf2a9f7
+  version: 517734cc7d6470c0d07130e40fd40bdeb9bcd3fd
 - name: github.com/oleiade/reflections
   version: 0e86b3c98b2ff33e30c85cfe97d9a63d439fe7eb
 - name: github.com/sergi/go-diff

@@ -5,6 +5,10 @@
 *.so
 *.dylib
 bin/
+semantic-release
+
+# Make sure we don't exclude directories with that name
+!semantic-release/
 
 # Test binary, build with `go test -c`
 *.test
