@@ -26,5 +26,10 @@ func packageJson(newVersion string, file *os.File) error {
 	if err := enc.Encode(data); err != nil {
 		return err
 	}
-	return ioutil.WriteFile(path.Join(path.Dir(file.Name()), ".npmrc"), []byte(npmrc), 0644)
+	npmrcPath := path.Join(path.Dir(file.Name()), ".npmrc")
+	_, err := os.Stat(npmrcPath)
+	if os.IsNotExist(err) {
+		return ioutil.WriteFile(npmrcPath, []byte(npmrc), 0644)
+	}
+	return err
 }
