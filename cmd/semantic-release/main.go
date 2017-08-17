@@ -44,6 +44,7 @@ func loadConfig() *SemRelConfig {
 func main() {
 	token := flag.String("token", os.Getenv("GITHUB_TOKEN"), "github token")
 	slug := flag.String("slug", os.Getenv("TRAVIS_REPO_SLUG"), "slug of the repository")
+	changelogFile := flag.String("changelog", "", "creates a changelog file")
 	ghr := flag.Bool("ghr", false, "create a .ghr file with the parameters for ghr")
 	noci := flag.Bool("noci", false, "run semantic-release locally")
 	dry := flag.Bool("dry", false, "do not create release")
@@ -124,8 +125,14 @@ func main() {
 		exitIfError(errors.New("DRY RUN: no release was created"))
 	}
 
+	logger.Println("generating changelog...")
+	changelog := semrel.GetChangelog(commits, release, newVer)
+	if *changelogFile != "" {
+		exitIfError(ioutil.WriteFile(*changelogFile, []byte(changelog), 0644))
+	}
+
 	logger.Println("creating release...")
-	exitIfError(repo.CreateRelease(commits, release, newVer, currentBranch))
+	exitIfError(repo.CreateRelease(changelog, newVer, currentBranch))
 
 	if *ghr {
 		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repo.Owner, repo.Repo, newVer.String())), 0644))

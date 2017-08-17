@@ -181,9 +181,8 @@ func (repo *Repository) GetLatestRelease(vrange string) (*Release, error) {
 	return &Release{lastRelease.SHA, &npver}, nil
 }
 
-func (repo *Repository) CreateRelease(commits []*Commit, latestRelease *Release, newVersion *semver.Version, branch string) error {
+func (repo *Repository) CreateRelease(changelog string, newVersion *semver.Version, branch string) error {
 	tag := fmt.Sprintf("v%s", newVersion.String())
-	changelog := GetChangelog(commits, latestRelease, newVersion)
 	hasPrerelease := newVersion.Prerelease() != ""
 	opts := &github.RepositoryRelease{
 		TagName:         &tag,

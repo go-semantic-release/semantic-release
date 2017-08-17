@@ -176,7 +176,7 @@ func TestCreateRelease(t *testing.T) {
 	repo, ts := getNewTestRepo(t)
 	defer ts.Close()
 	newVersion, _ := semver.NewVersion("2.0.0")
-	err := repo.CreateRelease([]*Commit{}, &Release{}, newVersion, "")
+	err := repo.CreateRelease("", newVersion, "")
 	if err != nil {
 		t.Fatal(err)
 	}
