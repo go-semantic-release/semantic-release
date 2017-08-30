@@ -186,6 +186,7 @@ func (repo *Repository) CreateRelease(changelog string, newVersion *semver.Versi
 	hasPrerelease := newVersion.Prerelease() != ""
 	opts := &github.RepositoryRelease{
 		TagName:         &tag,
+		Name:            &tag,
 		TargetCommitish: &branch,
 		Body:            &changelog,
 		Prerelease:      &hasPrerelease,
