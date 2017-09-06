@@ -20,3 +20,11 @@ func GetCurrentBranch() string {
 	}
 	return readGitHead()
 }
+
+func GetCurrentSHA() string {
+	if val := os.Getenv("TRAVIS_COMMIT"); val != "" {
+		return val
+	}
+	// TODO: resolve ref
+	return GetCurrentBranch()
+}

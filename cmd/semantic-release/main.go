@@ -96,6 +96,9 @@ func main() {
 		defaultBranch = "*"
 	}
 
+	currentSha := condition.GetCurrentSHA()
+	logger.Println("found current sha: " + currentSha)
+
 	if !*noci {
 		logger.Println("running CI condition...")
 		exitIfError(condition.Travis(*token, defaultBranch, isPrivate))
@@ -111,7 +114,7 @@ func main() {
 	}
 
 	logger.Println("getting commits...")
-	commits, err := repo.GetCommits(currentBranch)
+	commits, err := repo.GetCommits(currentSha)
 	exitIfError(err)
 
 	logger.Println("calculating new version...")
@@ -132,7 +135,7 @@ func main() {
 	}
 
 	logger.Println("creating release...")
-	exitIfError(repo.CreateRelease(changelog, newVer, currentBranch))
+	exitIfError(repo.CreateRelease(changelog, newVer, currentBranch, currentSha))
 
 	if *ghr {
 		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repo.Owner, repo.Repo, newVer.String())), 0644))

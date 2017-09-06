@@ -98,9 +98,9 @@ func parseCommit(commit *github.RepositoryCommit) *Commit {
 	return c
 }
 
-func (repo *Repository) GetCommits(branch string) ([]*Commit, error) {
+func (repo *Repository) GetCommits(sha string) ([]*Commit, error) {
 	opts := &github.CommitsListOptions{
-		SHA:         branch,
+		SHA:         sha,
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
 	commits, _, err := repo.Client.Repositories.ListCommits(repo.Ctx, repo.Owner, repo.Repo, opts)
@@ -181,9 +181,22 @@ func (repo *Repository) GetLatestRelease(vrange string) (*Release, error) {
 	return &Release{lastRelease.SHA, &npver}, nil
 }
 
-func (repo *Repository) CreateRelease(changelog string, newVersion *semver.Version, branch string) error {
+func (repo *Repository) CreateRelease(changelog string, newVersion *semver.Version, branch, sha string) error {
 	tag := fmt.Sprintf("v%s", newVersion.String())
 	hasPrerelease := newVersion.Prerelease() != ""
+
+	if branch != sha {
+		ref := "refs/tags/" + tag
+		tagOpts := &github.Reference{
+			Ref:    &ref,
+			Object: &github.GitObject{SHA: &sha},
+		}
+		_, _, err := repo.Client.Git.CreateRef(repo.Ctx, repo.Owner, repo.Repo, tagOpts)
+		if err != nil {
+			return err
+		}
+	}
+
 	opts := &github.RepositoryRelease{
 		TagName:         &tag,
 		Name:            &tag,

@@ -69,6 +69,17 @@ func githubHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(GITHUB_TAGS)
 		return
 	}
+	if r.Method == "POST" && r.URL.Path == "/repos/owner/test-repo/git/refs" {
+		var data map[string]string
+		json.NewDecoder(r.Body).Decode(&data)
+		r.Body.Close()
+		if data["sha"] != "deadbeef" || data["ref"] != "refs/tags/v2.0.0" {
+			http.Error(w, "invalid sha or ref", http.StatusBadRequest)
+			return
+		}
+		fmt.Fprint(w, "{}")
+		return
+	}
 	if r.Method == "POST" && r.URL.Path == "/repos/owner/test-repo/releases" {
 		var data map[string]string
 		json.NewDecoder(r.Body).Decode(&data)
@@ -176,7 +187,7 @@ func TestCreateRelease(t *testing.T) {
 	repo, ts := getNewTestRepo(t)
 	defer ts.Close()
 	newVersion, _ := semver.NewVersion("2.0.0")
-	err := repo.CreateRelease("", newVersion, "")
+	err := repo.CreateRelease("", newVersion, "", "deadbeef")
 	if err != nil {
 		t.Fatal(err)
 	}
