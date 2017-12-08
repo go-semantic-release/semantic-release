@@ -6,6 +6,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/jbcpollak/strcase"
 	"github.com/semantic-release/go-semantic-release"
 	"github.com/semantic-release/go-semantic-release/condition"
 	"github.com/semantic-release/go-semantic-release/update"
@@ -13,7 +14,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"github.com/jbcpollak/strcase"
 )
 
 var SRVERSION string
@@ -47,6 +47,7 @@ func main() {
 	slug := flag.String("slug", os.Getenv("TRAVIS_REPO_SLUG"), "slug of the repository")
 	ghr := flag.Bool("ghr", false, "create a .ghr file with the parameters for ghr")
 	noci := flag.Bool("noci", false, "run semantic-release locally")
+	nochange := flag.Bool("nochange", false, "allow semver to run where the current commit is already a tagged release")
 	dry := flag.Bool("dry", false, "do not create release")
 	flow := flag.Bool("flow", false, "follow branch naming conventions")
 	vFile := flag.Bool("vf", false, "create a .version file")
@@ -109,7 +110,7 @@ func main() {
 			break
 		default:
 			branchPath := strings.Split(curCommitInfo.Branch, "/")
-			prerelease = branchPath[len(branchPath) - 1]
+			prerelease = branchPath[len(branchPath)-1]
 			prerelease = strcase.ToLowerCamel(prerelease)
 		}
 	}
@@ -138,17 +139,24 @@ func main() {
 
 	logger.Println("calculating new version...")
 	newVer := semrel.GetNewVersion(commits, latestRelease, prerelease)
-	if newVer == nil {
-		exitIfError(errors.New("no change"))
+
+	if *nochange && newVer == latestRelease.Version {
+		logger.Println("Latest version tag is equal to current commit using version: " + newVer.String())
+	} else {
+		if newVer == nil {
+			exitIfError(errors.New("no change"))
+		}
+		logger.Println("new version: " + newVer.String())
 	}
-	logger.Println("new version: " + newVer.String())
 
 	if *dry {
 		exitIfError(errors.New("DRY RUN: no release was created"))
 	}
 
-	logger.Println("creating release...")
-	exitIfError(repo.CreateRelease(commits, latestRelease, newVer, curCommitInfo.Branch))
+	if newVer != latestRelease.Version {
+		logger.Println("creating release...")
+		exitIfError(repo.CreateRelease(commits, latestRelease, newVer, curCommitInfo.Branch))
+	}
 
 	if *ghr {
 		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repo.Owner, repo.Repo, newVer.String())), 0644))

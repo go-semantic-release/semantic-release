@@ -7,19 +7,19 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
+	"log"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
-	"log"
 )
 
 var commitPattern = regexp.MustCompile("^(\\w*)(?:\\((.*)\\))?\\: (.*)$")
 var breakingPattern = regexp.MustCompile("BREAKING CHANGES?")
 
 type Change struct {
-	Major, Minor, Patch bool
+	Major, Minor, Patch, NoChange bool
 }
 
 type Commit struct {
@@ -155,7 +155,7 @@ func (repo *Repository) GetLatestRelease(vrange string, prerelease string) (*Rel
 			lastRelease = r
 
 			// If there is no prerelease requested, its safe to stop here.
-			if (prerelease == "") {
+			if prerelease == "" {
 				break
 			}
 		}
@@ -166,7 +166,7 @@ func (repo *Repository) GetLatestRelease(vrange string, prerelease string) (*Rel
 			// If it is a beta release and the last production release is newer
 			// just stop here and go with the last production release version.
 			if prerelease == "beta" && lastRelease != nil && r.Version.LessThan(lastRelease.Version) {
-				break;
+				break
 			}
 
 			if prerelease != "" {
@@ -175,7 +175,6 @@ func (repo *Repository) GetLatestRelease(vrange string, prerelease string) (*Rel
 			}
 		}
 	}
-
 
 	if vrange == "" {
 		if lastRelease != nil {
@@ -234,6 +233,7 @@ func CalculateChange(commits []*Commit, latestRelease *Release) Change {
 		log.Println("Examining commit", commit.SHA)
 
 		if latestRelease.SHA == commit.SHA {
+			change.NoChange = true
 			break
 		}
 		change.Major = change.Major || commit.Change.Major
@@ -248,6 +248,9 @@ func ApplyChange(latestVersion *semver.Version, prerelease string, change Change
 		change.Major = true
 	}
 	if !change.Major && !change.Minor && !change.Patch {
+		if change.NoChange {
+			return latestVersion
+		}
 		return nil
 	}
 	var newVersion semver.Version
@@ -256,7 +259,7 @@ func ApplyChange(latestVersion *semver.Version, prerelease string, change Change
 	preRelVer := strings.Split(preRel, ".")
 	preRelLabel := preRelVer[0]
 
-	if (preRelLabel == "") {
+	if preRelLabel == "" {
 		switch {
 		case change.Major:
 			newVersion = latestVersion.IncMajor()
@@ -273,7 +276,7 @@ func ApplyChange(latestVersion *semver.Version, prerelease string, change Change
 	}
 
 	if prerelease != "" && preRelVer[0] != prerelease {
-		 preRel = prerelease + ".1"
+		preRel = prerelease + ".1"
 	} else {
 		if len(preRelVer) > 1 {
 			idx, err := strconv.ParseInt(preRelVer[1], 10, 32)
