@@ -47,12 +47,13 @@ func main() {
 	slug := flag.String("slug", os.Getenv("TRAVIS_REPO_SLUG"), "slug of the repository")
 	ghr := flag.Bool("ghr", false, "create a .ghr file with the parameters for ghr")
 	noci := flag.Bool("noci", false, "run semantic-release locally")
-	nochange := flag.Bool("nochange", false, "allow semver to run where the current commit is already a tagged release")
+	nochange := flag.Bool("nochange", false, "don't return an error code when the calculated version has already been tagged")
 	dry := flag.Bool("dry", false, "do not create release")
 	flow := flag.Bool("flow", false, "follow branch naming conventions")
 	vFile := flag.Bool("vf", false, "create a .version file")
 	showVersion := flag.Bool("version", false, "outputs the semantic-release version")
 	updateFile := flag.String("update", "", "updates the version of a certain file")
+	branchEnvVar := flag.String("branch_env_var", "", "environment variable with branch information")
 	flag.Parse()
 
 	if *showVersion {
@@ -82,12 +83,23 @@ func main() {
 	exitIfError(err)
 	logger.Println("found default branch: " + defaultBranch)
 
-	curCommitInfo, err := condition.GetCurCommitInfo()
-	exitIfError(err)
-	logger.Println("found current branch: " + curCommitInfo.Branch)
+	currentBranch = ""
+	logger.Println("found default branch: " + defaultBranch)
+	if *branchEnvVar != "" {
+		currentBranch, present = os.LookupEnv(branchEnvVar)
+		if !present {
+			exitIfError(errors.New("Branch not present in env var: " + branchEnvVar))
+		}
+	} else {
+
+		curCommitInfo, err := condition.GetCurCommitInfo()
+		exitIfError(err)
+		currentBranch = curCommitInfo.Branch
+	}
+	logger.Println("found current branch: " + currentBranch)
 
 	config := loadConfig()
-	if config.MaintainedVersion != "" && curCommitInfo.Branch == defaultBranch {
+	if config.MaintainedVersion != "" && currentBranch == defaultBranch {
 		exitIfError(fmt.Errorf("maintained version not allowed on default branch"))
 	}
 
@@ -99,7 +111,7 @@ func main() {
 	prerelease := ""
 	if *flow && config.MaintainedVersion == "" {
 
-		switch curCommitInfo.Branch {
+		switch currentBranch {
 		// If branch is master -> no pre-latestRelease version
 		case "master":
 			prerelease = ""
@@ -109,7 +121,7 @@ func main() {
 			prerelease = "beta"
 			break
 		default:
-			branchPath := strings.Split(curCommitInfo.Branch, "/")
+			branchPath := strings.Split(currentBranch, "/")
 			prerelease = branchPath[len(branchPath)-1]
 			prerelease = strcase.ToLowerCamel(prerelease)
 		}
@@ -134,7 +146,7 @@ func main() {
 	}
 
 	logger.Println("getting commits...")
-	commits, err := repo.GetCommits(curCommitInfo.Branch)
+	commits, err := repo.GetCommits(currentBranch)
 	exitIfError(err)
 
 	logger.Println("calculating new version...")
@@ -155,7 +167,7 @@ func main() {
 
 	if newVer != latestRelease.Version {
 		logger.Println("creating release...")
-		exitIfError(repo.CreateRelease(commits, latestRelease, newVer, curCommitInfo.Branch))
+		exitIfError(repo.CreateRelease(commits, latestRelease, newVer, currentBranch))
 	}
 
 	if *ghr {
