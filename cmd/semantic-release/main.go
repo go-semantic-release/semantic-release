@@ -53,7 +53,7 @@ func main() {
 	vFile := flag.Bool("vf", false, "create a .version file")
 	showVersion := flag.Bool("version", false, "outputs the semantic-release version")
 	updateFile := flag.String("update", "", "updates the version of a certain file")
-	branchEnvVar := flag.String("branch_env_var", "", "environment variable with branch information")
+	branchEnv := flag.Bool("branch_env", false, "use GIT_BRANCH environment variable with branch information")
 	flag.Parse()
 
 	if *showVersion {
@@ -83,19 +83,18 @@ func main() {
 	exitIfError(err)
 	logger.Println("found default branch: " + defaultBranch)
 
-	currentBranch = ""
-	logger.Println("found default branch: " + defaultBranch)
-	if *branchEnvVar != "" {
-		currentBranch, present = os.LookupEnv(branchEnvVar)
+	var currentBranch string = ""
+	if *branchEnv {
+		currentBranch, present := os.LookupEnv("GIT_BRANCH")
 		if !present {
-			exitIfError(errors.New("Branch not present in env var: " + branchEnvVar))
+			exitIfError(errors.New("Branch not present in env var: GIT_BRANCH"))
 		}
 	} else {
-
 		curCommitInfo, err := condition.GetCurCommitInfo()
 		exitIfError(err)
 		currentBranch = curCommitInfo.Branch
 	}
+
 	logger.Println("found current branch: " + currentBranch)
 
 	config := loadConfig()
