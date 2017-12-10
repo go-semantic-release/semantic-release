@@ -11,5 +11,5 @@
   "scripts": {
     "install": "node install.js"
   },
-  "version": "1.7.0-sameShaGetVersion.3"
+  "version": "1.7.0-sameShaGetVersion.4"
 }

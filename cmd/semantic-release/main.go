@@ -85,7 +85,8 @@ func main() {
 
 	var currentBranch string = ""
 	if *branchEnv {
-		currentBranch, present := os.LookupEnv("GIT_BRANCH")
+		envBranch, present := os.LookupEnv("GIT_BRANCH")
+		currentBranch = envBranch
 		if !present {
 			exitIfError(errors.New("Branch not present in env var: GIT_BRANCH"))
 		}
