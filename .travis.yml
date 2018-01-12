@@ -1,6 +1,6 @@
 language: go
 go:
-  - 1.8.x
+  - 1.9.x
 install:
   - nvm install 7
   - node -v && npm -v
@@ -10,9 +10,10 @@ install:
   - glide install
 before_script:
   - go build ./cmd/semantic-release/
-script:
-  - go test -v $(glide novendor)
 after_success:
   - ./release
 notifications:
   email: false
+branches:
+  except:
+    - /^v\d+\.\d+\.\d+$/
