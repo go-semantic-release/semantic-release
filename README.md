@@ -13,7 +13,7 @@ _Source: [semantic-release/semantic-release#how-does-it-work](https://github.com
 ## Installation
 __Install the latest version of semantic-release__
 ```bash
-curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o ./semantic-release && chmod +x ./semantic-release
+curl -SL https://get-release.xyz/go-semantic-release/go-semantic-release/linux/amd64 -o ./semantic-release && chmod +x ./semantic-release
 ```
 
 ## Example GitHub Release
@@ -28,7 +28,7 @@ language: go
 go:
   - 1.x
 install:
-  - curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o ~/semantic-release && chmod +x ~/semantic-release
+  - curl -SL https://get-release.xyz/go-semantic-release/go-semantic-release/linux/amd64 -o ~/semantic-release && chmod +x ~/semantic-release
   - go get github.com/mitchellh/gox
   - go get github.com/tcnksm/ghr
 after_success:
@@ -61,7 +61,7 @@ services:
 go:
   - 1.x
 install:
-  - curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o ~/semantic-release && chmod +x ~/semantic-release
+  - curl -SL https://get-release.xyz/go-semantic-release/go-semantic-release/linux/amd64 -o ~/semantic-release && chmod +x ~/semantic-release
 after_success:
   - ./release
 notifications:
@@ -108,7 +108,7 @@ node_js:
   - '6'
   - '4'
 after_success:
-  - curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o ~/semantic-release && chmod +x ~/semantic-release
+  - curl -SL https://get-release.xyz/go-semantic-release/go-semantic-release/linux/amd64 -o ~/semantic-release && chmod +x ~/semantic-release
   - ~/semantic-release -update package.json && npm publish
 branches:
   except:

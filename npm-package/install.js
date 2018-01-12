@@ -1,7 +1,7 @@
 const os = require('os')
 const pkg = require('./package.json')
 
-const rootUrl = 'https://get-release.xyz/semantic-release/go-semantic-release/'
+const rootUrl = 'https://get-release.xyz/go-semantic-release/go-semantic-release/'
 function getPlatformArch (a, p) {
   const platform = {
     win32: 'windows'
