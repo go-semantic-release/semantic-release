@@ -15,11 +15,12 @@ import (
 )
 
 func TestIssuesService_ListLabels(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/labels", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		testFormValues(t, r, values{"page": "2"})
 		fmt.Fprint(w, `[{"name": "a"},{"name": "b"}]`)
 	})
@@ -37,16 +38,20 @@ func TestIssuesService_ListLabels(t *testing.T) {
 }
 
 func TestIssuesService_ListLabels_invalidOwner(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Issues.ListLabels(context.Background(), "%", "%", nil)
 	testURLParseError(t, err)
 }
 
 func TestIssuesService_GetLabel(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/labels/n", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		fmt.Fprint(w, `{"url":"u", "name": "n", "color": "c"}`)
 	})
 
@@ -62,12 +67,15 @@ func TestIssuesService_GetLabel(t *testing.T) {
 }
 
 func TestIssuesService_GetLabel_invalidOwner(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Issues.GetLabel(context.Background(), "%", "%", "%")
 	testURLParseError(t, err)
 }
 
 func TestIssuesService_CreateLabel(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	input := &Label{Name: String("n")}
@@ -77,6 +85,7 @@ func TestIssuesService_CreateLabel(t *testing.T) {
 		json.NewDecoder(r.Body).Decode(v)
 
 		testMethod(t, r, "POST")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		if !reflect.DeepEqual(v, input) {
 			t.Errorf("Request body = %+v, want %+v", v, input)
 		}
@@ -96,12 +105,15 @@ func TestIssuesService_CreateLabel(t *testing.T) {
 }
 
 func TestIssuesService_CreateLabel_invalidOwner(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Issues.CreateLabel(context.Background(), "%", "%", nil)
 	testURLParseError(t, err)
 }
 
 func TestIssuesService_EditLabel(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	input := &Label{Name: String("z")}
@@ -111,6 +123,7 @@ func TestIssuesService_EditLabel(t *testing.T) {
 		json.NewDecoder(r.Body).Decode(v)
 
 		testMethod(t, r, "PATCH")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		if !reflect.DeepEqual(v, input) {
 			t.Errorf("Request body = %+v, want %+v", v, input)
 		}
@@ -130,12 +143,15 @@ func TestIssuesService_EditLabel(t *testing.T) {
 }
 
 func TestIssuesService_EditLabel_invalidOwner(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Issues.EditLabel(context.Background(), "%", "%", "%", nil)
 	testURLParseError(t, err)
 }
 
 func TestIssuesService_DeleteLabel(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/labels/n", func(w http.ResponseWriter, r *http.Request) {
@@ -149,16 +165,20 @@ func TestIssuesService_DeleteLabel(t *testing.T) {
 }
 
 func TestIssuesService_DeleteLabel_invalidOwner(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, err := client.Issues.DeleteLabel(context.Background(), "%", "%", "%")
 	testURLParseError(t, err)
 }
 
 func TestIssuesService_ListLabelsByIssue(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/issues/1/labels", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		testFormValues(t, r, values{"page": "2"})
 		fmt.Fprint(w, `[{"name":"a","id":1},{"name":"b","id":2}]`)
 	})
@@ -179,12 +199,15 @@ func TestIssuesService_ListLabelsByIssue(t *testing.T) {
 }
 
 func TestIssuesService_ListLabelsByIssue_invalidOwner(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Issues.ListLabelsByIssue(context.Background(), "%", "%", 1, nil)
 	testURLParseError(t, err)
 }
 
 func TestIssuesService_AddLabelsToIssue(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	input := []string{"a", "b"}
@@ -194,6 +217,7 @@ func TestIssuesService_AddLabelsToIssue(t *testing.T) {
 		json.NewDecoder(r.Body).Decode(&v)
 
 		testMethod(t, r, "POST")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		if !reflect.DeepEqual(v, input) {
 			t.Errorf("Request body = %+v, want %+v", v, input)
 		}
@@ -213,12 +237,15 @@ func TestIssuesService_AddLabelsToIssue(t *testing.T) {
 }
 
 func TestIssuesService_AddLabelsToIssue_invalidOwner(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Issues.AddLabelsToIssue(context.Background(), "%", "%", 1, nil)
 	testURLParseError(t, err)
 }
 
 func TestIssuesService_RemoveLabelForIssue(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/issues/1/labels/l", func(w http.ResponseWriter, r *http.Request) {
@@ -232,12 +259,15 @@ func TestIssuesService_RemoveLabelForIssue(t *testing.T) {
 }
 
 func TestIssuesService_RemoveLabelForIssue_invalidOwner(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, err := client.Issues.RemoveLabelForIssue(context.Background(), "%", "%", 1, "%")
 	testURLParseError(t, err)
 }
 
 func TestIssuesService_ReplaceLabelsForIssue(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	input := []string{"a", "b"}
@@ -247,6 +277,7 @@ func TestIssuesService_ReplaceLabelsForIssue(t *testing.T) {
 		json.NewDecoder(r.Body).Decode(&v)
 
 		testMethod(t, r, "PUT")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		if !reflect.DeepEqual(v, input) {
 			t.Errorf("Request body = %+v, want %+v", v, input)
 		}
@@ -266,12 +297,15 @@ func TestIssuesService_ReplaceLabelsForIssue(t *testing.T) {
 }
 
 func TestIssuesService_ReplaceLabelsForIssue_invalidOwner(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Issues.ReplaceLabelsForIssue(context.Background(), "%", "%", 1, nil)
 	testURLParseError(t, err)
 }
 
 func TestIssuesService_RemoveLabelsForIssue(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/issues/1/labels", func(w http.ResponseWriter, r *http.Request) {
@@ -285,16 +319,20 @@ func TestIssuesService_RemoveLabelsForIssue(t *testing.T) {
 }
 
 func TestIssuesService_RemoveLabelsForIssue_invalidOwner(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, err := client.Issues.RemoveLabelsForIssue(context.Background(), "%", "%", 1)
 	testURLParseError(t, err)
 }
 
 func TestIssuesService_ListLabelsForMilestone(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/milestones/1/labels", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		testFormValues(t, r, values{"page": "2"})
 		fmt.Fprint(w, `[{"name": "a"},{"name": "b"}]`)
 	})
@@ -312,6 +350,9 @@ func TestIssuesService_ListLabelsForMilestone(t *testing.T) {
 }
 
 func TestIssuesService_ListLabelsForMilestone_invalidOwner(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Issues.ListLabelsForMilestone(context.Background(), "%", "%", 1, nil)
 	testURLParseError(t, err)
 }

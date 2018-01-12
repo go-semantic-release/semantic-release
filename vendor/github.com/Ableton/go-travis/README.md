@@ -12,7 +12,7 @@ go-travis requires Go version 1.1 or greater.
 
 ```go
 import (
-    log
+    "log"
     travis "github.com/Ableton/go-travis"
 )
 
@@ -163,6 +163,10 @@ Travis API, so contributions are of course [always welcome][contributing].
 [contributing]: CONTRIBUTING.md
 
 ## Maintainers
+
+* [@mst-ableton](https://github.com/mst-ableton)
+
+## Maintainers-Emeritus
 
 * Theo Crevon <theo.crevon@ableton.com>
 

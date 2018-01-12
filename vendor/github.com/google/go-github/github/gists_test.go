@@ -16,13 +16,14 @@ import (
 )
 
 func TestGistsService_List_specifiedUser(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	since := "2013-01-01T00:00:00Z"
 
 	mux.HandleFunc("/users/u/gists", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		testFormValues(t, r, values{
 			"since": since,
 		})
@@ -42,11 +43,12 @@ func TestGistsService_List_specifiedUser(t *testing.T) {
 }
 
 func TestGistsService_List_authenticatedUser(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/gists", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		fmt.Fprint(w, `[{"id": "1"}]`)
 	})
 
@@ -62,18 +64,22 @@ func TestGistsService_List_authenticatedUser(t *testing.T) {
 }
 
 func TestGistsService_List_invalidUser(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Gists.List(context.Background(), "%", nil)
 	testURLParseError(t, err)
 }
 
 func TestGistsService_ListAll(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	since := "2013-01-01T00:00:00Z"
 
 	mux.HandleFunc("/gists/public", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		testFormValues(t, r, values{
 			"since": since,
 		})
@@ -93,13 +99,14 @@ func TestGistsService_ListAll(t *testing.T) {
 }
 
 func TestGistsService_ListStarred(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	since := "2013-01-01T00:00:00Z"
 
 	mux.HandleFunc("/gists/starred", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		testFormValues(t, r, values{
 			"since": since,
 		})
@@ -119,11 +126,12 @@ func TestGistsService_ListStarred(t *testing.T) {
 }
 
 func TestGistsService_Get(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/gists/1", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		fmt.Fprint(w, `{"id": "1"}`)
 	})
 
@@ -139,16 +147,20 @@ func TestGistsService_Get(t *testing.T) {
 }
 
 func TestGistsService_Get_invalidID(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Gists.Get(context.Background(), "%")
 	testURLParseError(t, err)
 }
 
 func TestGistsService_GetRevision(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/gists/1/s", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		fmt.Fprint(w, `{"id": "1"}`)
 	})
 
@@ -164,12 +176,15 @@ func TestGistsService_GetRevision(t *testing.T) {
 }
 
 func TestGistsService_GetRevision_invalidID(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Gists.GetRevision(context.Background(), "%", "%")
 	testURLParseError(t, err)
 }
 
 func TestGistsService_Create(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	input := &Gist{
@@ -185,6 +200,7 @@ func TestGistsService_Create(t *testing.T) {
 		json.NewDecoder(r.Body).Decode(v)
 
 		testMethod(t, r, "POST")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		if !reflect.DeepEqual(v, input) {
 			t.Errorf("Request body = %+v, want %+v", v, input)
 		}
@@ -222,7 +238,7 @@ func TestGistsService_Create(t *testing.T) {
 }
 
 func TestGistsService_Edit(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	input := &Gist{
@@ -237,6 +253,7 @@ func TestGistsService_Edit(t *testing.T) {
 		json.NewDecoder(r.Body).Decode(v)
 
 		testMethod(t, r, "PATCH")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		if !reflect.DeepEqual(v, input) {
 			t.Errorf("Request body = %+v, want %+v", v, input)
 		}
@@ -278,16 +295,20 @@ func TestGistsService_Edit(t *testing.T) {
 }
 
 func TestGistsService_Edit_invalidID(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Gists.Edit(context.Background(), "%", nil)
 	testURLParseError(t, err)
 }
 
 func TestGistsService_ListCommits(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/gists/1/commits", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		testFormValues(t, r, nil)
 		fmt.Fprint(w, `
 		  [
@@ -330,11 +351,12 @@ func TestGistsService_ListCommits(t *testing.T) {
 }
 
 func TestGistsService_ListCommits_withOptions(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/gists/1/commits", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		testFormValues(t, r, values{
 			"page": "2",
 		})
@@ -348,7 +370,7 @@ func TestGistsService_ListCommits_withOptions(t *testing.T) {
 }
 
 func TestGistsService_Delete(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/gists/1", func(w http.ResponseWriter, r *http.Request) {
@@ -362,12 +384,15 @@ func TestGistsService_Delete(t *testing.T) {
 }
 
 func TestGistsService_Delete_invalidID(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, err := client.Gists.Delete(context.Background(), "%")
 	testURLParseError(t, err)
 }
 
 func TestGistsService_Star(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/gists/1/star", func(w http.ResponseWriter, r *http.Request) {
@@ -381,12 +406,15 @@ func TestGistsService_Star(t *testing.T) {
 }
 
 func TestGistsService_Star_invalidID(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, err := client.Gists.Star(context.Background(), "%")
 	testURLParseError(t, err)
 }
 
 func TestGistsService_Unstar(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/gists/1/star", func(w http.ResponseWriter, r *http.Request) {
@@ -400,12 +428,15 @@ func TestGistsService_Unstar(t *testing.T) {
 }
 
 func TestGistsService_Unstar_invalidID(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, err := client.Gists.Unstar(context.Background(), "%")
 	testURLParseError(t, err)
 }
 
 func TestGistsService_IsStarred_hasStar(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/gists/1/star", func(w http.ResponseWriter, r *http.Request) {
@@ -423,7 +454,7 @@ func TestGistsService_IsStarred_hasStar(t *testing.T) {
 }
 
 func TestGistsService_IsStarred_noStar(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/gists/1/star", func(w http.ResponseWriter, r *http.Request) {
@@ -441,16 +472,20 @@ func TestGistsService_IsStarred_noStar(t *testing.T) {
 }
 
 func TestGistsService_IsStarred_invalidID(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Gists.IsStarred(context.Background(), "%")
 	testURLParseError(t, err)
 }
 
 func TestGistsService_Fork(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/gists/1/forks", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		fmt.Fprint(w, `{"id": "2"}`)
 	})
 
@@ -466,11 +501,12 @@ func TestGistsService_Fork(t *testing.T) {
 }
 
 func TestGistsService_ListForks(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/gists/1/forks", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 		testFormValues(t, r, nil)
 		fmt.Fprint(w, `
 		  [
@@ -502,6 +538,9 @@ func TestGistsService_ListForks(t *testing.T) {
 }
 
 func TestGistsService_Fork_invalidID(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Gists.Fork(context.Background(), "%")
 	testURLParseError(t, err)
 }

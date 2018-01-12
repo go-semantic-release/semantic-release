@@ -16,7 +16,7 @@ import (
 )
 
 func TestRepositoriesService_List_authenticatedUser(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	acceptHeaders := []string{mediaTypeLicensesPreview, mediaTypeCodesOfConductPreview, mediaTypeTopicsPreview}
@@ -38,7 +38,7 @@ func TestRepositoriesService_List_authenticatedUser(t *testing.T) {
 }
 
 func TestRepositoriesService_List_specifiedUser(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	acceptHeaders := []string{mediaTypeLicensesPreview, mediaTypeCodesOfConductPreview, mediaTypeTopicsPreview}
@@ -74,7 +74,7 @@ func TestRepositoriesService_List_specifiedUser(t *testing.T) {
 }
 
 func TestRepositoriesService_List_specifiedUser_type(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	acceptHeaders := []string{mediaTypeLicensesPreview, mediaTypeCodesOfConductPreview, mediaTypeTopicsPreview}
@@ -102,12 +102,15 @@ func TestRepositoriesService_List_specifiedUser_type(t *testing.T) {
 }
 
 func TestRepositoriesService_List_invalidUser(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Repositories.List(context.Background(), "%", nil)
 	testURLParseError(t, err)
 }
 
 func TestRepositoriesService_ListByOrg(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	acceptHeaders := []string{mediaTypeLicensesPreview, mediaTypeCodesOfConductPreview, mediaTypeTopicsPreview}
@@ -134,25 +137,26 @@ func TestRepositoriesService_ListByOrg(t *testing.T) {
 }
 
 func TestRepositoriesService_ListByOrg_invalidOrg(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Repositories.ListByOrg(context.Background(), "%", nil)
 	testURLParseError(t, err)
 }
 
 func TestRepositoriesService_ListAll(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repositories", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testFormValues(t, r, values{
-			"since":    "1",
-			"page":     "2",
-			"per_page": "3",
+			"since": "1",
 		})
 		fmt.Fprint(w, `[{"id":1}]`)
 	})
 
-	opt := &RepositoryListAllOptions{1, ListOptions{2, 3}}
+	opt := &RepositoryListAllOptions{1}
 	repos, _, err := client.Repositories.ListAll(context.Background(), opt)
 	if err != nil {
 		t.Errorf("Repositories.ListAll returned error: %v", err)
@@ -165,7 +169,7 @@ func TestRepositoriesService_ListAll(t *testing.T) {
 }
 
 func TestRepositoriesService_Create_user(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	input := &Repository{Name: String("n")}
@@ -194,7 +198,7 @@ func TestRepositoriesService_Create_user(t *testing.T) {
 }
 
 func TestRepositoriesService_Create_org(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	input := &Repository{Name: String("n")}
@@ -223,12 +227,15 @@ func TestRepositoriesService_Create_org(t *testing.T) {
 }
 
 func TestRepositoriesService_Create_invalidOrg(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Repositories.Create(context.Background(), "%", nil)
 	testURLParseError(t, err)
 }
 
 func TestRepositoriesService_Get(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	acceptHeaders := []string{mediaTypeLicensesPreview, mediaTypeCodesOfConductPreview, mediaTypeTopicsPreview}
@@ -250,7 +257,7 @@ func TestRepositoriesService_Get(t *testing.T) {
 }
 
 func TestRepositoriesService_GetCodeOfConduct(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/community/code_of_conduct", func(w http.ResponseWriter, r *http.Request) {
@@ -282,7 +289,7 @@ func TestRepositoriesService_GetCodeOfConduct(t *testing.T) {
 }
 
 func TestRepositoriesService_GetByID(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repositories/1", func(w http.ResponseWriter, r *http.Request) {
@@ -303,7 +310,7 @@ func TestRepositoriesService_GetByID(t *testing.T) {
 }
 
 func TestRepositoriesService_Edit(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	i := true
@@ -332,7 +339,7 @@ func TestRepositoriesService_Edit(t *testing.T) {
 }
 
 func TestRepositoriesService_Delete(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r", func(w http.ResponseWriter, r *http.Request) {
@@ -346,17 +353,23 @@ func TestRepositoriesService_Delete(t *testing.T) {
 }
 
 func TestRepositoriesService_Get_invalidOwner(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Repositories.Get(context.Background(), "%", "r")
 	testURLParseError(t, err)
 }
 
 func TestRepositoriesService_Edit_invalidOwner(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Repositories.Edit(context.Background(), "%", "r", nil)
 	testURLParseError(t, err)
 }
 
 func TestRepositoriesService_ListContributors(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/contributors", func(w http.ResponseWriter, r *http.Request) {
@@ -381,7 +394,7 @@ func TestRepositoriesService_ListContributors(t *testing.T) {
 }
 
 func TestRepositoriesService_ListLanguages(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/languages", func(w http.ResponseWriter, r *http.Request) {
@@ -401,11 +414,12 @@ func TestRepositoriesService_ListLanguages(t *testing.T) {
 }
 
 func TestRepositoriesService_ListTeams(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/teams", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeNestedTeamsPreview)
 		testFormValues(t, r, values{"page": "2"})
 		fmt.Fprint(w, `[{"id":1}]`)
 	})
@@ -423,7 +437,7 @@ func TestRepositoriesService_ListTeams(t *testing.T) {
 }
 
 func TestRepositoriesService_ListTags(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/tags", func(w http.ResponseWriter, r *http.Request) {
@@ -455,7 +469,7 @@ func TestRepositoriesService_ListTags(t *testing.T) {
 }
 
 func TestRepositoriesService_ListBranches(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/branches", func(w http.ResponseWriter, r *http.Request) {
@@ -478,7 +492,7 @@ func TestRepositoriesService_ListBranches(t *testing.T) {
 }
 
 func TestRepositoriesService_GetBranch(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/branches/b", func(w http.ResponseWriter, r *http.Request) {
@@ -509,7 +523,7 @@ func TestRepositoriesService_GetBranch(t *testing.T) {
 }
 
 func TestRepositoriesService_GetBranchProtection(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/branches/b/protection", func(w http.ResponseWriter, r *http.Request) {
@@ -518,7 +532,7 @@ func TestRepositoriesService_GetBranchProtection(t *testing.T) {
 
 		testMethod(t, r, "GET")
 		testHeader(t, r, "Accept", mediaTypeProtectedBranchesPreview)
-		fmt.Fprintf(w, `{"required_status_checks":{"strict":true,"contexts":["continuous-integration"]},"required_pull_request_reviews":{"dismissal_restrictions":{"users":[{"id":3,"login":"u"}],"teams":[{"id":4,"slug":"t"}]},"dismiss_stale_reviews":true},"enforce_admins":{"url":"/repos/o/r/branches/b/protection/enforce_admins","enabled":true},"restrictions":{"users":[{"id":1,"login":"u"}],"teams":[{"id":2,"slug":"t"}]}}`)
+		fmt.Fprintf(w, `{"required_status_checks":{"strict":true,"contexts":["continuous-integration"]},"required_pull_request_reviews":{"dismissal_restrictions":{"users":[{"id":3,"login":"u"}],"teams":[{"id":4,"slug":"t"}]},"dismiss_stale_reviews":true,"require_code_owner_reviews":true},"enforce_admins":{"url":"/repos/o/r/branches/b/protection/enforce_admins","enabled":true},"restrictions":{"users":[{"id":1,"login":"u"}],"teams":[{"id":2,"slug":"t"}]}}`)
 	})
 
 	protection, _, err := client.Repositories.GetBranchProtection(context.Background(), "o", "r", "b")
@@ -541,6 +555,7 @@ func TestRepositoriesService_GetBranchProtection(t *testing.T) {
 					{Slug: String("t"), ID: Int(4)},
 				},
 			},
+			RequireCodeOwnerReviews: true,
 		},
 		EnforceAdmins: &AdminEnforcement{
 			URL:     String("/repos/o/r/branches/b/protection/enforce_admins"),
@@ -561,7 +576,7 @@ func TestRepositoriesService_GetBranchProtection(t *testing.T) {
 }
 
 func TestRepositoriesService_UpdateBranchProtection(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	input := &ProtectionRequest{
@@ -591,7 +606,7 @@ func TestRepositoriesService_UpdateBranchProtection(t *testing.T) {
 			t.Errorf("Request body = %+v, want %+v", v, input)
 		}
 		testHeader(t, r, "Accept", mediaTypeProtectedBranchesPreview)
-		fmt.Fprintf(w, `{"required_status_checks":{"strict":true,"contexts":["continuous-integration"]},"required_pull_request_reviews":{"dismissal_restrictions":{"users":[{"id":3,"login":"uu"}],"teams":[{"id":4,"slug":"tt"}]},"dismiss_stale_reviews":true},"restrictions":{"users":[{"id":1,"login":"u"}],"teams":[{"id":2,"slug":"t"}]}}`)
+		fmt.Fprintf(w, `{"required_status_checks":{"strict":true,"contexts":["continuous-integration"]},"required_pull_request_reviews":{"dismissal_restrictions":{"users":[{"id":3,"login":"uu"}],"teams":[{"id":4,"slug":"tt"}]},"dismiss_stale_reviews":true,"require_code_owner_reviews":true},"restrictions":{"users":[{"id":1,"login":"u"}],"teams":[{"id":2,"slug":"t"}]}}`)
 	})
 
 	protection, _, err := client.Repositories.UpdateBranchProtection(context.Background(), "o", "r", "b", input)
@@ -614,6 +629,7 @@ func TestRepositoriesService_UpdateBranchProtection(t *testing.T) {
 					{Slug: String("tt"), ID: Int(4)},
 				},
 			},
+			RequireCodeOwnerReviews: true,
 		},
 		Restrictions: &BranchRestrictions{
 			Users: []*User{
@@ -630,7 +646,7 @@ func TestRepositoriesService_UpdateBranchProtection(t *testing.T) {
 }
 
 func TestRepositoriesService_RemoveBranchProtection(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/branches/b/protection", func(w http.ResponseWriter, r *http.Request) {
@@ -646,12 +662,15 @@ func TestRepositoriesService_RemoveBranchProtection(t *testing.T) {
 }
 
 func TestRepositoriesService_ListLanguages_invalidOwner(t *testing.T) {
+	client, _, _, teardown := setup()
+	defer teardown()
+
 	_, _, err := client.Repositories.ListLanguages(context.Background(), "%", "%")
 	testURLParseError(t, err)
 }
 
 func TestRepositoriesService_License(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/license", func(w http.ResponseWriter, r *http.Request) {
@@ -682,7 +701,7 @@ func TestRepositoriesService_License(t *testing.T) {
 }
 
 func TestRepositoriesService_GetRequiredStatusChecks(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/branches/b/protection/required_status_checks", func(w http.ResponseWriter, r *http.Request) {
@@ -709,7 +728,7 @@ func TestRepositoriesService_GetRequiredStatusChecks(t *testing.T) {
 }
 
 func TestRepositoriesService_ListRequiredStatusChecksContexts(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/branches/b/protection/required_status_checks/contexts", func(w http.ResponseWriter, r *http.Request) {
@@ -733,13 +752,13 @@ func TestRepositoriesService_ListRequiredStatusChecksContexts(t *testing.T) {
 }
 
 func TestRepositoriesService_GetPullRequestReviewEnforcement(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/branches/b/protection/required_pull_request_reviews", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testHeader(t, r, "Accept", mediaTypeProtectedBranchesPreview)
-		fmt.Fprintf(w, `{"dismissal_restrictions":{"users":[{"id":1,"login":"u"}],"teams":[{"id":2,"slug":"t"}]},"dismiss_stale_reviews":true}`)
+		fmt.Fprintf(w, `{"dismissal_restrictions":{"users":[{"id":1,"login":"u"}],"teams":[{"id":2,"slug":"t"}]},"dismiss_stale_reviews":true,"require_code_owner_reviews":true}`)
 	})
 
 	enforcement, _, err := client.Repositories.GetPullRequestReviewEnforcement(context.Background(), "o", "r", "b")
@@ -757,6 +776,7 @@ func TestRepositoriesService_GetPullRequestReviewEnforcement(t *testing.T) {
 				{Slug: String("t"), ID: Int(2)},
 			},
 		},
+		RequireCodeOwnerReviews: true,
 	}
 
 	if !reflect.DeepEqual(enforcement, want) {
@@ -765,7 +785,7 @@ func TestRepositoriesService_GetPullRequestReviewEnforcement(t *testing.T) {
 }
 
 func TestRepositoriesService_UpdatePullRequestReviewEnforcement(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	input := &PullRequestReviewsEnforcementUpdate{
@@ -784,7 +804,7 @@ func TestRepositoriesService_UpdatePullRequestReviewEnforcement(t *testing.T) {
 			t.Errorf("Request body = %+v, want %+v", v, input)
 		}
 		testHeader(t, r, "Accept", mediaTypeProtectedBranchesPreview)
-		fmt.Fprintf(w, `{"dismissal_restrictions":{"users":[{"id":1,"login":"u"}],"teams":[{"id":2,"slug":"t"}]},"dismiss_stale_reviews":true}`)
+		fmt.Fprintf(w, `{"dismissal_restrictions":{"users":[{"id":1,"login":"u"}],"teams":[{"id":2,"slug":"t"}]},"dismiss_stale_reviews":true,"require_code_owner_reviews":true}`)
 	})
 
 	enforcement, _, err := client.Repositories.UpdatePullRequestReviewEnforcement(context.Background(), "o", "r", "b", input)
@@ -802,6 +822,7 @@ func TestRepositoriesService_UpdatePullRequestReviewEnforcement(t *testing.T) {
 				{Slug: String("t"), ID: Int(2)},
 			},
 		},
+		RequireCodeOwnerReviews: true,
 	}
 	if !reflect.DeepEqual(enforcement, want) {
 		t.Errorf("Repositories.UpdatePullRequestReviewEnforcement returned %+v, want %+v", enforcement, want)
@@ -809,14 +830,14 @@ func TestRepositoriesService_UpdatePullRequestReviewEnforcement(t *testing.T) {
 }
 
 func TestRepositoriesService_DisableDismissalRestrictions(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/branches/b/protection/required_pull_request_reviews", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PATCH")
 		testHeader(t, r, "Accept", mediaTypeProtectedBranchesPreview)
 		testBody(t, r, `{"dismissal_restrictions":[]}`+"\n")
-		fmt.Fprintf(w, `{"dismissal_restrictions":{"users":[],"teams":[]},"dismiss_stale_reviews":true}`)
+		fmt.Fprintf(w, `{"dismissal_restrictions":{"users":[],"teams":[]},"dismiss_stale_reviews":true,"require_code_owner_reviews":true}`)
 	})
 
 	enforcement, _, err := client.Repositories.DisableDismissalRestrictions(context.Background(), "o", "r", "b")
@@ -830,6 +851,7 @@ func TestRepositoriesService_DisableDismissalRestrictions(t *testing.T) {
 			Users: []*User{},
 			Teams: []*Team{},
 		},
+		RequireCodeOwnerReviews: true,
 	}
 	if !reflect.DeepEqual(enforcement, want) {
 		t.Errorf("Repositories.DisableDismissalRestrictions returned %+v, want %+v", enforcement, want)
@@ -837,7 +859,7 @@ func TestRepositoriesService_DisableDismissalRestrictions(t *testing.T) {
 }
 
 func TestRepositoriesService_RemovePullRequestReviewEnforcement(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/branches/b/protection/required_pull_request_reviews", func(w http.ResponseWriter, r *http.Request) {
@@ -853,7 +875,7 @@ func TestRepositoriesService_RemovePullRequestReviewEnforcement(t *testing.T) {
 }
 
 func TestRepositoriesService_GetAdminEnforcement(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/branches/b/protection/enforce_admins", func(w http.ResponseWriter, r *http.Request) {
@@ -878,7 +900,7 @@ func TestRepositoriesService_GetAdminEnforcement(t *testing.T) {
 }
 
 func TestRepositoriesService_AddAdminEnforcement(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/branches/b/protection/enforce_admins", func(w http.ResponseWriter, r *http.Request) {
@@ -902,7 +924,7 @@ func TestRepositoriesService_AddAdminEnforcement(t *testing.T) {
 }
 
 func TestRepositoriesService_RemoveAdminEnforcement(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/branches/b/protection/enforce_admins", func(w http.ResponseWriter, r *http.Request) {
@@ -925,14 +947,14 @@ func TestPullRequestReviewsEnforcementRequest_MarshalJSON_nilDismissalRestirctio
 		t.Errorf("PullRequestReviewsEnforcementRequest.MarshalJSON returned error: %v", err)
 	}
 
-	want := `{"dismissal_restrictions":[],"dismiss_stale_reviews":false}`
+	want := `{"dismissal_restrictions":[],"dismiss_stale_reviews":false,"require_code_owner_reviews":false}`
 	if want != string(json) {
 		t.Errorf("PullRequestReviewsEnforcementRequest.MarshalJSON returned %+v, want %+v", string(json), want)
 	}
 }
 
 func TestRepositoriesService_ListAllTopics(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/topics", func(w http.ResponseWriter, r *http.Request) {
@@ -946,14 +968,35 @@ func TestRepositoriesService_ListAllTopics(t *testing.T) {
 		t.Fatalf("Repositories.ListAllTopics returned error: %v", err)
 	}
 
-	want := &Topics{Names: []string{"go", "go-github", "github"}}
+	want := []string{"go", "go-github", "github"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Repositories.ListAllTopics returned %+v, want %+v", got, want)
+	}
+}
+
+func TestRepositoriesService_ListAllTopics_emptyTopics(t *testing.T) {
+	client, mux, _, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/repos/o/r/topics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeTopicsPreview)
+		fmt.Fprint(w, `{"names":[]}`)
+	})
+
+	got, _, err := client.Repositories.ListAllTopics(context.Background(), "o", "r")
+	if err != nil {
+		t.Fatalf("Repositories.ListAllTopics returned error: %v", err)
+	}
+
+	want := []string{}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Repositories.ListAllTopics returned %+v, want %+v", got, want)
 	}
 }
 
 func TestRepositoriesService_ReplaceAllTopics(t *testing.T) {
-	setup()
+	client, mux, _, teardown := setup()
 	defer teardown()
 
 	mux.HandleFunc("/repos/o/r/topics", func(w http.ResponseWriter, r *http.Request) {
@@ -962,13 +1005,87 @@ func TestRepositoriesService_ReplaceAllTopics(t *testing.T) {
 		fmt.Fprint(w, `{"names":["go", "go-github", "github"]}`)
 	})
 
-	got, _, err := client.Repositories.ReplaceAllTopics(context.Background(), "o", "r", &Topics{Names: []string{"go", "go-github", "github"}})
+	got, _, err := client.Repositories.ReplaceAllTopics(context.Background(), "o", "r", []string{"go", "go-github", "github"})
 	if err != nil {
 		t.Fatalf("Repositories.ReplaceAllTopics returned error: %v", err)
 	}
 
-	want := &Topics{Names: []string{"go", "go-github", "github"}}
+	want := []string{"go", "go-github", "github"}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Repositories.ReplaceAllTopics returned %+v, want %+v", got, want)
+	}
+}
+
+func TestRepositoriesService_ReplaceAllTopics_nilSlice(t *testing.T) {
+	client, mux, _, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/repos/o/r/topics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PUT")
+		testHeader(t, r, "Accept", mediaTypeTopicsPreview)
+		testBody(t, r, `{"names":[]}`+"\n")
+		fmt.Fprint(w, `{"names":[]}`)
+	})
+
+	got, _, err := client.Repositories.ReplaceAllTopics(context.Background(), "o", "r", nil)
+	if err != nil {
+		t.Fatalf("Repositories.ReplaceAllTopics returned error: %v", err)
+	}
+
+	want := []string{}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Repositories.ReplaceAllTopics returned %+v, want %+v", got, want)
+	}
+}
+
+func TestRepositoriesService_ReplaceAllTopics_emptySlice(t *testing.T) {
+	client, mux, _, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/repos/o/r/topics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PUT")
+		testHeader(t, r, "Accept", mediaTypeTopicsPreview)
+		testBody(t, r, `{"names":[]}`+"\n")
+		fmt.Fprint(w, `{"names":[]}`)
+	})
+
+	got, _, err := client.Repositories.ReplaceAllTopics(context.Background(), "o", "r", []string{})
+	if err != nil {
+		t.Fatalf("Repositories.ReplaceAllTopics returned error: %v", err)
+	}
+
+	want := []string{}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Repositories.ReplaceAllTopics returned %+v, want %+v", got, want)
+	}
+}
+
+func TestRepositoriesService_Transfer(t *testing.T) {
+	client, mux, _, teardown := setup()
+	defer teardown()
+
+	input := TransferRequest{NewOwner: "a", TeamID: []int{123}}
+
+	mux.HandleFunc("/repos/o/r/transfer", func(w http.ResponseWriter, r *http.Request) {
+		var v TransferRequest
+		json.NewDecoder(r.Body).Decode(&v)
+
+		testMethod(t, r, "POST")
+		testHeader(t, r, "Accept", mediaTypeRepositoryTransferPreview)
+		if !reflect.DeepEqual(v, input) {
+			t.Errorf("Request body = %+v, want %+v", v, input)
+		}
+
+		fmt.Fprint(w, `{"owner":{"login":"a"}}`)
+	})
+
+	got, _, err := client.Repositories.Transfer(context.Background(), "o", "r", input)
+	if err != nil {
+		t.Errorf("Repositories.Transfer returned error: %v", err)
+	}
+
+	want := &Repository{Owner: &User{Login: String("a")}}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Repositories.Transfer returned %+v, want %+v", got, want)
 	}
 }

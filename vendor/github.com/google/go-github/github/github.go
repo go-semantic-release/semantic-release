@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	libraryVersion = "9"
+	libraryVersion = "14"
 	defaultBaseURL = "https://api.github.com/"
 	uploadBaseURL  = "https://uploads.github.com/"
 	userAgent      = "go-github/" + libraryVersion
@@ -102,6 +102,18 @@ const (
 
 	// https://developer.github.com/changes/2017-07-26-team-review-request-thor-preview/
 	mediaTypeTeamReviewPreview = "application/vnd.github.thor-preview+json"
+
+	// https://developer.github.com/v3/apps/marketplace/
+	mediaTypeMarketplacePreview = "application/vnd.github.valkyrie-preview+json"
+
+	// https://developer.github.com/changes/2017-08-30-preview-nested-teams/
+	mediaTypeNestedTeamsPreview = "application/vnd.github.hellcat-preview+json"
+
+	// https://developer.github.com/changes/2017-11-09-repository-transfer-api-preview/
+	mediaTypeRepositoryTransferPreview = "application/vnd.github.nightshade-preview+json"
+
+	// https://developer.github.com/changes/2017-12-19-graphql-node-id/
+	mediaTypeGraphQLNodeIDPreview = "application/vnd.github.jean-grey-preview+json"
 )
 
 // A Client manages communication with the GitHub API.
@@ -134,15 +146,16 @@ type Client struct {
 	Git            *GitService
 	Gitignores     *GitignoresService
 	Issues         *IssuesService
+	Licenses       *LicensesService
+	Marketplace    *MarketplaceService
+	Migrations     *MigrationService
 	Organizations  *OrganizationsService
 	Projects       *ProjectsService
 	PullRequests   *PullRequestsService
+	Reactions      *ReactionsService
 	Repositories   *RepositoriesService
 	Search         *SearchService
 	Users          *UsersService
-	Licenses       *LicensesService
-	Migrations     *MigrationService
-	Reactions      *ReactionsService
 }
 
 type service struct {
@@ -224,6 +237,7 @@ func NewClient(httpClient *http.Client) *Client {
 	c.Gitignores = (*GitignoresService)(&c.common)
 	c.Issues = (*IssuesService)(&c.common)
 	c.Licenses = (*LicensesService)(&c.common)
+	c.Marketplace = &MarketplaceService{client: c}
 	c.Migrations = (*MigrationService)(&c.common)
 	c.Organizations = (*OrganizationsService)(&c.common)
 	c.Projects = (*ProjectsService)(&c.common)
@@ -235,23 +249,57 @@ func NewClient(httpClient *http.Client) *Client {
 	return c
 }
 
+// NewEnterpriseClient returns a new GitHub API client with provided
+// base URL and upload URL (often the same URL).
+// If either URL does not have a trailing slash, one is added automatically.
+// If a nil httpClient is provided, http.DefaultClient will be used.
+//
+// Note that NewEnterpriseClient is a convenience helper only;
+// its behavior is equivalent to using NewClient, followed by setting
+// the BaseURL and UploadURL fields.
+func NewEnterpriseClient(baseURL, uploadURL string, httpClient *http.Client) (*Client, error) {
+	baseEndpoint, err := url.Parse(baseURL)
+	if err != nil {
+		return nil, err
+	}
+	if !strings.HasSuffix(baseEndpoint.Path, "/") {
+		baseEndpoint.Path += "/"
+	}
+
+	uploadEndpoint, err := url.Parse(uploadURL)
+	if err != nil {
+		return nil, err
+	}
+	if !strings.HasSuffix(uploadEndpoint.Path, "/") {
+		uploadEndpoint.Path += "/"
+	}
+
+	c := NewClient(httpClient)
+	c.BaseURL = baseEndpoint
+	c.UploadURL = uploadEndpoint
+	return c, nil
+}
+
 // NewRequest creates an API request. A relative URL can be provided in urlStr,
 // in which case it is resolved relative to the BaseURL of the Client.
 // Relative URLs should always be specified without a preceding slash. If
 // specified, the value pointed to by body is JSON encoded and included as the
 // request body.
 func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
-	rel, err := url.Parse(urlStr)
+	if !strings.HasSuffix(c.BaseURL.Path, "/") {
+		return nil, fmt.Errorf("BaseURL must have a trailing slash, but %q does not", c.BaseURL)
+	}
+	u, err := c.BaseURL.Parse(urlStr)
 	if err != nil {
 		return nil, err
 	}
 
-	u := c.BaseURL.ResolveReference(rel)
-
 	var buf io.ReadWriter
 	if body != nil {
 		buf = new(bytes.Buffer)
-		err := json.NewEncoder(buf).Encode(body)
+		enc := json.NewEncoder(buf)
+		enc.SetEscapeHTML(false)
+		err := enc.Encode(body)
 		if err != nil {
 			return nil, err
 		}
@@ -276,12 +324,14 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 // urlStr, in which case it is resolved relative to the UploadURL of the Client.
 // Relative URLs should always be specified without a preceding slash.
 func (c *Client) NewUploadRequest(urlStr string, reader io.Reader, size int64, mediaType string) (*http.Request, error) {
-	rel, err := url.Parse(urlStr)
+	if !strings.HasSuffix(c.UploadURL.Path, "/") {
+		return nil, fmt.Errorf("UploadURL must have a trailing slash, but %q does not", c.UploadURL)
+	}
+	u, err := c.UploadURL.Parse(urlStr)
 	if err != nil {
 		return nil, err
 	}
 
-	u := c.UploadURL.ResolveReference(rel)
 	req, err := http.NewRequest("POST", u.String(), reader)
 	if err != nil {
 		return nil, err
@@ -396,7 +446,7 @@ func parseRate(r *http.Response) Rate {
 // The provided ctx must be non-nil. If it is canceled or times out,
 // ctx.Err() will be returned.
 func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*Response, error) {
-	ctx, req = withContext(ctx, req)
+	req = withContext(ctx, req)
 
 	rateLimitCategory := category(req.URL.Path)
 
@@ -809,14 +859,21 @@ func (t *UnauthenticatedRateLimitedTransport) RoundTrip(req *http.Request) (*htt
 	// To set extra querystring params, we must make a copy of the Request so
 	// that we don't modify the Request we were given. This is required by the
 	// specification of http.RoundTripper.
-	req = cloneRequest(req)
-	q := req.URL.Query()
+	//
+	// Since we are going to modify only req.URL here, we only need a deep copy
+	// of req.URL.
+	req2 := new(http.Request)
+	*req2 = *req
+	req2.URL = new(url.URL)
+	*req2.URL = *req.URL
+
+	q := req2.URL.Query()
 	q.Set("client_id", t.ClientID)
 	q.Set("client_secret", t.ClientSecret)
-	req.URL.RawQuery = q.Encode()
+	req2.URL.RawQuery = q.Encode()
 
 	// Make the HTTP request.
-	return t.transport().RoundTrip(req)
+	return t.transport().RoundTrip(req2)
 }
 
 // Client returns an *http.Client that makes requests which are subject to the
@@ -848,12 +905,24 @@ type BasicAuthTransport struct {
 
 // RoundTrip implements the RoundTripper interface.
 func (t *BasicAuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	req = cloneRequest(req) // per RoundTrip contract
-	req.SetBasicAuth(t.Username, t.Password)
-	if t.OTP != "" {
-		req.Header.Set(headerOTP, t.OTP)
+	// To set extra headers, we must make a copy of the Request so
+	// that we don't modify the Request we were given. This is required by the
+	// specification of http.RoundTripper.
+	//
+	// Since we are going to modify only req.Header here, we only need a deep copy
+	// of req.Header.
+	req2 := new(http.Request)
+	*req2 = *req
+	req2.Header = make(http.Header, len(req.Header))
+	for k, s := range req.Header {
+		req2.Header[k] = append([]string(nil), s...)
 	}
-	return t.transport().RoundTrip(req)
+
+	req2.SetBasicAuth(t.Username, t.Password)
+	if t.OTP != "" {
+		req2.Header.Set(headerOTP, t.OTP)
+	}
+	return t.transport().RoundTrip(req2)
 }
 
 // Client returns an *http.Client that makes requests that are authenticated
@@ -867,20 +936,6 @@ func (t *BasicAuthTransport) transport() http.RoundTripper {
 		return t.Transport
 	}
 	return http.DefaultTransport
-}
-
-// cloneRequest returns a clone of the provided *http.Request. The clone is a
-// shallow copy of the struct and its Header map.
-func cloneRequest(r *http.Request) *http.Request {
-	// shallow copy of the struct
-	r2 := new(http.Request)
-	*r2 = *r
-	// deep copy of the Header
-	r2.Header = make(http.Header, len(r.Header))
-	for k, s := range r.Header {
-		r2.Header[k] = append([]string(nil), s...)
-	}
-	return r2
 }
 
 // formatRateReset formats d to look like "[rate reset in 2s]" or
