@@ -101,7 +101,7 @@ func getNewTestRepo(t *testing.T) (*Repository, *httptest.Server) {
 		return nil, nil
 	}
 	ts := httptest.NewServer(http.HandlerFunc(githubHandler))
-	repo.Client.BaseURL, _ = url.Parse(ts.URL)
+	repo.Client.BaseURL, _ = url.Parse(ts.URL + "/")
 	return repo, ts
 }
 
