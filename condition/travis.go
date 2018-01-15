@@ -42,7 +42,10 @@ func Travis(token, defaultBranch string, private bool) error {
 	}
 
 	endpoint := travis.TRAVIS_API_DEFAULT_URL
-	if private {
+	if travisHost := os.Getenv("TRAVIS_ENTERPRISE_HOST"); travisHost != "" {
+		logger.Printf("Using Travis CI enterprise host: %s\n", travisHost)
+		endpoint = fmt.Sprintf("https://%s/api/", travisHost)
+	} else if private {
 		logger.Println("repo is private")
 		endpoint = travis.TRAVIS_API_PRO_URL
 	}
