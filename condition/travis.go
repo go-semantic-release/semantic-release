@@ -3,7 +3,7 @@ package condition
 import (
 	"errors"
 	"fmt"
-	"github.com/Ableton/go-travis"
+	"github.com/christophwitzko/go-travis"
 	"log"
 	"os"
 	"strconv"

@@ -5,4 +5,4 @@ import:
   subpackages:
   - github
 - package: golang.org/x/oauth2
-- package: github.com/Ableton/go-travis
+- package: github.com/christophwitzko/go-travis

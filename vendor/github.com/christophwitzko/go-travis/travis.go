@@ -40,7 +40,7 @@ const (
 // A Client manages communication with the Travis CI API.
 type Client struct {
 	// HTTP client used to communicate with the API
-	client *http.Client
+	HTTPClient *http.Client
 
 	// Headers to attach to every requests made with the client.
 	// As a default, Headers will be used to provide Travis API authentication
@@ -75,13 +75,16 @@ func NewClient(baseUrl string, travisToken string) *Client {
 	bu, _ := url.Parse(baseUrl)
 	bh := map[string]string{
 		"Content-Type": TRAVIS_REQUEST_CONTENT_TYPE,
-		"User-Agent":   TRAVIS_USER_AGENT,
 		"Accept":       TRAVIS_REQUEST_ACCEPT_HEADER,
 		"Host":         bu.Host,
 	}
 
 	c := &Client{
-		client:    http.DefaultClient,
+		HTTPClient: &http.Client{
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		},
 		Headers:   bh,
 		BaseURL:   bu,
 		UserAgent: TRAVIS_USER_AGENT,
@@ -139,6 +142,8 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}, headers map
 		return nil, err
 	}
 
+	req.Header.Set("User-Agent", c.UserAgent)
+
 	var h map[string]string = c.Headers
 	if headers != nil {
 		for k, v := range headers {
@@ -159,7 +164,7 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}, headers map
 // interface, the raw response body will be written to v, without attempting to
 // first decode it.
 func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
-	resp, err := c.client.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -225,7 +230,9 @@ func checkResponse(r *http.Response) error {
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err == nil && data != nil {
-		json.Unmarshal(data, errorResponse)
+		if err := json.Unmarshal(data, errorResponse); err != nil {
+			errorResponse.Message = string(data)
+		}
 	}
 
 	return errorResponse
