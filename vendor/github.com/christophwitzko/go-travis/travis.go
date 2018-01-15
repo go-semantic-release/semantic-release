@@ -20,6 +20,7 @@ import (
 	"net/url"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/google/go-querystring/query"
 	"github.com/oleiade/reflections"
@@ -121,7 +122,7 @@ func NewDefaultClient(travisToken string) *Client {
 // request body. If specified, the map provided by headers will be used to udate
 // request headers.
 func (c *Client) NewRequest(method, urlStr string, body interface{}, headers map[string]string) (*http.Request, error) {
-	rel, err := url.Parse(urlStr)
+	rel, err := url.Parse(strings.TrimLeft(urlStr, "/"))
 	if err != nil {
 		return nil, err
 	}

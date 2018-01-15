@@ -1,8 +1,8 @@
 hash: b5daedabf7554d3957bfc05a40a3dfd6ab5f835e2078b2e11c82a6117f33a742
-updated: 2018-01-15T22:04:05.180142+01:00
+updated: 2018-01-15T22:30:25.666062+01:00
 imports:
 - name: github.com/christophwitzko/go-travis
-  version: 3fc7bb956d3593bc782f841f359ba4d21bdef117
+  version: 5311d81d834b5e8a60413b3c37d14bf8118067a4
 - name: github.com/fatih/structs
   version: 253b866009f3c281655a29eb8a31bcd759a0dbdb
 - name: github.com/golang/protobuf

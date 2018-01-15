@@ -42,6 +42,29 @@ func TestClient_NewRequest(t *testing.T) {
 
 }
 
+func TestClient_NewRequest_enterprise(t *testing.T) {
+	enterpriseUrl := "https://travis.enterprise/api/"
+	c := NewClient(enterpriseUrl, "")
+
+	req, err := c.NewRequest("GET", "/test", nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert(
+		t,
+		req.Method == "GET",
+		"Wrong Request Method set",
+	)
+
+	assert(
+		t,
+		req.URL.String() == enterpriseUrl+"test",
+		"Wrong Request URL set",
+	)
+
+}
+
 func TestClient_NewRequest_with_nil_headers_provided(t *testing.T) {
 	baseUrl, _ := url.Parse(TRAVIS_API_DEFAULT_URL)
 	c := NewClient(TRAVIS_API_DEFAULT_URL, "")
