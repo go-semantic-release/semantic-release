@@ -67,7 +67,7 @@ func NewRepository(ctx context.Context, gheHost, slug, token string) (*Repositor
 	repo.Ctx = ctx
 	oauthClient := oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token}))
 	if gheHost != "" {
-		gheUrl := fmt.Sprintf("https://%s/", gheHost)
+		gheUrl := fmt.Sprintf("https://%s/api/v3/", gheHost)
 		rClient, err := github.NewEnterpriseClient(gheUrl, gheUrl, oauthClient)
 		if err != nil {
 			return nil, err
