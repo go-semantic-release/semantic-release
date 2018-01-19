@@ -51,6 +51,7 @@ func main() {
 	vFile := flag.Bool("vf", false, "create a .version file")
 	showVersion := flag.Bool("version", false, "outputs the semantic-release version")
 	updateFile := flag.String("update", "", "updates the version of a certain file")
+	gheHost := flag.String("ghe-host", os.Getenv("GITHUB_ENTERPRISE_HOST"), "github enterprise host")
 	flag.Parse()
 
 	if *showVersion {
@@ -72,7 +73,7 @@ func main() {
 		exitIfError(errors.New("slug missing"))
 	}
 
-	repo, err := semrel.NewRepository(context.TODO(), *slug, *token)
+	repo, err := semrel.NewRepository(context.TODO(), *gheHost, *slug, *token)
 	exitIfError(err)
 
 	logger.Println("getting default branch...")

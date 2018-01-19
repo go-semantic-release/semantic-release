@@ -56,7 +56,7 @@ type Repository struct {
 	Client *github.Client
 }
 
-func NewRepository(ctx context.Context, slug, token string) (*Repository, error) {
+func NewRepository(ctx context.Context, gheHost, slug, token string) (*Repository, error) {
 	if !strings.Contains(slug, "/") {
 		return nil, errors.New("invalid slug")
 	}
@@ -65,9 +65,17 @@ func NewRepository(ctx context.Context, slug, token string) (*Repository, error)
 	repo.Owner = splited[0]
 	repo.Repo = splited[1]
 	repo.Ctx = ctx
-	repo.Client = github.NewClient(oauth2.NewClient(ctx, oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)))
+	oauthClient := oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token}))
+	if gheHost != "" {
+		gheUrl := fmt.Sprintf("https://%s/", gheHost)
+		rClient, err := github.NewEnterpriseClient(gheUrl, gheUrl, oauthClient)
+		if err != nil {
+			return nil, err
+		}
+		repo.Client = rClient
+	} else {
+		repo.Client = github.NewClient(oauthClient)
+	}
 	return repo, nil
 }
 

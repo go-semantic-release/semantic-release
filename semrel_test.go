@@ -14,13 +14,17 @@ import (
 )
 
 func TestNewRepository(t *testing.T) {
-	repo, err := NewRepository(context.TODO(), "", "")
+	repo, err := NewRepository(context.TODO(), "", "", "")
 	if repo != nil || err == nil {
 		t.Fatal("invalid initialization")
 	}
-	repo, err = NewRepository(context.TODO(), "owner/test-repo", "token")
+	repo, err = NewRepository(context.TODO(), "", "owner/test-repo", "token")
 	if repo == nil || err != nil {
 		t.Fatal("invalid initialization")
+	}
+	repo, err = NewRepository(context.TODO(), "github.enterprise", "owner/test-repo", "token")
+	if repo.Client.BaseURL.Host != "github.enterprise" || err != nil {
+		t.Fatal("invalid enterprise initialization")
 	}
 }
 
@@ -95,7 +99,7 @@ func githubHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getNewTestRepo(t *testing.T) (*Repository, *httptest.Server) {
-	repo, err := NewRepository(context.TODO(), "owner/test-repo", "token")
+	repo, err := NewRepository(context.TODO(), "", "owner/test-repo", "token")
 	if err != nil {
 		t.Fatal(err)
 		return nil, nil
