@@ -52,6 +52,7 @@ func main() {
 	showVersion := flag.Bool("version", false, "outputs the semantic-release version")
 	updateFile := flag.String("update", "", "updates the version of a certain file")
 	gheHost := flag.String("ghe-host", os.Getenv("GITHUB_ENTERPRISE_HOST"), "github enterprise host")
+	isPrerelease := flag.Bool("prerelease", false, "flags the release as a prerelease")
 	flag.Parse()
 
 	if *showVersion {
@@ -136,7 +137,7 @@ func main() {
 	}
 
 	logger.Println("creating release...")
-	exitIfError(repo.CreateRelease(changelog, newVer, currentBranch, currentSha))
+	exitIfError(repo.CreateRelease(changelog, newVer, *isPrerelease, currentBranch, currentSha))
 
 	if *ghr {
 		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repo.Owner, repo.Repo, newVer.String())), 0644))

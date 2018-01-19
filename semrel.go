@@ -189,9 +189,9 @@ func (repo *Repository) GetLatestRelease(vrange string) (*Release, error) {
 	return &Release{lastRelease.SHA, &npver}, nil
 }
 
-func (repo *Repository) CreateRelease(changelog string, newVersion *semver.Version, branch, sha string) error {
+func (repo *Repository) CreateRelease(changelog string, newVersion *semver.Version, prerelease bool, branch, sha string) error {
 	tag := fmt.Sprintf("v%s", newVersion.String())
-	hasPrerelease := newVersion.Prerelease() != ""
+	isPrerelease := prerelease || newVersion.Prerelease() != ""
 
 	if branch != sha {
 		ref := "refs/tags/" + tag
@@ -210,7 +210,7 @@ func (repo *Repository) CreateRelease(changelog string, newVersion *semver.Versi
 		Name:            &tag,
 		TargetCommitish: &branch,
 		Body:            &changelog,
-		Prerelease:      &hasPrerelease,
+		Prerelease:      &isPrerelease,
 	}
 	_, _, err := repo.Client.Repositories.CreateRelease(repo.Ctx, repo.Owner, repo.Repo, opts)
 	if err != nil {

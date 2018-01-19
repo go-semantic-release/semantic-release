@@ -191,7 +191,7 @@ func TestCreateRelease(t *testing.T) {
 	repo, ts := getNewTestRepo(t)
 	defer ts.Close()
 	newVersion, _ := semver.NewVersion("2.0.0")
-	err := repo.CreateRelease("", newVersion, "", "deadbeef")
+	err := repo.CreateRelease("", newVersion, false, "", "deadbeef")
 	if err != nil {
 		t.Fatal(err)
 	}
