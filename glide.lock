@@ -1,5 +1,5 @@
-hash: b5daedabf7554d3957bfc05a40a3dfd6ab5f835e2078b2e11c82a6117f33a742
-updated: 2018-01-15T22:30:25.666062+01:00
+hash: 76eaafb788d6388dd76cf37c1c2ae75343ea08af15244fe86e770d4429059d15
+updated: 2018-01-20T11:44:50.914203+01:00
 imports:
 - name: github.com/christophwitzko/go-travis
   version: 5311d81d834b5e8a60413b3c37d14bf8118067a4
@@ -10,7 +10,7 @@ imports:
   subpackages:
   - proto
 - name: github.com/google/go-github
-  version: c988f775700b9ab14b5acb7502046fa341daf82d
+  version: 922ceac0585d40f97d283d921f872fc50480e06e
   subpackages:
   - github
 - name: github.com/google/go-querystring
@@ -27,7 +27,7 @@ imports:
   - context
   - context/ctxhttp
 - name: golang.org/x/oauth2
-  version: 30785a2c434e431ef7c507b54617d6a951d5f2b4
+  version: b28fcf2b08a19742b43084fb40ab78ac6c3d8067
   subpackages:
   - internal
 - name: google.golang.org/appengine
