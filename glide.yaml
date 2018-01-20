@@ -1,4 +1,4 @@
-package: github.com/go-semantic-release/go-semantic-release
+package: github.com/go-semantic-release/semantic-release
 import:
 - package: github.com/Masterminds/semver
 - package: github.com/google/go-github

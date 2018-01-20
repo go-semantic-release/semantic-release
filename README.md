@@ -1,5 +1,5 @@
 # :package::rocket: semantic-release
-[![Build Status](https://travis-ci.org/go-semantic-release/go-semantic-release.svg?branch=master)](https://travis-ci.org/go-semantic-release/go-semantic-release)
+[![Build Status](https://travis-ci.org/go-semantic-release/semantic-release.svg?branch=master)](https://travis-ci.org/go-semantic-release/semantic-release)
 
 > fully automated package/module/image publishing
 
