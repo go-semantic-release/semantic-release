@@ -1,15 +1,15 @@
 {
-  "name": "go-semantic-release",
-  "version": "0.0.0-development",
   "bin": "./bin",
-  "scripts": {
-    "install": "node install.js"
-  },
   "dependencies": {
     "download": "^6.2.2"
   },
   "files": [
     "install.js",
     "bin"
-  ]
+  ],
+  "name": "go-semantic-release",
+  "scripts": {
+    "install": "node install.js"
+  },
+  "version": "1.7.0-sameShaGetVersion.4"
 }

@@ -3,9 +3,9 @@
 set -e
 
 rm -rf ./bin
-semantic-release -flow -noci -ghr -vf -update ./npm-package/package.json
+semantic-release -nochange -flow -noci -ghr -vf -update ./npm-package/package.json
 export VERSION=$(cat .version)
-gox -ldflags="-s -w -X main.SRVERSION=$VERSION" -output="bin/{{.Dir}}_v"$VERSION"_{{.OS}}_{{.Arch}}" ./cmd/semantic-release/
+gox -osarch="darwin/amd64 linux/amd64 linux/arm64" -ldflags="-s -w -X main.SRVERSION=$VERSION" -output="bin/{{.Dir}}_v"$VERSION"_{{.OS}}_{{.Arch}}" ./cmd/semantic-release/
 ghr $(cat .ghr) ./bin/
 
 #cd ./npm-package && npm publish

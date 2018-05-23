@@ -129,10 +129,10 @@ func TestGetCommits(t *testing.T) {
 		t.Fatal("invalid response")
 	}
 
-	if !compareCommit(commits[0], "feat", "app", Change{false, true, false}) ||
-		!compareCommit(commits[1], "fix", "", Change{false, false, true}) ||
-		!compareCommit(commits[2], "", "", Change{false, false, false}) ||
-		!compareCommit(commits[3], "chore", "", Change{true, false, false}) {
+	if !compareCommit(commits[0], "feat", "app", Change{false, true, false, false}) ||
+		!compareCommit(commits[1], "fix", "", Change{false, false, true, false}) ||
+		!compareCommit(commits[2], "", "", Change{false, false, false, false}) ||
+		!compareCommit(commits[3], "chore", "", Change{true, false, false, false}) {
 		t.Fatal("invalid commits")
 	}
 }
@@ -184,9 +184,9 @@ func TestCreateRelease(t *testing.T) {
 
 func TestCalculateChange(t *testing.T) {
 	commits := []*Commit{
-		{SHA: "a", Change: Change{true, false, false}},
-		{SHA: "b", Change: Change{false, true, false}},
-		{SHA: "c", Change: Change{false, false, true}},
+		{SHA: "a", Change: Change{true, false, false, false}},
+		{SHA: "b", Change: Change{false, true, false, false}},
+		{SHA: "c", Change: Change{false, false, true, false}},
 	}
 	change := CalculateChange(commits, &Release{})
 	if !change.Major || !change.Minor || !change.Patch {
@@ -195,9 +195,11 @@ func TestCalculateChange(t *testing.T) {
 	change = CalculateChange(commits, &Release{SHA: "a"})
 	if change.Major || change.Minor || change.Patch {
 		t.Fail()
+	} else if !change.NoChange {
+		t.Fail()
 	}
 	version, _ := semver.NewVersion("1.0.0")
-	newVersion := GetNewVersion(commits, &Release{SHA: "b", Version: version},"")
+	newVersion := GetNewVersion(commits, &Release{SHA: "b", Version: version}, "")
 	if newVersion.String() != "2.0.0" {
 		t.Fail()
 	}
@@ -205,19 +207,19 @@ func TestCalculateChange(t *testing.T) {
 
 func TestApplyChange(t *testing.T) {
 	version, _ := semver.NewVersion("1.0.0")
-	newVersion := ApplyChange(version, "", Change{false, false, false})
+	newVersion := ApplyChange(version, "", Change{false, false, false, false})
 	if newVersion != nil {
 		t.Errorf("newVersion should be nil")
 	}
-	newVersion = ApplyChange(version, "", Change{false, false, true})
+	newVersion = ApplyChange(version, "", Change{false, false, true, false})
 	if newVersion.String() != "1.0.1" {
 		t.Errorf("Expected newVersion to be 1.0.1 but was %s", newVersion.String())
 	}
-	newVersion = ApplyChange(version, "", Change{false, true, true})
+	newVersion = ApplyChange(version, "", Change{false, true, true, false})
 	if newVersion.String() != "1.1.0" {
 		t.Errorf("Expected newVersion to be 1.1.0 but was %s", newVersion.String())
 	}
-	newVersion = ApplyChange(version, "", Change{true, true, true})
+	newVersion = ApplyChange(version, "", Change{true, true, true, false})
 	if newVersion.String() != "2.0.0" {
 		t.Errorf("Expected newVersion to be 2.0.0 but was %s", newVersion.String())
 	}
@@ -227,17 +229,17 @@ func TestApplyChange(t *testing.T) {
 		t.Errorf("Expected newVersion to be 1.0.0 but was %s", newVersion.String())
 	}
 	version, _ = semver.NewVersion("2.0.0-beta")
-	newVersion = ApplyChange(version, "", Change{true, true, true})
+	newVersion = ApplyChange(version, "", Change{true, true, true, false})
 	if newVersion.String() != "2.0.0-beta.1" {
 		t.Errorf("Expected newVersion to be 2.0.0-beta.1 but was %s", newVersion.String())
 	}
 	version, _ = semver.NewVersion("2.0.0-beta.2")
-	newVersion = ApplyChange(version, "", Change{true, true, true})
+	newVersion = ApplyChange(version, "", Change{true, true, true, false})
 	if newVersion.String() != "2.0.0-beta.3" {
 		t.Errorf("Expected newVersion to be 2.0.0-beta.3 but was %s", newVersion.String())
 	}
 	version, _ = semver.NewVersion("2.0.0-beta.1.1")
-	newVersion = ApplyChange(version, "", Change{true, true, true})
+	newVersion = ApplyChange(version, "", Change{true, true, true, false})
 	if newVersion.String() != "2.0.0-beta.2" {
 		t.Errorf("Expected newVersion to be 2.0.0-beta.2 but was %s", newVersion.String())
 	}
