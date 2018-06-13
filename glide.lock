@@ -1,16 +1,16 @@
 hash: 76eaafb788d6388dd76cf37c1c2ae75343ea08af15244fe86e770d4429059d15
-updated: 2018-01-20T11:44:50.914203+01:00
+updated: 2018-06-13T21:51:27.502367+02:00
 imports:
 - name: github.com/christophwitzko/go-travis
   version: 5311d81d834b5e8a60413b3c37d14bf8118067a4
 - name: github.com/fatih/structs
-  version: 253b866009f3c281655a29eb8a31bcd759a0dbdb
+  version: ebf56d35bba727c68ac77f56f2fcf90b181851aa
 - name: github.com/golang/protobuf
-  version: 1e59b77b52bf8e4b449a57e6f79f21226d571845
+  version: 5831880292e721c76b58a16ecc60adc27d8e6355
   subpackages:
   - proto
 - name: github.com/google/go-github
-  version: 922ceac0585d40f97d283d921f872fc50480e06e
+  version: a83ae98ad5d09188c49d6056edb60ec9bdf202bd
   subpackages:
   - github
 - name: github.com/google/go-querystring
@@ -18,20 +18,20 @@ imports:
   subpackages:
   - query
 - name: github.com/Masterminds/semver
-  version: 15d8430ab86497c5c0da827b748823945e1cf1e1
+  version: 3c560837130448941620d7694991d3ec440aefc0
 - name: github.com/oleiade/reflections
   version: 0e86b3c98b2ff33e30c85cfe97d9a63d439fe7eb
 - name: golang.org/x/net
-  version: 5ccada7d0a7ba9aeb5d3aca8d3501b4c2a509fec
+  version: db08ff08e8622530d9ed3a0e8ac279f6d4c02196
   subpackages:
   - context
   - context/ctxhttp
 - name: golang.org/x/oauth2
-  version: b28fcf2b08a19742b43084fb40ab78ac6c3d8067
+  version: 1e0a3fa8ba9a5c9eb35c271780101fdaf1b205d7
   subpackages:
   - internal
 - name: google.golang.org/appengine
-  version: 5bee14b453b4c71be47ec1781b0fa61c2ea182db
+  version: b1f26356af11148e710935ed1ac8a7f5702c7612
   subpackages:
   - internal
   - internal/base
