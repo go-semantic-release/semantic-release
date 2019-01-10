@@ -53,6 +53,7 @@ func main() {
 	updateFile := flag.String("update", "", "updates the version of a certain file")
 	gheHost := flag.String("ghe-host", os.Getenv("GITHUB_ENTERPRISE_HOST"), "github enterprise host")
 	isPrerelease := flag.Bool("prerelease", false, "flags the release as a prerelease")
+	isTravisCom := flag.Bool("travis-com", false, "force semantic-release to use the travis-ci.com API endpoint")
 	flag.Parse()
 
 	if *showVersion {
@@ -81,6 +82,9 @@ func main() {
 	defaultBranch, isPrivate, err := repo.GetInfo()
 	exitIfError(err)
 	logger.Println("found default branch: " + defaultBranch)
+	if isPrivate {
+		logger.Println("repo is private")
+	}
 
 	currentBranch := condition.GetCurrentBranch()
 	if currentBranch == "" {
@@ -103,7 +107,7 @@ func main() {
 
 	if !*noci {
 		logger.Println("running CI condition...")
-		exitIfError(condition.Travis(*token, defaultBranch, isPrivate))
+		exitIfError(condition.Travis(*token, defaultBranch, isPrivate || *isTravisCom))
 	}
 
 	logger.Println("getting latest release...")
