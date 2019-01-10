@@ -27,36 +27,52 @@ type MarketplaceService struct {
 
 // MarketplacePlan represents a GitHub Apps Marketplace Listing Plan.
 type MarketplacePlan struct {
-	URL                 *string   `json:"url,omitempty"`
-	AccountsURL         *string   `json:"accounts_url,omitempty"`
-	ID                  *int64    `json:"id,omitempty"`
-	Name                *string   `json:"name,omitempty"`
-	Description         *string   `json:"description,omitempty"`
-	MonthlyPriceInCents *int      `json:"monthly_price_in_cents,omitempty"`
-	YearlyPriceInCents  *int      `json:"yearly_price_in_cents,omitempty"`
-	PriceModel          *string   `json:"price_model,omitempty"`
-	UnitName            *string   `json:"unit_name,omitempty"`
-	Bullets             *[]string `json:"bullets,omitempty"`
+	URL                 *string `json:"url,omitempty"`
+	AccountsURL         *string `json:"accounts_url,omitempty"`
+	ID                  *int64  `json:"id,omitempty"`
+	Name                *string `json:"name,omitempty"`
+	Description         *string `json:"description,omitempty"`
+	MonthlyPriceInCents *int    `json:"monthly_price_in_cents,omitempty"`
+	YearlyPriceInCents  *int    `json:"yearly_price_in_cents,omitempty"`
+	// The pricing model for this listing.  Can be one of "flat-rate", "per-unit", or "free".
+	PriceModel *string   `json:"price_model,omitempty"`
+	UnitName   *string   `json:"unit_name,omitempty"`
+	Bullets    *[]string `json:"bullets,omitempty"`
+	// State can be one of the values "draft" or "published".
+	State        *string `json:"state,omitempty"`
+	HasFreeTrial *bool   `json:"has_free_trial,omitempty"`
 }
 
 // MarketplacePurchase represents a GitHub Apps Marketplace Purchase.
 type MarketplacePurchase struct {
+	// BillingCycle can be one of the values "yearly", "monthly" or nil.
 	BillingCycle    *string                 `json:"billing_cycle,omitempty"`
-	NextBillingDate *string                 `json:"next_billing_date,omitempty"`
+	NextBillingDate *Timestamp              `json:"next_billing_date,omitempty"`
 	UnitCount       *int                    `json:"unit_count,omitempty"`
 	Plan            *MarketplacePlan        `json:"plan,omitempty"`
 	Account         *MarketplacePlanAccount `json:"account,omitempty"`
+	OnFreeTrial     *bool                   `json:"on_free_trial,omitempty"`
+	FreeTrialEndsOn *Timestamp              `json:"free_trial_ends_on,omitempty"`
+}
+
+// MarketplacePendingChange represents a pending change to a GitHub Apps Marketplace Plan.
+type MarketplacePendingChange struct {
+	EffectiveDate *Timestamp       `json:"effective_date,omitempty"`
+	UnitCount     *int             `json:"unit_count,omitempty"`
+	ID            *int64           `json:"id,omitempty"`
+	Plan          *MarketplacePlan `json:"plan,omitempty"`
 }
 
 // MarketplacePlanAccount represents a GitHub Account (user or organization) on a specific plan.
 type MarketplacePlanAccount struct {
-	URL                      *string              `json:"url,omitempty"`
-	Type                     *string              `json:"type,omitempty"`
-	ID                       *int64               `json:"id,omitempty"`
-	Login                    *string              `json:"login,omitempty"`
-	Email                    *string              `json:"email,omitempty"`
-	OrganizationBillingEmail *string              `json:"organization_billing_email,omitempty"`
-	MarketplacePurchase      *MarketplacePurchase `json:"marketplace_purchase,omitempty"`
+	URL                      *string                   `json:"url,omitempty"`
+	Type                     *string                   `json:"type,omitempty"`
+	ID                       *int64                    `json:"id,omitempty"`
+	Login                    *string                   `json:"login,omitempty"`
+	Email                    *string                   `json:"email,omitempty"`
+	OrganizationBillingEmail *string                   `json:"organization_billing_email,omitempty"`
+	MarketplacePurchase      *MarketplacePurchase      `json:"marketplace_purchase,omitempty"`
+	MarketplacePendingChange *MarketplacePendingChange `json:"marketplace_pending_change,omitempty"`
 }
 
 // ListPlans lists all plans for your Marketplace listing.
@@ -73,9 +89,6 @@ func (s *MarketplaceService) ListPlans(ctx context.Context, opt *ListOptions) ([
 	if err != nil {
 		return nil, nil, err
 	}
-
-	// TODO: remove custom Accept header when this API fully launches.
-	req.Header.Set("Accept", mediaTypeMarketplacePreview)
 
 	var plans []*MarketplacePlan
 	resp, err := s.client.Do(ctx, req, &plans)
@@ -101,9 +114,6 @@ func (s *MarketplaceService) ListPlanAccountsForPlan(ctx context.Context, planID
 		return nil, nil, err
 	}
 
-	// TODO: remove custom Accept header when this API fully launches.
-	req.Header.Set("Accept", mediaTypeMarketplacePreview)
-
 	var accounts []*MarketplacePlanAccount
 	resp, err := s.client.Do(ctx, req, &accounts)
 	if err != nil {
@@ -127,9 +137,6 @@ func (s *MarketplaceService) ListPlanAccountsForAccount(ctx context.Context, acc
 	if err != nil {
 		return nil, nil, err
 	}
-
-	// TODO: remove custom Accept header when this API fully launches.
-	req.Header.Set("Accept", mediaTypeMarketplacePreview)
 
 	var accounts []*MarketplacePlanAccount
 	resp, err := s.client.Do(ctx, req, &accounts)
@@ -159,15 +166,11 @@ func (s *MarketplaceService) ListMarketplacePurchasesForUser(ctx context.Context
 		return nil, nil, err
 	}
 
-	// TODO: remove custom Accept header when this API fully launches.
-	req.Header.Set("Accept", mediaTypeMarketplacePreview)
-
 	var purchases []*MarketplacePurchase
 	resp, err := s.client.Do(ctx, req, &purchases)
 	if err != nil {
 		return nil, resp, err
 	}
-
 	return purchases, resp, nil
 }
 

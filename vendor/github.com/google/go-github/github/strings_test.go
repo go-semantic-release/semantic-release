@@ -54,11 +54,11 @@ func TestStringify(t *testing.T) {
 
 		// actual GitHub structs
 		{
-			Timestamp{time.Date(2006, 01, 02, 15, 04, 05, 0, time.UTC)},
+			Timestamp{time.Date(2006, time.January, 02, 15, 04, 05, 0, time.UTC)},
 			`github.Timestamp{2006-01-02 15:04:05 +0000 UTC}`,
 		},
 		{
-			&Timestamp{time.Date(2006, 01, 02, 15, 04, 05, 0, time.UTC)},
+			&Timestamp{time.Date(2006, time.January, 02, 15, 04, 05, 0, time.UTC)},
 			`github.Timestamp{2006-01-02 15:04:05 +0000 UTC}`,
 		},
 		{
@@ -101,7 +101,7 @@ func TestString(t *testing.T) {
 		{Gist{ID: String("1")}, `github.Gist{ID:"1", Files:map[]}`},
 		{GitObject{SHA: String("s")}, `github.GitObject{SHA:"s"}`},
 		{Gitignore{Name: String("n")}, `github.Gitignore{Name:"n"}`},
-		{Hook{ID: Int64(1)}, `github.Hook{Config:map[], ID:1}`},
+		{Hook{ID: Int64(1)}, `github.Hook{ID:1, Config:map[]}`},
 		{IssueComment{ID: Int64(1)}, `github.IssueComment{ID:1}`},
 		{Issue{Number: Int(1)}, `github.Issue{Number:1}`},
 		{Key{ID: Int64(1)}, `github.Key{ID:1}`},

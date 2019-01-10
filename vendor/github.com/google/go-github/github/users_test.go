@@ -153,6 +153,29 @@ func TestUsersService_Edit(t *testing.T) {
 	}
 }
 
+func TestUsersService_GetHovercard(t *testing.T) {
+	client, mux, _, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/users/u/hovercard", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testHeader(t, r, "Accept", mediaTypeHovercardPreview)
+		testFormValues(t, r, values{"subject_type": "repository", "subject_id": "20180408"})
+		fmt.Fprint(w, `{"contexts": [{"message":"Owns this repository", "octicon": "repo"}]}`)
+	})
+
+	opt := &HovercardOptions{SubjectType: "repository", SubjectID: "20180408"}
+	hovercard, _, err := client.Users.GetHovercard(context.Background(), "u", opt)
+	if err != nil {
+		t.Errorf("Users.GetHovercard returned error: %v", err)
+	}
+
+	want := &Hovercard{Contexts: []*UserContext{{Message: String("Owns this repository"), Octicon: String("repo")}}}
+	if !reflect.DeepEqual(hovercard, want) {
+		t.Errorf("Users.GetHovercard returned %+v, want %+v", hovercard, want)
+	}
+}
+
 func TestUsersService_ListAll(t *testing.T) {
 	client, mux, _, teardown := setup()
 	defer teardown()
@@ -181,7 +204,6 @@ func TestUsersService_ListInvitations(t *testing.T) {
 
 	mux.HandleFunc("/user/repository_invitations", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		testHeader(t, r, "Accept", mediaTypeRepositoryInvitationsPreview)
 		fmt.Fprintf(w, `[{"id":1}, {"id":2}]`)
 	})
 
@@ -205,7 +227,6 @@ func TestUsersService_ListInvitations_withOptions(t *testing.T) {
 		testFormValues(t, r, values{
 			"page": "2",
 		})
-		testHeader(t, r, "Accept", mediaTypeRepositoryInvitationsPreview)
 		fmt.Fprintf(w, `[{"id":1}, {"id":2}]`)
 	})
 
@@ -220,7 +241,6 @@ func TestUsersService_AcceptInvitation(t *testing.T) {
 
 	mux.HandleFunc("/user/repository_invitations/1", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "PATCH")
-		testHeader(t, r, "Accept", mediaTypeRepositoryInvitationsPreview)
 		w.WriteHeader(http.StatusNoContent)
 	})
 
@@ -235,7 +255,6 @@ func TestUsersService_DeclineInvitation(t *testing.T) {
 
 	mux.HandleFunc("/user/repository_invitations/1", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "DELETE")
-		testHeader(t, r, "Accept", mediaTypeRepositoryInvitationsPreview)
 		w.WriteHeader(http.StatusNoContent)
 	})
 

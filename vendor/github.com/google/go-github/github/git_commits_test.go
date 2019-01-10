@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
-	"strings"
 	"testing"
 )
 
@@ -19,10 +18,8 @@ func TestGitService_GetCommit(t *testing.T) {
 	client, mux, _, teardown := setup()
 	defer teardown()
 
-	acceptHeaders := []string{mediaTypeGitSigningPreview, mediaTypeGraphQLNodeIDPreview}
 	mux.HandleFunc("/repos/o/r/git/commits/s", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
-		testHeader(t, r, "Accept", strings.Join(acceptHeaders, ", "))
 		fmt.Fprint(w, `{"sha":"s","message":"m","author":{"name":"n"}}`)
 	})
 
@@ -60,7 +57,6 @@ func TestGitService_CreateCommit(t *testing.T) {
 		json.NewDecoder(r.Body).Decode(v)
 
 		testMethod(t, r, "POST")
-		testHeader(t, r, "Accept", mediaTypeGraphQLNodeIDPreview)
 
 		want := &createCommit{
 			Message: input.Message,
