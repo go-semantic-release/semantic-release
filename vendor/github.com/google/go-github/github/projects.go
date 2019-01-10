@@ -8,7 +8,6 @@ package github
 import (
 	"context"
 	"fmt"
-	"strings"
 )
 
 // ProjectsService provides access to the projects functions in the
@@ -19,15 +18,18 @@ type ProjectsService service
 
 // Project represents a GitHub Project.
 type Project struct {
-	ID        *int64     `json:"id,omitempty"`
-	URL       *string    `json:"url,omitempty"`
-	OwnerURL  *string    `json:"owner_url,omitempty"`
-	Name      *string    `json:"name,omitempty"`
-	Body      *string    `json:"body,omitempty"`
-	Number    *int       `json:"number,omitempty"`
-	CreatedAt *Timestamp `json:"created_at,omitempty"`
-	UpdatedAt *Timestamp `json:"updated_at,omitempty"`
-	NodeID    *string    `json:"node_id,omitempty"`
+	ID         *int64     `json:"id,omitempty"`
+	URL        *string    `json:"url,omitempty"`
+	HTMLURL    *string    `json:"html_url,omitempty"`
+	ColumnsURL *string    `json:"columns_url,omitempty"`
+	OwnerURL   *string    `json:"owner_url,omitempty"`
+	Name       *string    `json:"name,omitempty"`
+	Body       *string    `json:"body,omitempty"`
+	Number     *int       `json:"number,omitempty"`
+	State      *string    `json:"state,omitempty"`
+	CreatedAt  *Timestamp `json:"created_at,omitempty"`
+	UpdatedAt  *Timestamp `json:"updated_at,omitempty"`
+	NodeID     *string    `json:"node_id,omitempty"`
 
 	// The User object that generated the project.
 	Creator *User `json:"creator,omitempty"`
@@ -48,8 +50,7 @@ func (s *ProjectsService) GetProject(ctx context.Context, id int64) (*Project, *
 	}
 
 	// TODO: remove custom Accept headers when APIs fully launch.
-	acceptHeaders := []string{mediaTypeProjectsPreview, mediaTypeGraphQLNodeIDPreview}
-	req.Header.Set("Accept", strings.Join(acceptHeaders, ", "))
+	req.Header.Set("Accept", mediaTypeProjectsPreview)
 
 	project := &Project{}
 	resp, err := s.client.Do(ctx, req, project)
@@ -65,15 +66,24 @@ func (s *ProjectsService) GetProject(ctx context.Context, id int64) (*Project, *
 // ProjectsService.UpdateProject methods.
 type ProjectOptions struct {
 	// The name of the project. (Required for creation; optional for update.)
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 	// The body of the project. (Optional.)
-	Body string `json:"body,omitempty"`
+	Body *string `json:"body,omitempty"`
 
 	// The following field(s) are only applicable for update.
 	// They should be left with zero values for creation.
 
 	// State of the project. Either "open" or "closed". (Optional.)
-	State string `json:"state,omitempty"`
+	State *string `json:"state,omitempty"`
+	// The permission level that all members of the project's organization
+	// will have on this project.
+	// Setting the organization permission is only available
+	// for organization projects. (Optional.)
+	OrganizationPermission *string `json:"organization_permission,omitempty"`
+	// Sets visibility of the project within the organization.
+	// Setting visibility is only available
+	// for organization projects.(Optional.)
+	Public *bool `json:"public,omitempty"`
 }
 
 // UpdateProject updates a repository project.
@@ -87,8 +97,7 @@ func (s *ProjectsService) UpdateProject(ctx context.Context, id int64, opt *Proj
 	}
 
 	// TODO: remove custom Accept headers when APIs fully launch.
-	acceptHeaders := []string{mediaTypeProjectsPreview, mediaTypeGraphQLNodeIDPreview}
-	req.Header.Set("Accept", strings.Join(acceptHeaders, ", "))
+	req.Header.Set("Accept", mediaTypeProjectsPreview)
 
 	project := &Project{}
 	resp, err := s.client.Do(ctx, req, project)
@@ -121,7 +130,9 @@ func (s *ProjectsService) DeleteProject(ctx context.Context, id int64) (*Respons
 type ProjectColumn struct {
 	ID         *int64     `json:"id,omitempty"`
 	Name       *string    `json:"name,omitempty"`
+	URL        *string    `json:"url,omitempty"`
 	ProjectURL *string    `json:"project_url,omitempty"`
+	CardsURL   *string    `json:"cards_url,omitempty"`
 	CreatedAt  *Timestamp `json:"created_at,omitempty"`
 	UpdatedAt  *Timestamp `json:"updated_at,omitempty"`
 	NodeID     *string    `json:"node_id,omitempty"`
@@ -143,8 +154,7 @@ func (s *ProjectsService) ListProjectColumns(ctx context.Context, projectID int6
 	}
 
 	// TODO: remove custom Accept headers when APIs fully launch.
-	acceptHeaders := []string{mediaTypeProjectsPreview, mediaTypeGraphQLNodeIDPreview}
-	req.Header.Set("Accept", strings.Join(acceptHeaders, ", "))
+	req.Header.Set("Accept", mediaTypeProjectsPreview)
 
 	columns := []*ProjectColumn{}
 	resp, err := s.client.Do(ctx, req, &columns)
@@ -166,8 +176,7 @@ func (s *ProjectsService) GetProjectColumn(ctx context.Context, id int64) (*Proj
 	}
 
 	// TODO: remove custom Accept headers when APIs fully launch.
-	acceptHeaders := []string{mediaTypeProjectsPreview, mediaTypeGraphQLNodeIDPreview}
-	req.Header.Set("Accept", strings.Join(acceptHeaders, ", "))
+	req.Header.Set("Accept", mediaTypeProjectsPreview)
 
 	column := &ProjectColumn{}
 	resp, err := s.client.Do(ctx, req, column)
@@ -197,8 +206,7 @@ func (s *ProjectsService) CreateProjectColumn(ctx context.Context, projectID int
 	}
 
 	// TODO: remove custom Accept headers when APIs fully launch.
-	acceptHeaders := []string{mediaTypeProjectsPreview, mediaTypeGraphQLNodeIDPreview}
-	req.Header.Set("Accept", strings.Join(acceptHeaders, ", "))
+	req.Header.Set("Accept", mediaTypeProjectsPreview)
 
 	column := &ProjectColumn{}
 	resp, err := s.client.Do(ctx, req, column)
@@ -220,8 +228,7 @@ func (s *ProjectsService) UpdateProjectColumn(ctx context.Context, columnID int6
 	}
 
 	// TODO: remove custom Accept headers when APIs fully launch.
-	acceptHeaders := []string{mediaTypeProjectsPreview, mediaTypeGraphQLNodeIDPreview}
-	req.Header.Set("Accept", strings.Join(acceptHeaders, ", "))
+	req.Header.Set("Accept", mediaTypeProjectsPreview)
 
 	column := &ProjectColumn{}
 	resp, err := s.client.Do(ctx, req, column)
@@ -285,15 +292,32 @@ type ProjectCard struct {
 	CreatedAt  *Timestamp `json:"created_at,omitempty"`
 	UpdatedAt  *Timestamp `json:"updated_at,omitempty"`
 	NodeID     *string    `json:"node_id,omitempty"`
+	Archived   *bool      `json:"archived,omitempty"`
 
 	// The following fields are only populated by Webhook events.
 	ColumnID *int64 `json:"column_id,omitempty"`
+
+	// The following fields are only populated by Events API.
+	ProjectID          *int64  `json:"project_id,omitempty"`
+	ProjectURL         *string `json:"project_url,omitempty"`
+	ColumnName         *string `json:"column_name,omitempty"`
+	PreviousColumnName *string `json:"previous_column_name,omitempty"` // Populated in "moved_columns_in_project" event deliveries.
+}
+
+// ProjectCardListOptions specifies the optional parameters to the
+// ProjectsService.ListProjectCards method.
+type ProjectCardListOptions struct {
+	// ArchivedState is used to list all, archived, or not_archived project cards.
+	// Defaults to not_archived when you omit this parameter.
+	ArchivedState *string `url:"archived_state,omitempty"`
+
+	ListOptions
 }
 
 // ListProjectCards lists the cards in a column of a GitHub Project.
 //
 // GitHub API docs: https://developer.github.com/v3/projects/cards/#list-project-cards
-func (s *ProjectsService) ListProjectCards(ctx context.Context, columnID int64, opt *ListOptions) ([]*ProjectCard, *Response, error) {
+func (s *ProjectsService) ListProjectCards(ctx context.Context, columnID int64, opt *ProjectCardListOptions) ([]*ProjectCard, *Response, error) {
 	u := fmt.Sprintf("projects/columns/%v/cards", columnID)
 	u, err := addOptions(u, opt)
 	if err != nil {
@@ -306,8 +330,7 @@ func (s *ProjectsService) ListProjectCards(ctx context.Context, columnID int64, 
 	}
 
 	// TODO: remove custom Accept headers when APIs fully launch.
-	acceptHeaders := []string{mediaTypeProjectsPreview, mediaTypeGraphQLNodeIDPreview}
-	req.Header.Set("Accept", strings.Join(acceptHeaders, ", "))
+	req.Header.Set("Accept", mediaTypeProjectsPreview)
 
 	cards := []*ProjectCard{}
 	resp, err := s.client.Do(ctx, req, &cards)
@@ -329,8 +352,7 @@ func (s *ProjectsService) GetProjectCard(ctx context.Context, columnID int64) (*
 	}
 
 	// TODO: remove custom Accept headers when APIs fully launch.
-	acceptHeaders := []string{mediaTypeProjectsPreview, mediaTypeGraphQLNodeIDPreview}
-	req.Header.Set("Accept", strings.Join(acceptHeaders, ", "))
+	req.Header.Set("Accept", mediaTypeProjectsPreview)
 
 	card := &ProjectCard{}
 	resp, err := s.client.Do(ctx, req, card)
@@ -350,8 +372,11 @@ type ProjectCardOptions struct {
 	// The ID (not Number) of the Issue to associate with this card.
 	// Note and ContentID are mutually exclusive.
 	ContentID int64 `json:"content_id,omitempty"`
-	// The type of content to associate with this card. Possible values are: "Issue".
+	// The type of content to associate with this card. Possible values are: "Issue" and "PullRequest".
 	ContentType string `json:"content_type,omitempty"`
+	// Use true to archive a project card.
+	// Specify false if you need to restore a previously archived project card.
+	Archived *bool `json:"archived,omitempty"`
 }
 
 // CreateProjectCard creates a card in the specified column of a GitHub Project.
@@ -365,8 +390,7 @@ func (s *ProjectsService) CreateProjectCard(ctx context.Context, columnID int64,
 	}
 
 	// TODO: remove custom Accept headers when APIs fully launch.
-	acceptHeaders := []string{mediaTypeProjectsPreview, mediaTypeGraphQLNodeIDPreview}
-	req.Header.Set("Accept", strings.Join(acceptHeaders, ", "))
+	req.Header.Set("Accept", mediaTypeProjectsPreview)
 
 	card := &ProjectCard{}
 	resp, err := s.client.Do(ctx, req, card)
@@ -388,8 +412,7 @@ func (s *ProjectsService) UpdateProjectCard(ctx context.Context, cardID int64, o
 	}
 
 	// TODO: remove custom Accept headers when APIs fully launch.
-	acceptHeaders := []string{mediaTypeProjectsPreview, mediaTypeGraphQLNodeIDPreview}
-	req.Header.Set("Accept", strings.Join(acceptHeaders, ", "))
+	req.Header.Set("Accept", mediaTypeProjectsPreview)
 
 	card := &ProjectCard{}
 	resp, err := s.client.Do(ctx, req, card)
@@ -442,4 +465,130 @@ func (s *ProjectsService) MoveProjectCard(ctx context.Context, cardID int64, opt
 	req.Header.Set("Accept", mediaTypeProjectsPreview)
 
 	return s.client.Do(ctx, req, nil)
+}
+
+// ProjectCollaboratorOptions specifies the optional parameters to the
+// ProjectsService.AddProjectCollaborator method.
+type ProjectCollaboratorOptions struct {
+	// Permission specifies the permission to grant to the collaborator.
+	// Possible values are:
+	//     "read" - can read, but not write to or administer this project.
+	//     "write" - can read and write, but not administer this project.
+	//     "admin" - can read, write and administer this project.
+	//
+	// Default value is "write"
+	Permission *string `json:"permission,omitempty"`
+}
+
+// AddProjectCollaborator adds a collaborator to an organization project and sets
+// their permission level. You must be an organization owner or a project admin to add a collaborator.
+//
+// GitHub API docs: https://developer.github.com/v3/projects/collaborators/#add-user-as-a-collaborator
+func (s *ProjectsService) AddProjectCollaborator(ctx context.Context, id int64, username string, opt *ProjectCollaboratorOptions) (*Response, error) {
+	u := fmt.Sprintf("projects/%v/collaborators/%v", id, username)
+	req, err := s.client.NewRequest("PUT", u, opt)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: remove custom Accept header when this API fully launches.
+	req.Header.Set("Accept", mediaTypeProjectsPreview)
+
+	return s.client.Do(ctx, req, nil)
+}
+
+// RemoveProjectCollaborator removes a collaborator from an organization project.
+// You must be an organization owner or a project admin to remove a collaborator.
+//
+// GitHub API docs: https://developer.github.com/v3/projects/collaborators/#remove-user-as-a-collaborator
+func (s *ProjectsService) RemoveProjectCollaborator(ctx context.Context, id int64, username string) (*Response, error) {
+	u := fmt.Sprintf("projects/%v/collaborators/%v", id, username)
+	req, err := s.client.NewRequest("DELETE", u, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: remove custom Accept header when this API fully launches.
+	req.Header.Set("Accept", mediaTypeProjectsPreview)
+
+	return s.client.Do(ctx, req, nil)
+}
+
+// ListCollaboratorOptions specifies the optional parameters to the
+// ProjectsService.ListProjectCollaborators method.
+type ListCollaboratorOptions struct {
+	// Affiliation specifies how collaborators should be filtered by their affiliation.
+	// Possible values are:
+	//     "outside" - All outside collaborators of an organization-owned repository
+	//     "direct" - All collaborators with permissions to an organization-owned repository,
+	//              regardless of organization membership status
+	//     "all" - All collaborators the authenticated user can see
+	//
+	// Default value is "all".
+	Affiliation *string `url:"affiliation,omitempty"`
+
+	ListOptions
+}
+
+// ListProjectCollaborators lists the collaborators for an organization project. For a project,
+// the list of collaborators includes outside collaborators, organization members that are direct
+// collaborators, organization members with access through team memberships, organization members
+// with access through default organization permissions, and organization owners. You must be an
+// organization owner or a project admin to list collaborators.
+//
+// GitHub API docs: https://developer.github.com/v3/projects/collaborators/#list-collaborators
+func (s *ProjectsService) ListProjectCollaborators(ctx context.Context, id int64, opt *ListCollaboratorOptions) ([]*User, *Response, error) {
+	u := fmt.Sprintf("projects/%v/collaborators", id)
+	u, err := addOptions(u, opt)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req, err := s.client.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// TODO: remove custom Accept header when this API fully launches.
+	req.Header.Set("Accept", mediaTypeProjectsPreview)
+
+	var users []*User
+	resp, err := s.client.Do(ctx, req, &users)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return users, resp, nil
+}
+
+// ProjectPermissionLevel represents the permission level an organization
+// member has for a given project.
+type ProjectPermissionLevel struct {
+	// Possible values: "admin", "write", "read", "none"
+	Permission *string `json:"permission,omitempty"`
+
+	User *User `json:"user,omitempty"`
+}
+
+// ReviewProjectCollaboratorPermission returns the collaborator's permission level for an organization
+// project. Possible values for the permission key: "admin", "write", "read", "none".
+// You must be an organization owner or a project admin to review a user's permission level.
+//
+// GitHub API docs: https://developer.github.com/v3/projects/collaborators/#review-a-users-permission-level
+func (s *ProjectsService) ReviewProjectCollaboratorPermission(ctx context.Context, id int64, username string) (*ProjectPermissionLevel, *Response, error) {
+	u := fmt.Sprintf("projects/%v/collaborators/%v/permission", id, username)
+	req, err := s.client.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// TODO: remove custom Accept header when this API fully launches.
+	req.Header.Set("Accept", mediaTypeProjectsPreview)
+
+	ppl := new(ProjectPermissionLevel)
+	resp, err := s.client.Do(ctx, req, ppl)
+	if err != nil {
+		return nil, resp, err
+	}
+	return ppl, resp, nil
 }

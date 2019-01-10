@@ -3,6 +3,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// These examples are inlined in godoc.
+
 package github_test
 
 import (
@@ -10,7 +12,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v21/github"
 )
 
 func ExampleClient_Markdown() {
@@ -131,7 +133,7 @@ func ExamplePullRequestsService_Create() {
 	fmt.Printf("PR created: %s\n", pr.GetHTMLURL())
 }
 
-func ExampleOrganizationsService_ListTeams() {
+func ExampleTeamsService_ListTeams() {
 	// This example shows how to get a team ID corresponding to a given team name.
 
 	// Note that authentication is needed here as you are performing a lookup on
@@ -147,7 +149,7 @@ func ExampleOrganizationsService_ListTeams() {
 	opts := &github.ListOptions{}
 
 	for {
-		teams, resp, err := client.Organizations.ListTeams(ctx, "myOrganization", opts)
+		teams, resp, err := client.Teams.ListTeams(ctx, "myOrganization", opts)
 		if err != nil {
 			fmt.Println(err)
 			return

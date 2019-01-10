@@ -162,6 +162,14 @@ func TestParseWebHook(t *testing.T) {
 		messageType string
 	}{
 		{
+			payload:     &CheckRunEvent{},
+			messageType: "check_run",
+		},
+		{
+			payload:     &CheckSuiteEvent{},
+			messageType: "check_suite",
+		},
+		{
 			payload:     &CommitCommentEvent{},
 			messageType: "commit_comment",
 		},
@@ -281,6 +289,10 @@ func TestParseWebHook(t *testing.T) {
 		{
 			payload:     &RepositoryEvent{},
 			messageType: "repository",
+		},
+		{
+			payload:     &RepositoryVulnerabilityAlertEvent{},
+			messageType: "repository_vulnerability_alert",
 		},
 		{
 			payload:     &StatusEvent{},

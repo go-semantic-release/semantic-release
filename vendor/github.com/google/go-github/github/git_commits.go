@@ -8,7 +8,6 @@ package github
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 )
 
@@ -59,7 +58,7 @@ func (c CommitAuthor) String() string {
 	return Stringify(c)
 }
 
-// GetCommit fetchs the Commit object for a given SHA.
+// GetCommit fetches the Commit object for a given SHA.
 //
 // GitHub API docs: https://developer.github.com/v3/git/commits/#get-a-commit
 func (s *GitService) GetCommit(ctx context.Context, owner string, repo string, sha string) (*Commit, *Response, error) {
@@ -68,10 +67,6 @@ func (s *GitService) GetCommit(ctx context.Context, owner string, repo string, s
 	if err != nil {
 		return nil, nil, err
 	}
-
-	// TODO: remove custom Accept headers when APIs fully launch.
-	acceptHeaders := []string{mediaTypeGitSigningPreview, mediaTypeGraphQLNodeIDPreview}
-	req.Header.Set("Accept", strings.Join(acceptHeaders, ", "))
 
 	c := new(Commit)
 	resp, err := s.client.Do(ctx, req, c)
@@ -125,9 +120,6 @@ func (s *GitService) CreateCommit(ctx context.Context, owner string, repo string
 	if err != nil {
 		return nil, nil, err
 	}
-
-	// TODO: remove custom Accept header when this API fully launches.
-	req.Header.Set("Accept", mediaTypeGraphQLNodeIDPreview)
 
 	c := new(Commit)
 	resp, err := s.client.Do(ctx, req, c)
