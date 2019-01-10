@@ -46,7 +46,6 @@ func Travis(token, defaultBranch string, private bool) error {
 		logger.Printf("Using Travis CI enterprise host: %s\n", travisHost)
 		endpoint = fmt.Sprintf("https://%s/api/", travisHost)
 	} else if private {
-		logger.Println("repo is private")
 		endpoint = travis.TRAVIS_API_PRO_URL
 	}
 
