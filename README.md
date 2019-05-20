@@ -12,6 +12,8 @@ When `semantic-release` is setup it will do that after every successful continuo
 
 _Source: [semantic-release/semantic-release#how-does-it-work](https://github.com/semantic-release/semantic-release#how-does-it-work)_
 
+You can enforce semantic commit messages using [a git hook](https://github.com/hazcod/semantic-commit-hook).
+
 ## Installation
 __Install the latest version of semantic-release__
 ```bash
