@@ -1,6 +1,8 @@
 language: go
 go:
   - 1.12.x
+env:
+- GO111MODULE=on
 install:
   - nvm install 10
   - node -v && npm -v
