@@ -1,13 +1,11 @@
 language: go
 go:
-  - 1.11.x
+  - 1.12.x
 install:
   - nvm install 10
   - node -v && npm -v
-  - go get github.com/Masterminds/glide
   - go get github.com/mitchellh/gox
   - go get github.com/tcnksm/ghr
-  - glide install
 before_script:
   - go build ./cmd/semantic-release/
 after_success:
