@@ -1,8 +1,0 @@
-package: github.com/go-semantic-release/semantic-release
-import:
-- package: github.com/Masterminds/semver
-- package: github.com/google/go-github
-  subpackages:
-  - github
-- package: golang.org/x/oauth2
-- package: github.com/christophwitzko/go-travis
