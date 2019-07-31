@@ -11,7 +11,7 @@ install:
 before_script:
   - go build ./cmd/semantic-release/
 after_success:
-  - ./release
+  - ./scripts/release
 notifications:
   email: false
 branches:
