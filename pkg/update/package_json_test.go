@@ -9,13 +9,13 @@ import (
 )
 
 func TestPackageJson(t *testing.T) {
-	f, err := os.OpenFile("../test-fixtures/package.json", os.O_RDWR, 0)
+	f, err := os.OpenFile("../../test/package.json", os.O_RDWR, 0)
 	if err != nil {
 		t.Fatal("fixture missing")
 	}
 	defer f.Close()
 	nVer := "1.2.3"
-	npmrcPath := "../test-fixtures/.npmrc"
+	npmrcPath := "../../test/.npmrc"
 	os.Remove(npmrcPath)
 	packageJson(nVer, f)
 	npmfile, err := ioutil.ReadFile(npmrcPath)
@@ -31,13 +31,13 @@ func TestPackageJson(t *testing.T) {
 }
 
 func TestNpmrc(t *testing.T) {
-	f, err := os.OpenFile("../test-fixtures/package.json", os.O_RDWR, 0)
+	f, err := os.OpenFile("../../test/package.json", os.O_RDWR, 0)
 	if err != nil {
 		t.Fatal("fixture missing")
 	}
 	defer f.Close()
 	nVer := "1.2.3"
-	npmrcPath := "../test-fixtures/.npmrc"
+	npmrcPath := "../../test/.npmrc"
 	ioutil.WriteFile(npmrcPath, []byte("TEST"), 0644)
 	packageJson(nVer, f)
 	npmfile, err := ioutil.ReadFile(npmrcPath)

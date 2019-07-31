@@ -14,7 +14,7 @@ func TestRegisterApply(t *testing.T) {
 		}
 		return nil
 	})
-	if err := Apply("../test-fixtures/package.json", nVer); err != nil {
+	if err := Apply("../../test/package.json", nVer); err != nil {
 		t.Fatal(err)
 	}
 }
