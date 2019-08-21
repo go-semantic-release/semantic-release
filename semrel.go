@@ -4,15 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/Masterminds/semver"
-	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
 	"log"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Masterminds/semver"
+	"github.com/google/go-github/github"
+	"golang.org/x/oauth2"
 )
 
 var commitPattern = regexp.MustCompile("^(\\w*)(?:\\((.*)\\))?\\: (.*)$")
@@ -163,9 +164,8 @@ func (repo *Repository) GetLatestRelease(vrange string, prerelease string) (*Rel
 		prereleaseParts := strings.Split(r.Version.Prerelease(), ".")
 
 		if prereleaseParts[0] == prerelease {
-			// If it is a beta release and the last production release is newer
-			// just stop here and go with the last production release version.
-			if prerelease == "beta" && lastRelease != nil && r.Version.LessThan(lastRelease.Version) {
+			// If the last production release is newer just stop here and go with the last production release version.
+			if lastRelease != nil && r.Version.LessThan(lastRelease.Version) {
 				break
 			}
 
