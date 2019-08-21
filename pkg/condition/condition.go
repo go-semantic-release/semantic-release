@@ -14,16 +14,6 @@ func ReadGitHead() string {
 	return strings.TrimSpace(strings.TrimPrefix(string(data), "ref: refs/heads/"))
 }
 
-func GetDefaultRepoSlug() string {
-	if val := os.Getenv("TRAVIS_REPO_SLUG"); val != "" {
-		return val
-	}
-	if val := os.Getenv("GITHUB_REPOSITORY"); val != "" {
-		return val
-	}
-	return ""
-}
-
 type CIConfig map[string]interface{}
 
 type CI interface {

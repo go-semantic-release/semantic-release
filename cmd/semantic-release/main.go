@@ -2,19 +2,20 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
 	"github.com/go-semantic-release/semantic-release/pkg/condition"
+	"github.com/go-semantic-release/semantic-release/pkg/config"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/go-semantic-release/semantic-release/pkg/update"
+	"github.com/urfave/cli/v2"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
 )
 
+// SRVERSION is the semantic-release version (added at compile time)
 var SRVERSION string
 
 func errorHandler(logger *log.Logger) func(error, ...int) {
@@ -30,60 +31,30 @@ func errorHandler(logger *log.Logger) func(error, ...int) {
 	}
 }
 
-type SemRelConfig struct {
-	MaintainedVersion string `json:"maintainedVersion"`
-}
-
-func loadConfig() *SemRelConfig {
-	f, err := os.OpenFile(".semrelrc", os.O_RDONLY, 0)
-	if err != nil {
-		return &SemRelConfig{}
-	}
-	src := &SemRelConfig{}
-	json.NewDecoder(f).Decode(src)
-	f.Close()
-	return src
-}
-
 func main() {
-	token := flag.String("token", os.Getenv("GITHUB_TOKEN"), "github token")
-	slug := flag.String("slug", condition.GetDefaultRepoSlug(), "slug of the repository")
-	changelogFile := flag.String("changelog", "", "creates a changelog file")
-	ghr := flag.Bool("ghr", false, "create a .ghr file with the parameters for ghr")
-	noci := flag.Bool("noci", false, "run semantic-release locally")
-	dry := flag.Bool("dry", false, "do not create release")
-	vFile := flag.Bool("vf", false, "create a .version file")
-	showVersion := flag.Bool("version", false, "outputs the semantic-release version")
-	updateFile := flag.String("update", "", "updates the version of a certain file")
-	gheHost := flag.String("ghe-host", os.Getenv("GITHUB_ENTERPRISE_HOST"), "github enterprise host")
-	isPrerelease := flag.Bool("prerelease", false, "flags the release as a prerelease")
-	isTravisCom := flag.Bool("travis-com", false, "force semantic-release to use the travis-ci.com API endpoint")
-	flag.Parse()
+	app := cli.NewApp()
+	app.Name = "semantic-release"
+	app.Usage = "automates the package release workflow including: determining the next version number and generating the change log"
+	app.Version = SRVERSION
+	app.Flags = config.CliFlags
+	app.Action = cliHandler
 
-	if *showVersion {
-		fmt.Printf("semantic-release v%s", SRVERSION)
-		return
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
 	}
+}
+
+func cliHandler(c *cli.Context) error {
+	conf := config.NewConfig(c)
 
 	logger := log.New(os.Stderr, "[semantic-release]: ", 0)
 	exitIfError := errorHandler(logger)
 
-	if val, ok := os.LookupEnv("GH_TOKEN"); *token == "" && ok {
-		*token = val
-	}
-
-	if *token == "" {
-		exitIfError(errors.New("github token missing"))
-	}
-
 	ci := condition.NewCI()
 	logger.Printf("detected CI: %s\n", ci.Name())
 
-	if *slug == "" {
-		exitIfError(errors.New("slug missing"))
-	}
-
-	repo, err := semrel.NewRepository(context.TODO(), *gheHost, *slug, *token)
+	repo, err := semrel.NewRepository(context.TODO(), conf.GheHost, conf.Slug, conf.Token)
 	exitIfError(err)
 
 	logger.Println("getting default branch...")
@@ -100,35 +71,34 @@ func main() {
 	}
 	logger.Println("found current branch: " + currentBranch)
 
-	config := loadConfig()
-	if config.MaintainedVersion != "" && currentBranch == defaultBranch {
+	if conf.BetaRelease.MaintainedVersion != "" && currentBranch == defaultBranch {
 		exitIfError(fmt.Errorf("maintained version not allowed on default branch"))
 	}
 
-	if config.MaintainedVersion != "" {
-		logger.Println("found maintained version: " + config.MaintainedVersion)
+	if conf.BetaRelease.MaintainedVersion != "" {
+		logger.Println("found maintained version: " + conf.BetaRelease.MaintainedVersion)
 		defaultBranch = "*"
 	}
 
 	currentSha := ci.GetCurrentSHA()
 	logger.Println("found current sha: " + currentSha)
 
-	if !*noci {
+	if !conf.Noci {
 		logger.Println("running CI condition...")
 		config := condition.CIConfig{
-			"token":         *token,
+			"token":         conf.Token,
 			"defaultBranch": defaultBranch,
-			"private":       isPrivate || *isTravisCom,
+			"private":       isPrivate || conf.TravisCom,
 		}
 		exitIfError(ci.RunCondition(config), 66)
 	}
 
 	logger.Println("getting latest release...")
-	release, err := repo.GetLatestRelease(config.MaintainedVersion)
+	release, err := repo.GetLatestRelease(conf.BetaRelease.MaintainedVersion)
 	exitIfError(err)
 	logger.Println("found version: " + release.Version.String())
 
-	if strings.Contains(config.MaintainedVersion, "-") && release.Version.Prerelease() == "" {
+	if strings.Contains(conf.BetaRelease.MaintainedVersion, "-") && release.Version.Prerelease() == "" {
 		exitIfError(fmt.Errorf("no pre-release for this version possible"))
 	}
 
@@ -143,30 +113,31 @@ func main() {
 	}
 	logger.Println("new version: " + newVer.String())
 
-	if *dry {
+	if conf.Dry {
 		exitIfError(errors.New("DRY RUN: no release was created"), 65)
 	}
 
 	logger.Println("generating changelog...")
 	changelog := semrel.GetChangelog(commits, release, newVer)
-	if *changelogFile != "" {
-		exitIfError(ioutil.WriteFile(*changelogFile, []byte(changelog), 0644))
+	if conf.Changelog != "" {
+		exitIfError(ioutil.WriteFile(conf.Changelog, []byte(changelog), 0644))
 	}
 
 	logger.Println("creating release...")
-	exitIfError(repo.CreateRelease(changelog, newVer, *isPrerelease, currentBranch, currentSha))
+	exitIfError(repo.CreateRelease(changelog, newVer, conf.Prerelease, currentBranch, currentSha))
 
-	if *ghr {
+	if conf.Ghr {
 		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repo.Owner, repo.Repo, newVer.String())), 0644))
 	}
 
-	if *vFile {
+	if conf.Vf {
 		exitIfError(ioutil.WriteFile(".version", []byte(newVer.String()), 0644))
 	}
 
-	if *updateFile != "" {
-		exitIfError(update.Apply(*updateFile, newVer.String()))
+	if conf.Update != "" {
+		exitIfError(update.Apply(conf.Update, newVer.String()))
 	}
 
 	logger.Println("done.")
+	return nil
 }
