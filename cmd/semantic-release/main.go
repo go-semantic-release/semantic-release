@@ -109,7 +109,7 @@ func main() {
 	}
 
 	prerelease := ""
-	if *flow && config.MaintainedVersion == "" {
+	if *flow && config.MaintainedVersion == "" && currentBranch != defaultBranch {
 
 		switch currentBranch {
 		// If branch is master -> no pre-latestRelease version
