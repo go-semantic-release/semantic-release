@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Masterminds/semver"
-	"github.com/google/go-github/github"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
+
+	"github.com/Masterminds/semver"
+	"github.com/google/go-github/github"
 )
 
 func TestNewRepository(t *testing.T) {
@@ -90,7 +91,7 @@ func getNewTestRepo(t *testing.T) (*Repository, *httptest.Server) {
 		return nil, nil
 	}
 	ts := httptest.NewServer(http.HandlerFunc(githubHandler))
-	repo.Client.BaseURL, _ = url.Parse(ts.URL)
+	repo.Client.BaseURL, _ = url.Parse(ts.URL + "/")
 	return repo, ts
 }
 

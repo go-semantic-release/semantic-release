@@ -16,8 +16,10 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var commitPattern = regexp.MustCompile(`~^(\w*)(?:\((.*)\))?\: (.*)$`)
-var breakingPattern = regexp.MustCompile("BREAKING CHANGES?")
+var (
+	commitPattern   = regexp.MustCompile(`^(\w*)(?:\((.*)\))?\: (.*)$`)
+	breakingPattern = regexp.MustCompile("BREAKING CHANGES?")
+)
 
 type Change struct {
 	Major, Minor, Patch, NoChange bool
