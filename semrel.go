@@ -16,7 +16,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var commitPattern = regexp.MustCompile("^(\\w*)(?:\\((.*)\\))?\\: (.*)$")
+var commitPattern = regexp.MustCompile(`~^(\w*)(?:\((.*)\))?\: (.*)$`)
 var breakingPattern = regexp.MustCompile("BREAKING CHANGES?")
 
 type Change struct {
@@ -253,26 +253,21 @@ func ApplyChange(latestVersion *semver.Version, prerelease string, change Change
 		}
 		return nil
 	}
-	var newVersion semver.Version
 
 	preRel := latestVersion.Prerelease()
 	preRelVer := strings.Split(preRel, ".")
 	preRelLabel := preRelVer[0]
 
+	newVersion := *latestVersion
 	if preRelLabel == "" {
 		switch {
 		case change.Major:
 			newVersion = latestVersion.IncMajor()
-			break
 		case change.Minor:
 			newVersion = latestVersion.IncMinor()
-			break
 		case change.Patch:
 			newVersion = latestVersion.IncPatch()
-			break
 		}
-	} else {
-		newVersion = *latestVersion
 	}
 
 	if prerelease != "" && preRelVer[0] != prerelease {

@@ -6,14 +6,15 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/jbcpollak/strcase"
-	"github.com/semantic-release/go-semantic-release"
-	"github.com/semantic-release/go-semantic-release/condition"
-	"github.com/semantic-release/go-semantic-release/update"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/jbcpollak/strcase"
+	semrel "github.com/semantic-release/go-semantic-release"
+	"github.com/semantic-release/go-semantic-release/condition"
+	"github.com/semantic-release/go-semantic-release/update"
 )
 
 var SRVERSION string
@@ -83,12 +84,12 @@ func main() {
 	exitIfError(err)
 	logger.Println("found default branch: " + defaultBranch)
 
-	var currentBranch string = ""
+	currentBranch := ""
 	if *branchEnv {
 		envBranch, present := os.LookupEnv("GIT_BRANCH")
 		currentBranch = envBranch
 		if !present {
-			exitIfError(errors.New("Branch not present in env var: GIT_BRANCH"))
+			exitIfError(errors.New("branch not present in env var: GIT_BRANCH"))
 		}
 	} else {
 		curCommitInfo, err := condition.GetCurCommitInfo()
@@ -110,16 +111,13 @@ func main() {
 
 	prerelease := ""
 	if *flow && config.MaintainedVersion == "" && currentBranch != defaultBranch {
-
 		switch currentBranch {
 		// If branch is master -> no pre-latestRelease version
 		case "master":
 			prerelease = ""
-			break
 		// If branch is develop -> beta latestRelease
 		case "develop":
 			prerelease = "beta"
-			break
 		default:
 			branchPath := strings.Split(currentBranch, "/")
 			prerelease = branchPath[len(branchPath)-1]
