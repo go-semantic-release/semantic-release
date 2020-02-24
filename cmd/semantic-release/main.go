@@ -130,18 +130,11 @@ func main() {
 	}
 	logger.Println("new version: " + newVer.String())
 
-	if *dry {
-		exitIfError(errors.New("DRY RUN: no release was created"))
-	}
-
 	logger.Println("generating changelog...")
 	changelog := semrel.GetChangelog(commits, release, newVer)
 	if *changelogFile != "" {
 		exitIfError(ioutil.WriteFile(*changelogFile, []byte(changelog), 0644))
 	}
-
-	logger.Println("creating release...")
-	exitIfError(repo.CreateRelease(changelog, newVer, *isPrerelease, currentBranch, currentSha))
 
 	if *ghr {
 		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repo.Owner, repo.Repo, newVer.String())), 0644))
@@ -154,6 +147,13 @@ func main() {
 	if *updateFile != "" {
 		exitIfError(update.Apply(*updateFile, newVer.String()))
 	}
+
+	if *dry {
+		exitIfError(errors.New("DRY RUN: no release was created"))
+	}
+
+	logger.Println("creating release...")
+	exitIfError(repo.CreateRelease(changelog, newVer, *isPrerelease, currentBranch, currentSha))
 
 	logger.Println("done.")
 }
