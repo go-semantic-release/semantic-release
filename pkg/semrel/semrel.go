@@ -101,7 +101,7 @@ func parseCommit(commit *github.RepositoryCommit) *Commit {
 	c.Change = Change{
 		Major: breakingPattern.MatchString(commit.Commit.GetMessage()),
 		Minor: c.Type == "feat",
-		Patch: c.Type == "fix",
+		Patch: true,
 	}
 	return c
 }
