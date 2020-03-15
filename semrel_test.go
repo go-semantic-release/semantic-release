@@ -132,7 +132,7 @@ func TestGetCommits(t *testing.T) {
 
 	if !compareCommit(commits[0], "feat", "app", Change{false, true, false, false}) ||
 		!compareCommit(commits[1], "fix", "", Change{false, false, true, false}) ||
-		!compareCommit(commits[2], "", "", Change{false, false, false, false}) ||
+		!compareCommit(commits[2], "", "", Change{false, false, true, false}) ||
 		!compareCommit(commits[3], "chore", "", Change{true, false, false, false}) {
 		t.Fatal("invalid commits")
 	}

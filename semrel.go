@@ -90,6 +90,9 @@ func parseCommit(commit *github.RepositoryCommit) *Commit {
 	c.Raw = strings.Split(commit.Commit.GetMessage(), "\n")
 	found := commitPattern.FindAllStringSubmatch(c.Raw[0], -1)
 	if len(found) < 1 {
+		c.Change = Change{
+			Patch: true,
+		}
 		return c
 	}
 	c.Type = strings.ToLower(found[0][1])
