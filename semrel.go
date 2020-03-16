@@ -16,8 +16,10 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var commitPattern = regexp.MustCompile("^(\\w*)(?:\\((.*)\\))?\\: (.*)$")
-var breakingPattern = regexp.MustCompile("BREAKING CHANGES?")
+var (
+	commitPattern   = regexp.MustCompile(`^(\w*)(?:\((.*)\))?\: (.*)$`)
+	breakingPattern = regexp.MustCompile("BREAKING CHANGES?")
+)
 
 type Change struct {
 	Major, Minor, Patch, NoChange bool
@@ -88,6 +90,9 @@ func parseCommit(commit *github.RepositoryCommit) *Commit {
 	c.Raw = strings.Split(commit.Commit.GetMessage(), "\n")
 	found := commitPattern.FindAllStringSubmatch(c.Raw[0], -1)
 	if len(found) < 1 {
+		c.Change = Change{
+			Patch: true,
+		}
 		return c
 	}
 	c.Type = strings.ToLower(found[0][1])
@@ -253,26 +258,21 @@ func ApplyChange(latestVersion *semver.Version, prerelease string, change Change
 		}
 		return nil
 	}
-	var newVersion semver.Version
 
 	preRel := latestVersion.Prerelease()
 	preRelVer := strings.Split(preRel, ".")
 	preRelLabel := preRelVer[0]
 
+	newVersion := *latestVersion
 	if preRelLabel == "" {
 		switch {
 		case change.Major:
 			newVersion = latestVersion.IncMajor()
-			break
 		case change.Minor:
 			newVersion = latestVersion.IncMinor()
-			break
 		case change.Patch:
 			newVersion = latestVersion.IncPatch()
-			break
 		}
-	} else {
-		newVersion = *latestVersion
 	}
 
 	if prerelease != "" && preRelVer[0] != prerelease {
