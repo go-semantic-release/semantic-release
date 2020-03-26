@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Masterminds/semver"
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v30/github"
 	"golang.org/x/oauth2"
 	"regexp"
 	"sort"
