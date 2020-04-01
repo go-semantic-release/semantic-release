@@ -23,7 +23,8 @@ func TestApply(t *testing.T) {
 	if err := Apply("invalidFile", ""); err != ErrNoUpdater {
 		t.Fatal(err)
 	}
-	if err := Apply("not/existing/package.json", ""); !strings.Contains(err.Error(), "no such file or directory") {
+	if err := Apply("not/existing/package.json", ""); !strings.Contains(err.Error(), "no such file or directory") &&
+		!strings.Contains(err.Error(), "The system cannot find the path specified.") {
 		t.Fatal(err)
 	}
 }
