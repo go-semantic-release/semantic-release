@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func readGitHead() string {
+func ReadGitHead() string {
 	data, err := ioutil.ReadFile(".git/HEAD")
 	if err != nil {
 		return ""
@@ -14,17 +14,50 @@ func readGitHead() string {
 	return strings.TrimSpace(strings.TrimPrefix(string(data), "ref: refs/heads/"))
 }
 
-func GetCurrentBranch() string {
-	if val := os.Getenv("TRAVIS_BRANCH"); val != "" {
+func GetDefaultRepoSlug() string {
+	if val := os.Getenv("TRAVIS_REPO_SLUG"); val != "" {
 		return val
 	}
-	return readGitHead()
+	if val := os.Getenv("GITHUB_REPOSITORY"); val != "" {
+		return val
+	}
+	return ""
 }
 
-func GetCurrentSHA() string {
-	if val := os.Getenv("TRAVIS_COMMIT"); val != "" {
-		return val
+type CIConfig map[string]interface{}
+
+type CI interface {
+	Name() string
+	RunCondition(config CIConfig) error
+	GetCurrentBranch() string
+	GetCurrentSHA() string
+}
+
+type DefaultCI struct {
+}
+
+func (d DefaultCI) Name() string {
+	return "Default"
+}
+
+func (d DefaultCI) RunCondition(config CIConfig) error {
+	return nil
+}
+
+func (d DefaultCI) GetCurrentBranch() string {
+	return ReadGitHead()
+}
+
+func (d DefaultCI) GetCurrentSHA() string {
+	return ReadGitHead()
+}
+
+func NewCI() CI {
+	if os.Getenv("GITHUB_ACTIONS") == "true" {
+		return &GitHubActions{}
 	}
-	// TODO: resolve ref
-	return GetCurrentBranch()
+	if os.Getenv("TRAVIS") == "true" {
+		return &TravisCI{}
+	}
+	return &DefaultCI{}
 }
