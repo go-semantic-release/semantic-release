@@ -14,7 +14,7 @@ func (gha *GitHubActions) Name() string {
 }
 
 func (gha *GitHubActions) GetCurrentBranch() string {
-	return os.Getenv("GITHUB_REF")
+	return strings.TrimPrefix(os.Getenv("GITHUB_REF"), "refs/heads/")
 }
 
 func (gha *GitHubActions) GetCurrentSHA() string {
