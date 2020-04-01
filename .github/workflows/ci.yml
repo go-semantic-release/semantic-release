@@ -11,7 +11,30 @@ jobs:
 
   build:
     name: Build and Run
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - name: Set up Go 1.14
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.14
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: go build ./cmd/semantic-release/
+
+      - name: Test
+        run: go test -v ./...
+
+  release:
+    name: Release
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - name: Set up Go 1.14
         uses: actions/setup-go@v1
@@ -23,25 +46,22 @@ jobs:
         with:
           node-version: 10.x
 
-      - name: Check out code into the Go module directory
+      - name: Check out code
         uses: actions/checkout@v2
-
-      - name: Setup PATH
-        run: echo "::add-path::~/go/bin"
-
-      - name: Get dependencies
-        run: |
-          go get github.com/mitchellh/gox
-          go get github.com/tcnksm/ghr
-          go get -v -t -d ./...
 
       - name: Build
         run: go build ./cmd/semantic-release/
 
-      - name: Test
-        run: go test -v ./...
+      - name: Setup PATH
+        run: echo "::add-path::~/go/bin"
+
+      - name: Get release dependencies
+        run: |
+          go get github.com/mitchellh/gox
+          go get github.com/tcnksm/ghr
 
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: ./scripts/release || exit 0
