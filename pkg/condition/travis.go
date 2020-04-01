@@ -11,7 +11,25 @@ import (
 	"time"
 )
 
-func Travis(token, defaultBranch string, private bool) error {
+type TravisCI struct {
+}
+
+func (ci *TravisCI) Name() string {
+	return "Travis CI"
+}
+
+func (ci *TravisCI) GetCurrentBranch() string {
+	return os.Getenv("TRAVIS_BRANCH")
+}
+
+func (ci *TravisCI) GetCurrentSHA() string {
+	return os.Getenv("TRAVIS_COMMIT")
+}
+
+func (ci *TravisCI) RunCondition(config CIConfig) error {
+	token := config["token"].(string)
+	defaultBranch := config["defaultBranch"].(string)
+	private := config["private"].(bool)
 	logger := log.New(os.Stderr, "[condition-travis]: ", 0)
 	if os.Getenv("TRAVIS") != "true" {
 		return errors.New("semantic-release didn’t run on Travis CI and therefore a new version won’t be published.")

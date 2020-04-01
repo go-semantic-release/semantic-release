@@ -5,7 +5,8 @@ import (
 )
 
 func TestTravisValid(t *testing.T) {
-	err := Travis("", "", false)
+	travis := TravisCI{}
+	err := travis.RunCondition(CIConfig{"token": "", "defaultBranch": "", "private": false})
 	if err == nil {
 		t.Fail()
 	}
