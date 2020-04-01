@@ -26,6 +26,9 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
 
+      - name: Setup PATH
+        run: echo "::add-path::~/go/bin"
+
       - name: Get dependencies
         run: |
           go get github.com/mitchellh/gox
@@ -41,4 +44,4 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: echo TODO
+        run: ./scripts/release || exit 0
