@@ -1,10 +1,6 @@
 language: go
 go:
   - 1.14.x
-install:
-  - nvm install 10
-  - go get github.com/mitchellh/gox
-  - go get github.com/tcnksm/ghr
 before_script:
   - go build ./cmd/semantic-release/
 after_success:
