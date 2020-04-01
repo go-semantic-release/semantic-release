@@ -6,8 +6,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/go-semantic-release/semantic-release/pkg/condition"
+	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/go-semantic-release/semantic-release/pkg/update"
 	"io/ioutil"
 	"log"
@@ -43,7 +43,7 @@ func loadConfig() *SemRelConfig {
 
 func main() {
 	token := flag.String("token", os.Getenv("GITHUB_TOKEN"), "github token")
-	slug := flag.String("slug", os.Getenv("TRAVIS_REPO_SLUG"), "slug of the repository")
+	slug := flag.String("slug", condition.GetDefaultRepoSlug(), "slug of the repository")
 	changelogFile := flag.String("changelog", "", "creates a changelog file")
 	ghr := flag.Bool("ghr", false, "create a .ghr file with the parameters for ghr")
 	noci := flag.Bool("noci", false, "run semantic-release locally")
@@ -71,6 +71,10 @@ func main() {
 	if *token == "" {
 		exitIfError(errors.New("github token missing"))
 	}
+
+	ci := condition.NewCI()
+	logger.Printf("detected CI: %s\n", ci.Name())
+
 	if *slug == "" {
 		exitIfError(errors.New("slug missing"))
 	}
@@ -86,7 +90,7 @@ func main() {
 		logger.Println("repo is private")
 	}
 
-	currentBranch := condition.GetCurrentBranch()
+	currentBranch := ci.GetCurrentBranch()
 	if currentBranch == "" {
 		exitIfError(fmt.Errorf("current branch not found"))
 	}
@@ -102,12 +106,17 @@ func main() {
 		defaultBranch = "*"
 	}
 
-	currentSha := condition.GetCurrentSHA()
+	currentSha := ci.GetCurrentSHA()
 	logger.Println("found current sha: " + currentSha)
 
 	if !*noci {
 		logger.Println("running CI condition...")
-		exitIfError(condition.Travis(*token, defaultBranch, isPrivate || *isTravisCom))
+		config := condition.CIConfig{
+			"token":         *token,
+			"defaultBranch": defaultBranch,
+			"private":       isPrivate || *isTravisCom,
+		}
+		exitIfError(ci.RunCondition(config))
 	}
 
 	logger.Println("getting latest release...")

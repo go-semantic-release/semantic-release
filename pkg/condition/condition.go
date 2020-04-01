@@ -37,7 +37,7 @@ type DefaultCI struct {
 }
 
 func (d DefaultCI) Name() string {
-	return "Default"
+	return "none"
 }
 
 func (d DefaultCI) RunCondition(config CIConfig) error {
