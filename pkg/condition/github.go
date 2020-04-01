@@ -29,8 +29,12 @@ func (gha *GitHubActions) IsBranchRef() bool {
 }
 
 func (gha *GitHubActions) RunCondition(config CIConfig) error {
+	defaultBranch := config["defaultBranch"].(string)
 	if !gha.IsBranchRef() {
-		return fmt.Errorf("not running on a branch")
+		return fmt.Errorf("This test run is not running on a branch build.")
+	}
+	if branch := gha.GetCurrentBranch(); defaultBranch != "*" && branch != defaultBranch {
+		return fmt.Errorf("This test run was triggered on the branch %s, while semantic-release is configured to only publish from %s.", branch, defaultBranch)
 	}
 	return nil
 }

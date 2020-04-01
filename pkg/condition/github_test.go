@@ -1,14 +1,12 @@
 package condition
 
 import (
-	"os"
 	"testing"
 )
 
 func TestGithubValid(t *testing.T) {
-	os.Setenv("GITHUB_REF", "")
 	gha := GitHubActions{}
-	err := gha.RunCondition(CIConfig{})
+	err := gha.RunCondition(CIConfig{"defaultBranch": ""})
 	if err == nil {
 		t.Fail()
 	}
