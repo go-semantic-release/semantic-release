@@ -1,4 +1,5 @@
 # :package::rocket: semantic-release
+[![CI](https://github.com/go-semantic-release/semantic-release/workflows/CI/badge.svg?branch=master)](https://github.com/go-semantic-release/semantic-release/actions?query=workflow%3ACI+branch%3Amaster)
 [![Build Status](https://travis-ci.org/go-semantic-release/semantic-release.svg?branch=master)](https://travis-ci.org/go-semantic-release/semantic-release)
 
 > fully automated package/module/image publishing
