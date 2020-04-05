@@ -17,10 +17,14 @@ import (
 
 var SRVERSION string
 
-func errorHandler(logger *log.Logger) func(error) {
-	return func(err error) {
+func errorHandler(logger *log.Logger) func(error, ...int) {
+	return func(err error, exitCode ...int) {
 		if err != nil {
 			logger.Println(err)
+			if len(exitCode) == 1 {
+				os.Exit(exitCode[0])
+				return
+			}
 			os.Exit(1)
 		}
 	}
@@ -135,12 +139,12 @@ func main() {
 	logger.Println("calculating new version...")
 	newVer := semrel.GetNewVersion(commits, release)
 	if newVer == nil {
-		exitIfError(errors.New("no change"))
+		exitIfError(errors.New("no change"), 65)
 	}
 	logger.Println("new version: " + newVer.String())
 
 	if *dry {
-		exitIfError(errors.New("DRY RUN: no release was created"))
+		exitIfError(errors.New("DRY RUN: no release was created"), 65)
 	}
 
 	logger.Println("generating changelog...")
