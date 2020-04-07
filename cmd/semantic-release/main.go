@@ -120,7 +120,7 @@ func main() {
 			"defaultBranch": defaultBranch,
 			"private":       isPrivate || *isTravisCom,
 		}
-		exitIfError(ci.RunCondition(config))
+		exitIfError(ci.RunCondition(config), 66)
 	}
 
 	logger.Println("getting latest release...")
