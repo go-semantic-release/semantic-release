@@ -11,10 +11,11 @@ import (
 func TestPackageJson(t *testing.T) {
 	f, err := os.OpenFile("../../test/package.json", os.O_RDWR, 0)
 	if err != nil {
-		t.Fatal("fixture missing")
+		t.Fatal("fixture package.json missing")
 	}
 	defer f.Close()
 	nVer := "1.2.3"
+	nVerJson := []byte("\"" + nVer + "\"")
 	npmrcPath := "../../test/.npmrc"
 	os.Remove(npmrcPath)
 	packageJson(nVer, f)
@@ -22,10 +23,21 @@ func TestPackageJson(t *testing.T) {
 	if err != nil || bytes.Compare(npmfile, []byte(npmrc)) != 0 {
 		t.Fatal("invalid .npmrc")
 	}
+
 	f.Seek(0, 0)
 	var data map[string]json.RawMessage
 	json.NewDecoder(f).Decode(&data)
-	if bytes.Compare(data["version"], []byte("\""+nVer+"\"")) != 0 {
+	if bytes.Compare(data["version"], nVerJson) != 0 {
+		t.Fatal("invalid version")
+	}
+
+	plF, err := os.OpenFile("../../test/package-lock.json", os.O_RDONLY, 0)
+	if err != nil {
+		t.Fatal("fixture package-lock.json missing")
+	}
+	var plData map[string]json.RawMessage
+	json.NewDecoder(plF).Decode(&plData)
+	if bytes.Compare(plData["version"], nVerJson) != 0 {
 		t.Fatal("invalid version")
 	}
 }

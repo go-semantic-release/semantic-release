@@ -6,7 +6,7 @@
     "install": "node install.js"
   },
   "dependencies": {
-    "download": "^6.2.2"
+    "download": "^8.0.0"
   },
   "files": [
     "install.js",
