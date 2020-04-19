@@ -2,8 +2,9 @@ package config
 
 import (
 	"encoding/json"
-	"github.com/urfave/cli/v2"
 	"os"
+
+	"github.com/urfave/cli/v2"
 )
 
 type (
@@ -21,6 +22,7 @@ type (
 		Prerelease  bool
 		TravisCom   bool
 		BetaRelease BetaRelease
+		Match       string
 	}
 
 	BetaRelease struct {
@@ -42,6 +44,7 @@ func NewConfig(c *cli.Context) *Config {
 		GheHost:    c.String("ghe-host"),
 		Prerelease: c.Bool("prerelease"),
 		TravisCom:  c.Bool("travis-com"),
+		Match:      c.String("match"),
 	}
 
 	f, err := os.OpenFile(".semrelrc", os.O_RDONLY, 0)

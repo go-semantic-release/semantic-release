@@ -4,13 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Masterminds/semver"
-	"github.com/google/go-github/v30/github"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/Masterminds/semver"
+	"github.com/google/go-github/v30/github"
 )
 
 func TestNewRepository(t *testing.T) {
@@ -53,6 +55,7 @@ var (
 		createRef("refs/tags/v2.1.0-beta", "deadbeef"),
 		createRef("refs/tags/v3.0.0-beta.2", "deadbeef"),
 		createRef("refs/tags/v3.0.0-beta.1", "deadbeef"),
+		createRef("refs/tags/2020.04.19", "deadbeef"),
 	}
 )
 
@@ -155,14 +158,24 @@ func TestGetCommits(t *testing.T) {
 func TestGetLatestRelease(t *testing.T) {
 	repo, ts := getNewTestRepo(t)
 	defer ts.Close()
-	release, err := repo.GetLatestRelease("")
+	release, err := repo.GetLatestRelease("", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if release.SHA != "deadbeef" || release.Version.String() != "2020.4.19" {
+		t.Fatal("invalid tag")
+	}
+
+	re := regexp.MustCompile("^v[0-9]*")
+	release, err = repo.GetLatestRelease("", re)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if release.SHA != "deadbeef" || release.Version.String() != "2.0.0" {
 		t.Fatal("invalid tag")
 	}
-	release, err = repo.GetLatestRelease("2-beta")
+	
+	release, err = repo.GetLatestRelease("2-beta", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -170,7 +183,7 @@ func TestGetLatestRelease(t *testing.T) {
 		t.Fatal("invalid tag")
 	}
 
-	release, err = repo.GetLatestRelease("3-beta")
+	release, err = repo.GetLatestRelease("3-beta", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -178,7 +191,7 @@ func TestGetLatestRelease(t *testing.T) {
 		t.Fatal("invalid tag")
 	}
 
-	release, err = repo.GetLatestRelease("4-beta")
+	release, err = repo.GetLatestRelease("4-beta", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
