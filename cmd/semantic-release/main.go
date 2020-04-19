@@ -4,15 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"regexp"
+	"strings"
+
 	"github.com/go-semantic-release/semantic-release/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/pkg/config"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/go-semantic-release/semantic-release/pkg/update"
 	"github.com/urfave/cli/v2"
-	"io/ioutil"
-	"log"
-	"os"
-	"strings"
 )
 
 // SRVERSION is the semantic-release version (added at compile time)
@@ -95,7 +97,13 @@ func cliHandler(c *cli.Context) error {
 	}
 
 	logger.Println("getting latest release...")
-	release, err := repo.GetLatestRelease(conf.BetaRelease.MaintainedVersion)
+	var matchRegex *regexp.Regexp
+	match := strings.TrimSpace(conf.Match)
+	if match != "" {
+		logger.Printf("getting latest release matching %s...", match)
+		matchRegex = regexp.MustCompile("^" + match)
+	}
+	release, err := repo.GetLatestRelease(conf.BetaRelease.MaintainedVersion, matchRegex)
 	exitIfError(err)
 	logger.Println("found version: " + release.Version.String())
 

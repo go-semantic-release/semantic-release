@@ -55,4 +55,8 @@ var CliFlags = []cli.Flag{
 		Name:  "travis-com",
 		Usage: "force semantic-release to use the travis-ci.com API endpoint",
 	},
+	&cli.StringFlag{
+		Name:  "match",
+		Usage: "Only consider tags matching the given glob(7) pattern, excluding the \"refs/tags/\" prefix.",
+	},
 }

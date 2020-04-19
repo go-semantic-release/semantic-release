@@ -4,14 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/Masterminds/semver"
-	"github.com/google/go-github/v30/github"
-	"golang.org/x/oauth2"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Masterminds/semver"
+	"github.com/google/go-github/v30/github"
+	"golang.org/x/oauth2"
 )
 
 var commitPattern = regexp.MustCompile("^(\\w*)(?:\\((.*)\\))?\\: (.*)$")
@@ -122,7 +123,7 @@ func (repo *Repository) GetCommits(sha string) ([]*Commit, error) {
 	return ret, nil
 }
 
-func (repo *Repository) GetLatestRelease(vrange string) (*Release, error) {
+func (repo *Repository) GetLatestRelease(vrange string, re *regexp.Regexp) (*Release, error) {
 	allReleases := make(Releases, 0)
 	opts := &github.ReferenceListOptions{"tags", github.ListOptions{PerPage: 100}}
 	for {
@@ -134,7 +135,11 @@ func (repo *Repository) GetLatestRelease(vrange string) (*Release, error) {
 			return nil, err
 		}
 		for _, r := range refs {
-			version, err := semver.NewVersion(strings.TrimPrefix(r.GetRef(), "refs/tags/"))
+			tag := strings.TrimPrefix(r.GetRef(), "refs/tags/")
+			if re != nil && !re.MatchString(tag) {
+				continue
+			}
+			version, err := semver.NewVersion(tag)
 			if err != nil {
 				continue
 			}
