@@ -79,10 +79,9 @@ func (ci *TravisCI) RunCondition(config CIConfig) error {
 		if err != nil {
 			return err
 		}
-
 		successes := 0
 		for _, job := range jobs {
-			if *job.Id == uint(currentJobId) || *job.AllowFailure || *job.State == "passed" {
+			if *job.Id == uint(currentJobId) || (job.AllowFailure != nil && *job.AllowFailure) || *job.State == "passed" {
 				successes++
 				continue
 			}
