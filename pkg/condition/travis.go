@@ -1,9 +1,10 @@
 package condition
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"github.com/christophwitzko/go-travis"
+	"github.com/shuheiktgw/go-travis"
 	"log"
 	"os"
 	"strconv"
@@ -59,40 +60,40 @@ func (ci *TravisCI) RunCondition(config CIConfig) error {
 		return errors.New("could not parse TRAVIS_BUILD_ID/TRAVIS_JOB_ID")
 	}
 
-	endpoint := travis.TRAVIS_API_DEFAULT_URL
+	endpoint := travis.ApiOrgUrl
 	if travisHost := os.Getenv("TRAVIS_ENTERPRISE_HOST"); travisHost != "" {
 		logger.Printf("Using Travis CI enterprise host: %s\n", travisHost)
 		endpoint = fmt.Sprintf("https://%s/api/", travisHost)
 	} else if private {
-		endpoint = travis.TRAVIS_API_PRO_URL
+		endpoint = travis.ApiComUrl
 	}
 
 	client := travis.NewClient(endpoint, "")
 	client.Headers["User-Agent"] = "Travis"
-	if _, _, err := client.Authentication.UsingGithubToken(token); err != nil {
+	if _, _, err := client.Authentication.UsingGithubToken(context.Background(), token); err != nil {
 		return err
 	}
 
 	for i := 1; i <= 100; i++ {
-		jobs, _, err := client.Jobs.ListFromBuild(uint(buildId))
+		jobs, _, err := client.Jobs.ListByBuild(context.Background(), uint(buildId))
 		if err != nil {
 			return err
 		}
 
 		successes := 0
 		for _, job := range jobs {
-			if job.Id == uint(currentJobId) || job.AllowFailure || job.State == "passed" {
+			if *job.Id == uint(currentJobId) || *job.AllowFailure || *job.State == "passed" {
 				successes++
 				continue
 			}
 
-			if job.State == "created" || job.State == "started" {
-				logger.Printf("Aborting attempt %d, because job %s is still pending.\n", i, job.Number)
+			if *job.State == "created" || *job.State == "started" {
+				logger.Printf("Aborting attempt %d, because job %s is still pending.\n", i, *job.Number)
 				break
 			}
 
-			if job.State == "errored" || job.State == "failed" {
-				logger.Printf("Aborting attempt %d. Job %s failed.\n", i, job.Number)
+			if *job.State == "errored" || *job.State == "failed" {
+				logger.Printf("Aborting attempt %d. Job %s failed.\n", i, *job.Number)
 				return errors.New("In this test run not all jobs passed and therefore a new version won’t be published.")
 			}
 		}
