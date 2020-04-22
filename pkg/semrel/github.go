@@ -1,0 +1,196 @@
+package semrel
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"regexp"
+	"sort"
+	"strings"
+
+	"github.com/Masterminds/semver"
+	"github.com/google/go-github/v30/github"
+	"golang.org/x/oauth2"
+)
+
+type GithubRepository struct {
+	owner  string
+	repo   string
+	Ctx    context.Context
+	Client *github.Client
+}
+
+func NewGithubRepository(ctx context.Context, gheHost, slug, token string) (*GithubRepository, error) {
+	if !strings.Contains(slug, "/") {
+		return nil, errors.New("invalid slug")
+	}
+	repo := new(GithubRepository)
+	splited := strings.Split(slug, "/")
+	repo.owner = splited[0]
+	repo.repo = splited[1]
+	repo.Ctx = ctx
+	oauthClient := oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token}))
+	if gheHost != "" {
+		gheUrl := fmt.Sprintf("https://%s/api/v3/", gheHost)
+		rClient, err := github.NewEnterpriseClient(gheUrl, gheUrl, oauthClient)
+		if err != nil {
+			return nil, err
+		}
+		repo.Client = rClient
+	} else {
+		repo.Client = github.NewClient(oauthClient)
+	}
+	return repo, nil
+}
+
+func (repo *GithubRepository) GetInfo() (string, bool, error) {
+	r, _, err := repo.Client.Repositories.Get(repo.Ctx, repo.owner, repo.repo)
+	if err != nil {
+		return "", false, err
+	}
+	return r.GetDefaultBranch(), r.GetPrivate(), nil
+}
+
+func (repo *GithubRepository) GetCommits(sha string) ([]*Commit, error) {
+	opts := &github.CommitsListOptions{
+		SHA:         sha,
+		ListOptions: github.ListOptions{PerPage: 100},
+	}
+	commits, _, err := repo.Client.Repositories.ListCommits(repo.Ctx, repo.owner, repo.repo, opts)
+	if err != nil {
+		return nil, err
+	}
+	ret := make([]*Commit, len(commits))
+	for i, commit := range commits {
+		ret[i] = parseGithubCommit(commit)
+	}
+	return ret, nil
+}
+
+func (repo *GithubRepository) GetLatestRelease(vrange string, re *regexp.Regexp) (*Release, error) {
+	allReleases := make(Releases, 0)
+	opts := &github.ReferenceListOptions{"tags", github.ListOptions{PerPage: 100}}
+	for {
+		refs, resp, err := repo.Client.Git.ListRefs(repo.Ctx, repo.owner, repo.repo, opts)
+		if resp != nil && resp.StatusCode == 404 {
+			return &Release{"", &semver.Version{}}, nil
+		}
+		if err != nil {
+			return nil, err
+		}
+		for _, r := range refs {
+			tag := strings.TrimPrefix(r.GetRef(), "refs/tags/")
+			if re != nil && !re.MatchString(tag) {
+				continue
+			}
+			version, err := semver.NewVersion(tag)
+			if err != nil {
+				continue
+			}
+			allReleases = append(allReleases, &Release{r.Object.GetSHA(), version})
+		}
+		if resp.NextPage == 0 {
+			break
+		}
+		opts.Page = resp.NextPage
+	}
+	sort.Sort(allReleases)
+
+	var lastRelease *Release
+	for _, r := range allReleases {
+		if r.Version.Prerelease() == "" {
+			lastRelease = r
+			break
+		}
+	}
+
+	if vrange == "" {
+		if lastRelease != nil {
+			return lastRelease, nil
+		}
+		return &Release{"", &semver.Version{}}, nil
+	}
+
+	constraint, err := semver.NewConstraint(vrange)
+	if err != nil {
+		return nil, err
+	}
+	for _, r := range allReleases {
+		if constraint.Check(r.Version) {
+			return r, nil
+		}
+	}
+
+	nver, err := semver.NewVersion(vrange)
+	if err != nil {
+		return nil, err
+	}
+
+	splitPre := strings.SplitN(vrange, "-", 2)
+	if len(splitPre) == 1 {
+		return &Release{lastRelease.SHA, nver}, nil
+	}
+
+	npver, err := nver.SetPrerelease(splitPre[1])
+	if err != nil {
+		return nil, err
+	}
+	return &Release{lastRelease.SHA, &npver}, nil
+}
+
+func (repo *GithubRepository) CreateRelease(changelog string, newVersion *semver.Version, prerelease bool, branch, sha string) error {
+	tag := fmt.Sprintf("v%s", newVersion.String())
+	isPrerelease := prerelease || newVersion.Prerelease() != ""
+
+	if branch != sha {
+		ref := "refs/tags/" + tag
+		tagOpts := &github.Reference{
+			Ref:    &ref,
+			Object: &github.GitObject{SHA: &sha},
+		}
+		_, _, err := repo.Client.Git.CreateRef(repo.Ctx, repo.owner, repo.repo, tagOpts)
+		if err != nil {
+			return err
+		}
+	}
+
+	opts := &github.RepositoryRelease{
+		TagName:         &tag,
+		Name:            &tag,
+		TargetCommitish: &branch,
+		Body:            &changelog,
+		Prerelease:      &isPrerelease,
+	}
+	_, _, err := repo.Client.Repositories.CreateRelease(repo.Ctx, repo.owner, repo.repo, opts)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func parseGithubCommit(commit *github.RepositoryCommit) *Commit {
+	c := new(Commit)
+	c.SHA = commit.GetSHA()
+	c.Raw = strings.Split(commit.Commit.GetMessage(), "\n")
+	found := commitPattern.FindAllStringSubmatch(c.Raw[0], -1)
+	if len(found) < 1 {
+		return c
+	}
+	c.Type = strings.ToLower(found[0][1])
+	c.Scope = found[0][2]
+	c.Message = found[0][3]
+	c.Change = Change{
+		Major: breakingPattern.MatchString(commit.Commit.GetMessage()),
+		Minor: c.Type == "feat",
+		Patch: c.Type == "fix",
+	}
+	return c
+}
+
+func (repo *GithubRepository) Owner() string {
+	return repo.owner
+}
+
+func (repo *GithubRepository) Repo() string {
+	return repo.repo
+}
