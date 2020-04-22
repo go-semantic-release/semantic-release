@@ -57,7 +57,7 @@ func cliHandler(c *cli.Context) error {
 	ci := condition.NewCI()
 	logger.Printf("detected CI: %s\n", ci.Name())
 
-	repo, err := semrel.NewRepository(context.TODO(), conf.GheHost, conf.Slug, conf.Token)
+	repo, err := semrel.NewGithubRepository(context.TODO(), conf.GheHost, conf.Slug, conf.Token)
 	exitIfError(err)
 
 	logger.Println("getting default branch...")
@@ -136,7 +136,7 @@ func cliHandler(c *cli.Context) error {
 	exitIfError(repo.CreateRelease(changelog, newVer, conf.Prerelease, currentBranch, currentSha))
 
 	if conf.Ghr {
-		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repo.Owner, repo.Repo, newVer.String())), 0644))
+		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repo.Owner(), repo.Repo(), newVer.String())), 0644))
 	}
 
 	if conf.Vf {
