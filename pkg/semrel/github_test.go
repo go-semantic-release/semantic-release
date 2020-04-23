@@ -29,11 +29,11 @@ func TestNewGithubRepository(t *testing.T) {
 	}
 }
 
-func createCommit(sha, message string) *github.RepositoryCommit {
+func createGithubCommit(sha, message string) *github.RepositoryCommit {
 	return &github.RepositoryCommit{SHA: &sha, Commit: &github.Commit{Message: &message}}
 }
 
-func createRef(ref, sha string) *github.Reference {
+func createGithubRef(ref, sha string) *github.Reference {
 	return &github.Reference{Ref: &ref, Object: &github.GitObject{SHA: &sha}}
 }
 
@@ -42,19 +42,19 @@ var (
 	GITHUB_DEFAULTBRANCH = "master"
 	GITHUB_REPO          = github.Repository{DefaultBranch: &GITHUB_DEFAULTBRANCH, Private: &GITHUB_REPO_PRIVATE}
 	GITHUB_COMMITS       = []*github.RepositoryCommit{
-		createCommit("abcd", "feat(app): new feature"),
-		createCommit("dcba", "Fix: bug"),
-		createCommit("cdba", "Initial commit"),
-		createCommit("efcd", "chore: break\nBREAKING CHANGE: breaks everything"),
+		createGithubCommit("abcd", "feat(app): new feature"),
+		createGithubCommit("dcba", "Fix: bug"),
+		createGithubCommit("cdba", "Initial commit"),
+		createGithubCommit("efcd", "chore: break\nBREAKING CHANGE: breaks everything"),
 	}
 	GITHUB_TAGS = []*github.Reference{
-		createRef("refs/tags/test-tag", "deadbeef"),
-		createRef("refs/tags/v1.0.0", "deadbeef"),
-		createRef("refs/tags/v2.0.0", "deadbeef"),
-		createRef("refs/tags/v2.1.0-beta", "deadbeef"),
-		createRef("refs/tags/v3.0.0-beta.2", "deadbeef"),
-		createRef("refs/tags/v3.0.0-beta.1", "deadbeef"),
-		createRef("refs/tags/2020.04.19", "deadbeef"),
+		createGithubRef("refs/tags/test-tag", "deadbeef"),
+		createGithubRef("refs/tags/v1.0.0", "deadbeef"),
+		createGithubRef("refs/tags/v2.0.0", "deadbeef"),
+		createGithubRef("refs/tags/v2.1.0-beta", "deadbeef"),
+		createGithubRef("refs/tags/v3.0.0-beta.2", "deadbeef"),
+		createGithubRef("refs/tags/v3.0.0-beta.1", "deadbeef"),
+		createGithubRef("refs/tags/2020.04.19", "deadbeef"),
 	}
 )
 
@@ -100,7 +100,7 @@ func githubHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "invalid route", http.StatusNotImplemented)
 }
 
-func getNewTestRepo(t *testing.T) (*GithubRepository, *httptest.Server) {
+func getNewGithubTestRepo(t *testing.T) (*GithubRepository, *httptest.Server) {
 	repo, err := NewGithubRepository(context.TODO(), "", "owner/test-repo", "token")
 	if err != nil {
 		t.Fatal(err)
@@ -112,7 +112,7 @@ func getNewTestRepo(t *testing.T) (*GithubRepository, *httptest.Server) {
 }
 
 func TestGithubGetInfo(t *testing.T) {
-	repo, ts := getNewTestRepo(t)
+	repo, ts := getNewGithubTestRepo(t)
 	defer ts.Close()
 	defaultBranch, isPrivate, err := repo.GetInfo()
 	if err != nil {
@@ -123,20 +123,8 @@ func TestGithubGetInfo(t *testing.T) {
 	}
 }
 
-func compareCommit(c *Commit, t, s string, change Change) bool {
-	if c.Type != t || c.Scope != s {
-		return false
-	}
-	if c.Change.Major != change.Major ||
-		c.Change.Minor != change.Minor ||
-		c.Change.Patch != change.Patch {
-		return false
-	}
-	return true
-}
-
 func TestGithubGetCommits(t *testing.T) {
-	repo, ts := getNewTestRepo(t)
+	repo, ts := getNewGithubTestRepo(t)
 	defer ts.Close()
 	commits, err := repo.GetCommits("")
 	if err != nil {
@@ -155,7 +143,7 @@ func TestGithubGetCommits(t *testing.T) {
 }
 
 func TestGithubGetLatestRelease(t *testing.T) {
-	repo, ts := getNewTestRepo(t)
+	repo, ts := getNewGithubTestRepo(t)
 	defer ts.Close()
 	release, err := repo.GetLatestRelease("", nil)
 	if err != nil {
@@ -200,7 +188,7 @@ func TestGithubGetLatestRelease(t *testing.T) {
 }
 
 func TestGithubCreateRelease(t *testing.T) {
-	repo, ts := getNewTestRepo(t)
+	repo, ts := getNewGithubTestRepo(t)
 	defer ts.Close()
 	newVersion, _ := semver.NewVersion("2.0.0")
 	err := repo.CreateRelease("", newVersion, false, "", "deadbeef")

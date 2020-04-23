@@ -8,14 +8,14 @@ import (
 var CliFlags = []cli.Flag{
 	&cli.StringFlag{
 		Name:     "token",
-		Usage:    "github token",
-		EnvVars:  []string{"GITHUB_TOKEN", "GH_TOKEN"},
+		Usage:    "github or gitlab token",
+		EnvVars:  []string{"GITHUB_TOKEN", "GH_TOKEN", "GITLAB_TOKEN"},
 		Required: true,
 	},
 	&cli.StringFlag{
 		Name:     "slug",
 		Usage:    "slug of the repository",
-		EnvVars:  []string{"GITHUB_REPOSITORY", "TRAVIS_REPO_SLUG"},
+		EnvVars:  []string{"GITHUB_REPOSITORY", "TRAVIS_REPO_SLUG", "CI_PROJECT_PATH_SLUG"},
 		Required: true,
 	},
 	&cli.StringFlag{
@@ -58,5 +58,15 @@ var CliFlags = []cli.Flag{
 	&cli.StringFlag{
 		Name:  "match",
 		Usage: "Only consider tags matching the given glob(7) pattern, excluding the \"refs/tags/\" prefix.",
+	},
+	&cli.StringFlag{
+		Name:    "gitlab-base-url",
+		Usage:   "Gitlab self hosted api path",
+		EnvVars: []string{"CI_SERVER_URL"},
+	},
+	&cli.StringFlag{
+		Name:    "gitlab-project-id",
+		Usage:   "Gitlab project unique id",
+		EnvVars: []string{"CI_PROJECT_ID"},
 	},
 }

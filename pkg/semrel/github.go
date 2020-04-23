@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"sort"
 	"strings"
 
 	"github.com/Masterminds/semver"
@@ -94,48 +93,8 @@ func (repo *GithubRepository) GetLatestRelease(vrange string, re *regexp.Regexp)
 		}
 		opts.Page = resp.NextPage
 	}
-	sort.Sort(allReleases)
 
-	var lastRelease *Release
-	for _, r := range allReleases {
-		if r.Version.Prerelease() == "" {
-			lastRelease = r
-			break
-		}
-	}
-
-	if vrange == "" {
-		if lastRelease != nil {
-			return lastRelease, nil
-		}
-		return &Release{"", &semver.Version{}}, nil
-	}
-
-	constraint, err := semver.NewConstraint(vrange)
-	if err != nil {
-		return nil, err
-	}
-	for _, r := range allReleases {
-		if constraint.Check(r.Version) {
-			return r, nil
-		}
-	}
-
-	nver, err := semver.NewVersion(vrange)
-	if err != nil {
-		return nil, err
-	}
-
-	splitPre := strings.SplitN(vrange, "-", 2)
-	if len(splitPre) == 1 {
-		return &Release{lastRelease.SHA, nver}, nil
-	}
-
-	npver, err := nver.SetPrerelease(splitPre[1])
-	if err != nil {
-		return nil, err
-	}
-	return &Release{lastRelease.SHA, &npver}, nil
+	return allReleases.GetLatestRelease(vrange)
 }
 
 func (repo *GithubRepository) CreateRelease(changelog string, newVersion *semver.Version, prerelease bool, branch, sha string) error {
