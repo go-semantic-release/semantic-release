@@ -49,5 +49,8 @@ func NewCI() CI {
 	if os.Getenv("TRAVIS") == "true" {
 		return &TravisCI{}
 	}
+	if os.Getenv("GITLAB_CI") == "true" {
+		return &Gitlab{}
+	}
 	return &DefaultCI{}
 }
