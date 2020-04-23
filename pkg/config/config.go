@@ -8,6 +8,12 @@ import (
 )
 
 type (
+	// Gitlab Specific Config
+	GitlabConfig struct {
+		BaseURL   string
+		ProjectID string
+	}
+
 	// Config is a complete set of app configuration
 	Config struct {
 		Token       string
@@ -19,6 +25,7 @@ type (
 		Vf          bool
 		Update      string
 		GheHost     string
+		Gitlab      GitlabConfig
 		Prerelease  bool
 		TravisCom   bool
 		BetaRelease BetaRelease
@@ -45,6 +52,10 @@ func NewConfig(c *cli.Context) *Config {
 		Prerelease: c.Bool("prerelease"),
 		TravisCom:  c.Bool("travis-com"),
 		Match:      c.String("match"),
+		Gitlab: GitlabConfig{
+			BaseURL:   c.String("gitlab-base-url"),
+			ProjectID: c.String("gitlab-project-id"),
+		},
 	}
 
 	f, err := os.OpenFile(".semrelrc", os.O_RDONLY, 0)

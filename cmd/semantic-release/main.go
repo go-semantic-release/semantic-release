@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -57,7 +56,18 @@ func cliHandler(c *cli.Context) error {
 	ci := condition.NewCI()
 	logger.Printf("detected CI: %s\n", ci.Name())
 
-	repo, err := semrel.NewGithubRepository(context.TODO(), conf.GheHost, conf.Slug, conf.Token)
+	var (
+		repo semrel.Repository
+		err  error
+	)
+
+	switch ci.Name() {
+	case "Gitlab":
+		repo, err = semrel.NewGitlabRepository(c.Context, conf.Gitlab.BaseURL, conf.Slug, conf.Token, ci.GetCurrentBranch(), conf.Gitlab.ProjectID)
+	default:
+		repo, err = semrel.NewGithubRepository(c.Context, conf.GheHost, conf.Slug, conf.Token)
+	}
+
 	exitIfError(err)
 
 	logger.Println("getting default branch...")

@@ -88,3 +88,15 @@ func TestGetChangelog(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func compareCommit(c *Commit, t, s string, change Change) bool {
+	if c.Type != t || c.Scope != s {
+		return false
+	}
+	if c.Change.Major != change.Major ||
+		c.Change.Minor != change.Minor ||
+		c.Change.Patch != change.Patch {
+		return false
+	}
+	return true
+}
