@@ -100,7 +100,7 @@ type Repository interface {
 	Repo() string
 }
 
-func CaluclateChange(commits []*Commit, latestRelease *Release) Change {
+func CalculateChange(commits []*Commit, latestRelease *Release) Change {
 	var change Change
 	for _, commit := range commits {
 		if latestRelease.SHA == commit.SHA {
@@ -151,7 +151,7 @@ func ApplyChange(version *semver.Version, change Change) *semver.Version {
 }
 
 func GetNewVersion(commits []*Commit, latestRelease *Release) *semver.Version {
-	return ApplyChange(latestRelease.Version, CaluclateChange(commits, latestRelease))
+	return ApplyChange(latestRelease.Version, CalculateChange(commits, latestRelease))
 }
 
 func trimSHA(sha string) string {
