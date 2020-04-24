@@ -34,15 +34,6 @@ type Release struct {
 
 type Releases []*Release
 
-type Repository interface {
-	GetInfo() (string, bool, error)
-	GetCommits(sha string) ([]*Commit, error)
-	GetLatestRelease(vrange string, re *regexp.Regexp) (*Release, error)
-	CreateRelease(changelog string, newVersion *semver.Version, prerelease bool, branch, sha string) error
-	Owner() string
-	Repo() string
-}
-
 func (r Releases) Len() int {
 	return len(r)
 }
@@ -98,6 +89,15 @@ func (releases Releases) GetLatestRelease(vrange string) (*Release, error) {
 		return nil, err
 	}
 	return &Release{lastRelease.SHA, &npver}, nil
+}
+
+type Repository interface {
+	GetInfo() (string, bool, error)
+	GetCommits(sha string) ([]*Commit, error)
+	GetLatestRelease(vrange string, re *regexp.Regexp) (*Release, error)
+	CreateRelease(changelog string, newVersion *semver.Version, prerelease bool, branch, sha string) error
+	Owner() string
+	Repo() string
 }
 
 func CaluclateChange(commits []*Commit, latestRelease *Release) Change {
