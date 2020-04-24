@@ -1,0 +1,15 @@
+image: golang:1.14
+
+stages:
+  - test
+  - build
+
+test:
+  stage: test
+  script:
+    - go test -v ./...
+
+build:
+  stage: build
+  script:
+    - go build ./cmd/semantic-release/ && ./semantic-release -dry
