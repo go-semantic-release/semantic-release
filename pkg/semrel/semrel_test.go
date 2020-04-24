@@ -1,6 +1,7 @@
 package semrel
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -13,11 +14,11 @@ func TestCaluclateChange(t *testing.T) {
 		{SHA: "b", Change: Change{false, true, false}},
 		{SHA: "c", Change: Change{false, false, true}},
 	}
-	change := CaluclateChange(commits, &Release{})
+	change := CalculateChange(commits, &Release{})
 	if !change.Major || !change.Minor || !change.Patch {
 		t.Fail()
 	}
-	change = CaluclateChange(commits, &Release{SHA: "a"})
+	change = CalculateChange(commits, &Release{SHA: "a"})
 	if change.Major || change.Minor || change.Patch {
 		t.Fail()
 	}
@@ -29,42 +30,44 @@ func TestCaluclateChange(t *testing.T) {
 }
 
 func TestApplyChange(t *testing.T) {
-	version, _ := semver.NewVersion("1.0.0")
-	newVersion := ApplyChange(version, Change{false, false, false})
-	if newVersion != nil {
-		t.Fail()
+	NoChange := Change{false, false, false}
+	PatchChange := Change{false, false, true}
+	MinorChange := Change{false, true, true}
+	MajorChange := Change{true, true, true}
+
+	testCases := []struct {
+		currentVersion  string
+		change          Change
+		expectedVersion string
+	}{
+		{"1.0.0", NoChange, ""},
+		{"1.0.0", PatchChange, "1.0.1"},
+		{"1.0.0", MinorChange, "1.1.0"},
+		{"1.0.0", MajorChange, "2.0.0"},
+		{"0.1.0", NoChange, "1.0.0"},
+
+		{"2.0.0-beta", MajorChange, "2.0.0-beta.1"},
+		{"2.0.0-beta.2", MajorChange, "2.0.0-beta.3"},
+		{"2.0.0-beta.1.1", MajorChange, "2.0.0-beta.2"},
 	}
-	newVersion = ApplyChange(version, Change{false, false, true})
-	if newVersion.String() != "1.0.1" {
-		t.Fail()
-	}
-	newVersion = ApplyChange(version, Change{false, true, true})
-	if newVersion.String() != "1.1.0" {
-		t.Fail()
-	}
-	newVersion = ApplyChange(version, Change{true, true, true})
-	if newVersion.String() != "2.0.0" {
-		t.Fail()
-	}
-	version, _ = semver.NewVersion("0.1.0")
-	newVersion = ApplyChange(version, Change{})
-	if newVersion.String() != "1.0.0" {
-		t.Fail()
-	}
-	version, _ = semver.NewVersion("2.0.0-beta")
-	newVersion = ApplyChange(version, Change{true, true, true})
-	if newVersion.String() != "2.0.0-beta.1" {
-		t.Fail()
-	}
-	version, _ = semver.NewVersion("2.0.0-beta.2")
-	newVersion = ApplyChange(version, Change{true, true, true})
-	if newVersion.String() != "2.0.0-beta.3" {
-		t.Fail()
-	}
-	version, _ = semver.NewVersion("2.0.0-beta.1.1")
-	newVersion = ApplyChange(version, Change{true, true, true})
-	if newVersion.String() != "2.0.0-beta.2" {
-		t.Fail()
+
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("Version: %s, Change: %v, Expected: %s", tc.currentVersion, tc.change, tc.expectedVersion), func(t *testing.T) {
+			current, err := semver.NewVersion(tc.currentVersion)
+
+			if err != nil {
+				t.Errorf("failed to create version: %v", err)
+			}
+
+			actual := ApplyChange(current, tc.change)
+
+			// Handle no new version case
+			if actual != nil && tc.expectedVersion == "" {
+				if actual.String() != tc.expectedVersion {
+					t.Errorf("expected: %s, got: %s", tc.expectedVersion, actual)
+				}
+			}
+		})
 	}
 }
 
