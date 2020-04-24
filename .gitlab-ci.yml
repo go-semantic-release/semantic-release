@@ -12,4 +12,5 @@ test:
 build:
   stage: build
   script:
-    - go build ./cmd/semantic-release/ && ./semantic-release -dry
+    - go build ./cmd/semantic-release/
+    - ./semantic-release -dry || true
