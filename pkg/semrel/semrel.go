@@ -114,9 +114,6 @@ func CalculateChange(commits []*Commit, latestRelease *Release) Change {
 }
 
 func ApplyChange(version *semver.Version, change Change) *semver.Version {
-	if version.Major() == 0 {
-		change.Major = true
-	}
 	if !change.Major && !change.Minor && !change.Patch {
 		return nil
 	}

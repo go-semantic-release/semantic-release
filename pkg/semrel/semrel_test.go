@@ -41,9 +41,9 @@ func TestApplyChange(t *testing.T) {
 		expectedVersion string
 	}{
 		// No Previous Releases
-		{"0.0.0", NoChange, "1.0.0"},
-		{"0.0.0", PatchChange, "1.0.0"},
-		{"0.0.0", MinorChange, "1.0.0"},
+		{"0.0.0", NoChange, "0.0.0"},
+		{"0.0.0", PatchChange, "0.0.1"},
+		{"0.0.0", MinorChange, "0.1.0"},
 		{"0.0.0", MajorChange, "1.0.0"},
 
 		{"1.0.0", NoChange, ""},
@@ -68,7 +68,7 @@ func TestApplyChange(t *testing.T) {
 			actual := ApplyChange(current, tc.change)
 
 			// Handle no new version case
-			if actual != nil && tc.expectedVersion == "" {
+			if actual != nil && tc.expectedVersion != "" {
 				if actual.String() != tc.expectedVersion {
 					t.Errorf("expected: %s, got: %s", tc.expectedVersion, actual)
 				}
