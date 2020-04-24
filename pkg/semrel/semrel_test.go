@@ -40,6 +40,12 @@ func TestApplyChange(t *testing.T) {
 		change          Change
 		expectedVersion string
 	}{
+		// No Previous Releases
+		{"0.0.0", NoChange, "1.0.0"},
+		{"0.0.0", PatchChange, "1.0.0"},
+		{"0.0.0", MinorChange, "1.0.0"},
+		{"0.0.0", MajorChange, "1.0.0"},
+
 		{"1.0.0", NoChange, ""},
 		{"1.0.0", PatchChange, "1.0.1"},
 		{"1.0.0", MinorChange, "1.1.0"},
