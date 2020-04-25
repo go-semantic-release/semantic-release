@@ -99,6 +99,7 @@ type Repository interface {
 	CreateRelease(changelog string, newVersion *semver.Version, prerelease bool, branch, sha string) error
 	Owner() string
 	Repo() string
+	Provider() string
 }
 
 func CalculateChange(commits []*Commit, latestRelease *Release) Change {

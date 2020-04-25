@@ -15,15 +15,15 @@ import (
 )
 
 func TestNewGithubRepository(t *testing.T) {
-	repo, err := NewGithubRepository(context.TODO(), "", "", "")
+	repo, err := NewGitHubRepository(context.TODO(), "", "", "")
 	if repo != nil || err == nil {
 		t.Fatal("invalid initialization")
 	}
-	repo, err = NewGithubRepository(context.TODO(), "", "owner/test-repo", "token")
+	repo, err = NewGitHubRepository(context.TODO(), "", "owner/test-repo", "token")
 	if repo == nil || err != nil {
 		t.Fatal("invalid initialization")
 	}
-	repo, err = NewGithubRepository(context.TODO(), "github.enterprise", "owner/test-repo", "token")
+	repo, err = NewGitHubRepository(context.TODO(), "github.enterprise", "owner/test-repo", "token")
 	if repo.Client.BaseURL.Host != "github.enterprise" || err != nil {
 		t.Fatal("invalid enterprise initialization")
 	}
@@ -100,8 +100,8 @@ func githubHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "invalid route", http.StatusNotImplemented)
 }
 
-func getNewGithubTestRepo(t *testing.T) (*GithubRepository, *httptest.Server) {
-	repo, err := NewGithubRepository(context.TODO(), "", "owner/test-repo", "token")
+func getNewGithubTestRepo(t *testing.T) (*GitHubRepository, *httptest.Server) {
+	repo, err := NewGitHubRepository(context.TODO(), "", "owner/test-repo", "token")
 	if err != nil {
 		t.Fatal(err)
 		return nil, nil

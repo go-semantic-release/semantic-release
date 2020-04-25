@@ -12,18 +12,18 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type GithubRepository struct {
+type GitHubRepository struct {
 	owner  string
 	repo   string
 	Ctx    context.Context
 	Client *github.Client
 }
 
-func NewGithubRepository(ctx context.Context, gheHost, slug, token string) (*GithubRepository, error) {
+func NewGitHubRepository(ctx context.Context, gheHost, slug, token string) (*GitHubRepository, error) {
 	if !strings.Contains(slug, "/") {
 		return nil, errors.New("invalid slug")
 	}
-	repo := new(GithubRepository)
+	repo := new(GitHubRepository)
 	split := strings.Split(slug, "/")
 	repo.owner = split[0]
 	repo.repo = split[1]
@@ -42,7 +42,7 @@ func NewGithubRepository(ctx context.Context, gheHost, slug, token string) (*Git
 	return repo, nil
 }
 
-func (repo *GithubRepository) GetInfo() (string, bool, error) {
+func (repo *GitHubRepository) GetInfo() (string, bool, error) {
 	r, _, err := repo.Client.Repositories.Get(repo.Ctx, repo.owner, repo.repo)
 	if err != nil {
 		return "", false, err
@@ -50,7 +50,7 @@ func (repo *GithubRepository) GetInfo() (string, bool, error) {
 	return r.GetDefaultBranch(), r.GetPrivate(), nil
 }
 
-func (repo *GithubRepository) GetCommits(sha string) ([]*Commit, error) {
+func (repo *GitHubRepository) GetCommits(sha string) ([]*Commit, error) {
 	opts := &github.CommitsListOptions{
 		SHA:         sha,
 		ListOptions: github.ListOptions{PerPage: 100},
@@ -66,7 +66,7 @@ func (repo *GithubRepository) GetCommits(sha string) ([]*Commit, error) {
 	return ret, nil
 }
 
-func (repo *GithubRepository) GetLatestRelease(vrange string, re *regexp.Regexp) (*Release, error) {
+func (repo *GitHubRepository) GetLatestRelease(vrange string, re *regexp.Regexp) (*Release, error) {
 	allReleases := make(Releases, 0)
 	opts := &github.ReferenceListOptions{"tags", github.ListOptions{PerPage: 100}}
 	for {
@@ -97,7 +97,7 @@ func (repo *GithubRepository) GetLatestRelease(vrange string, re *regexp.Regexp)
 	return allReleases.GetLatestRelease(vrange)
 }
 
-func (repo *GithubRepository) CreateRelease(changelog string, newVersion *semver.Version, prerelease bool, branch, sha string) error {
+func (repo *GitHubRepository) CreateRelease(changelog string, newVersion *semver.Version, prerelease bool, branch, sha string) error {
 	tag := fmt.Sprintf("v%s", newVersion.String())
 	isPrerelease := prerelease || newVersion.Prerelease() != ""
 
@@ -146,10 +146,14 @@ func parseGithubCommit(commit *github.RepositoryCommit) *Commit {
 	return c
 }
 
-func (repo *GithubRepository) Owner() string {
+func (repo *GitHubRepository) Owner() string {
 	return repo.owner
 }
 
-func (repo *GithubRepository) Repo() string {
+func (repo *GitHubRepository) Repo() string {
 	return repo.repo
+}
+
+func (repo *GitHubRepository) Provider() string {
+	return "GitHub"
 }

@@ -10,7 +10,7 @@ import (
 	gitlab "github.com/xanzy/go-gitlab"
 )
 
-type GitlabRepository struct {
+type GitLabRepository struct {
 	owner     string
 	repo      string
 	projectID string
@@ -19,12 +19,12 @@ type GitlabRepository struct {
 	client    *gitlab.Client
 }
 
-func NewGitlabRepository(ctx context.Context, gitlabBaseUrl, slug, token, branch string, projectID string) (*GitlabRepository, error) {
+func NewGitLabRepository(ctx context.Context, gitlabBaseUrl, slug, token, branch string, projectID string) (*GitLabRepository, error) {
 	if projectID == "" {
 		return nil, fmt.Errorf("project id is required")
 	}
 
-	repo := new(GitlabRepository)
+	repo := new(GitLabRepository)
 	repo.projectID = projectID
 	repo.Ctx = ctx
 	repo.branch = branch
@@ -55,7 +55,7 @@ func NewGitlabRepository(ctx context.Context, gitlabBaseUrl, slug, token, branch
 	return repo, nil
 }
 
-func (repo *GitlabRepository) GetInfo() (string, bool, error) {
+func (repo *GitLabRepository) GetInfo() (string, bool, error) {
 	project, _, err := repo.client.Projects.GetProject(repo.projectID, nil)
 
 	if err != nil {
@@ -65,7 +65,7 @@ func (repo *GitlabRepository) GetInfo() (string, bool, error) {
 	return project.DefaultBranch, project.Visibility == gitlab.PrivateVisibility, nil
 }
 
-func (repo *GitlabRepository) GetCommits(sha string) ([]*Commit, error) {
+func (repo *GitLabRepository) GetCommits(sha string) ([]*Commit, error) {
 	opts := &gitlab.ListCommitsOptions{
 		ListOptions: gitlab.ListOptions{
 			Page:    1,
@@ -98,7 +98,7 @@ func (repo *GitlabRepository) GetCommits(sha string) ([]*Commit, error) {
 	return allCommits, nil
 }
 
-func (repo *GitlabRepository) GetLatestRelease(vrange string, re *regexp.Regexp) (*Release, error) {
+func (repo *GitLabRepository) GetLatestRelease(vrange string, re *regexp.Regexp) (*Release, error) {
 	allReleases := make(Releases, 0)
 
 	opts := &gitlab.ListTagsOptions{
@@ -140,7 +140,7 @@ func (repo *GitlabRepository) GetLatestRelease(vrange string, re *regexp.Regexp)
 	return allReleases.GetLatestRelease(vrange)
 }
 
-func (repo *GitlabRepository) CreateRelease(changelog string, newVersion *semver.Version, prerelease bool, branch, sha string) error {
+func (repo *GitLabRepository) CreateRelease(changelog string, newVersion *semver.Version, prerelease bool, branch, sha string) error {
 	tag := fmt.Sprintf("v%s", newVersion.String())
 
 	// Gitlab does not have any notion of pre-releases
@@ -173,10 +173,14 @@ func parseGitlabCommit(commit *gitlab.Commit) *Commit {
 	return c
 }
 
-func (repo *GitlabRepository) Owner() string {
+func (repo *GitLabRepository) Owner() string {
 	return repo.owner
 }
 
-func (repo *GitlabRepository) Repo() string {
+func (repo *GitLabRepository) Repo() string {
 	return repo.repo
+}
+
+func (repo *GitLabRepository) Provider() string {
+	return "GitLab"
 }
