@@ -126,7 +126,7 @@ func cliHandler(c *cli.Context) error {
 	exitIfError(err)
 
 	logger.Println("calculating new version...")
-	newVer := semrel.GetNewVersion(commits, release)
+	newVer := semrel.GetNewVersion(conf, commits, release)
 	if newVer == nil {
 		exitIfError(errors.New("no change"), 65)
 	}

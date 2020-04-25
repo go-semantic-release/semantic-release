@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/Masterminds/semver"
+	"github.com/go-semantic-release/semantic-release/pkg/config"
 )
 
 var commitPattern = regexp.MustCompile("^(\\w*)(?:\\((.*)\\))?\\: (.*)$")
@@ -113,7 +114,15 @@ func CalculateChange(commits []*Commit, latestRelease *Release) Change {
 	return change
 }
 
-func ApplyChange(version *semver.Version, change Change) *semver.Version {
+func ApplyChange(version *semver.Version, change Change, allowInitialDevelopmentVersions bool) *semver.Version {
+	if !allowInitialDevelopmentVersions && version.Major() == 0 {
+		change.Major = true
+	}
+
+	if allowInitialDevelopmentVersions && version.Major() == 0 && version.Minor() == 0 {
+		change.Minor = true
+	}
+
 	if !change.Major && !change.Minor && !change.Patch {
 		return nil
 	}
@@ -147,8 +156,8 @@ func ApplyChange(version *semver.Version, change Change) *semver.Version {
 	return &newVersion
 }
 
-func GetNewVersion(commits []*Commit, latestRelease *Release) *semver.Version {
-	return ApplyChange(latestRelease.Version, CalculateChange(commits, latestRelease))
+func GetNewVersion(conf *config.Config, commits []*Commit, latestRelease *Release) *semver.Version {
+	return ApplyChange(latestRelease.Version, CalculateChange(commits, latestRelease), conf.AllowInitialDevelopmentVersions)
 }
 
 func trimSHA(sha string) string {

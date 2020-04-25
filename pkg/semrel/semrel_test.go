@@ -2,13 +2,14 @@ package semrel
 
 import (
 	"fmt"
+	"github.com/go-semantic-release/semantic-release/pkg/config"
 	"strings"
 	"testing"
 
 	"github.com/Masterminds/semver"
 )
 
-func TestCaluclateChange(t *testing.T) {
+func TestCalculateChange(t *testing.T) {
 	commits := []*Commit{
 		{SHA: "a", Change: Change{true, false, false}},
 		{SHA: "b", Change: Change{false, true, false}},
@@ -23,7 +24,7 @@ func TestCaluclateChange(t *testing.T) {
 		t.Fail()
 	}
 	version, _ := semver.NewVersion("1.0.0")
-	newVersion := GetNewVersion(commits, &Release{SHA: "b", Version: version})
+	newVersion := GetNewVersion(&config.Config{}, commits, &Release{SHA: "b", Version: version})
 	if newVersion.String() != "2.0.0" {
 		t.Fail()
 	}
@@ -36,25 +37,32 @@ func TestApplyChange(t *testing.T) {
 	MajorChange := Change{true, true, true}
 
 	testCases := []struct {
-		currentVersion  string
-		change          Change
-		expectedVersion string
+		currentVersion                  string
+		change                          Change
+		expectedVersion                 string
+		allowInitialDevelopmentVersions bool
 	}{
 		// No Previous Releases
-		{"0.0.0", NoChange, "0.0.0"},
-		{"0.0.0", PatchChange, "0.0.1"},
-		{"0.0.0", MinorChange, "0.1.0"},
-		{"0.0.0", MajorChange, "1.0.0"},
+		{"0.0.0", NoChange, "1.0.0", false},
+		{"0.0.0", PatchChange, "1.0.0", false},
+		{"0.0.0", MinorChange, "1.0.0", false},
+		{"0.0.0", MajorChange, "1.0.0", false},
 
-		{"1.0.0", NoChange, ""},
-		{"1.0.0", PatchChange, "1.0.1"},
-		{"1.0.0", MinorChange, "1.1.0"},
-		{"1.0.0", MajorChange, "2.0.0"},
-		{"0.1.0", NoChange, "1.0.0"},
+		{"0.0.0", NoChange, "0.1.0", true},
+		{"0.0.0", PatchChange, "0.1.0", true},
+		{"0.0.0", MinorChange, "0.1.0", true},
+		{"0.0.0", MajorChange, "1.0.0", true},
 
-		{"2.0.0-beta", MajorChange, "2.0.0-beta.1"},
-		{"2.0.0-beta.2", MajorChange, "2.0.0-beta.3"},
-		{"2.0.0-beta.1.1", MajorChange, "2.0.0-beta.2"},
+		{"1.0.0", NoChange, "", false},
+		{"1.0.0", PatchChange, "1.0.1", false},
+		{"1.0.0", MinorChange, "1.1.0", false},
+		{"1.0.0", MajorChange, "2.0.0", false},
+		{"0.1.0", NoChange, "1.0.0", false},
+		{"0.1.0", NoChange, "", true},
+
+		{"2.0.0-beta", MajorChange, "2.0.0-beta.1", false},
+		{"2.0.0-beta.2", MajorChange, "2.0.0-beta.3", false},
+		{"2.0.0-beta.1.1", MajorChange, "2.0.0-beta.2", false},
 	}
 
 	for _, tc := range testCases {
@@ -65,7 +73,7 @@ func TestApplyChange(t *testing.T) {
 				t.Errorf("failed to create version: %v", err)
 			}
 
-			actual := ApplyChange(current, tc.change)
+			actual := ApplyChange(current, tc.change, tc.allowInitialDevelopmentVersions)
 
 			// Handle no new version case
 			if actual != nil && tc.expectedVersion != "" {
