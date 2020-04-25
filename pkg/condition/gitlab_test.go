@@ -5,7 +5,7 @@ import (
 )
 
 func TestGitlabValid(t *testing.T) {
-	gl := Gitlab{}
+	gl := GitLab{}
 	err := gl.RunCondition(CIConfig{"defaultBranch": ""})
 	if err == nil {
 		t.Fail()

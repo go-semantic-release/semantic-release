@@ -5,26 +5,26 @@ import (
 	"os"
 )
 
-type Gitlab struct {
+type GitLab struct {
 }
 
-func (gl *Gitlab) Name() string {
-	return "Gitlab"
+func (gl *GitLab) Name() string {
+	return "GitLab CI"
 }
 
-func (gl *Gitlab) GetCurrentBranch() string {
+func (gl *GitLab) GetCurrentBranch() string {
 	return os.Getenv("CI_COMMIT_BRANCH")
 }
 
-func (gl *Gitlab) GetCurrentSHA() string {
+func (gl *GitLab) GetCurrentSHA() string {
 	return os.Getenv("CI_COMMIT_SHA")
 }
 
-func (gl *Gitlab) IsBranchRef() bool {
+func (gl *GitLab) IsBranchRef() bool {
 	return gl.GetCurrentBranch() != ""
 }
 
-func (gl *Gitlab) RunCondition(config CIConfig) error {
+func (gl *GitLab) RunCondition(config CIConfig) error {
 	defaultBranch := config["defaultBranch"].(string)
 	if !gl.IsBranchRef() {
 		return fmt.Errorf("This test run is not running on a branch build.")

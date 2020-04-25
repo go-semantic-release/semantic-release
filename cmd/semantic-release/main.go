@@ -61,10 +61,9 @@ func cliHandler(c *cli.Context) error {
 		err  error
 	)
 
-	switch ci.Name() {
-	case "Gitlab":
-		repo, err = semrel.NewGitlabRepository(c.Context, conf.Gitlab.BaseURL, conf.Slug, conf.Token, ci.GetCurrentBranch(), conf.Gitlab.ProjectID)
-	default:
+	if conf.GitLab {
+		repo, err = semrel.NewGitlabRepository(c.Context, conf.GitLabBaseURL, conf.Slug, conf.Token, ci.GetCurrentBranch(), conf.GitLabProjectID)
+	} else {
 		repo, err = semrel.NewGithubRepository(c.Context, conf.GheHost, conf.Slug, conf.Token)
 	}
 
