@@ -24,9 +24,9 @@ func NewGithubRepository(ctx context.Context, gheHost, slug, token string) (*Git
 		return nil, errors.New("invalid slug")
 	}
 	repo := new(GithubRepository)
-	splited := strings.Split(slug, "/")
-	repo.owner = splited[0]
-	repo.repo = splited[1]
+	split := strings.Split(slug, "/")
+	repo.owner = split[0]
+	repo.repo = split[1]
 	repo.Ctx = ctx
 	oauthClient := oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token}))
 	if gheHost != "" {
