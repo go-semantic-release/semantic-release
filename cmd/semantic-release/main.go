@@ -62,10 +62,12 @@ func cliHandler(c *cli.Context) error {
 	)
 
 	if conf.GitLab {
-		repo, err = semrel.NewGitlabRepository(c.Context, conf.GitLabBaseURL, conf.Slug, conf.Token, ci.GetCurrentBranch(), conf.GitLabProjectID)
+		repo, err = semrel.NewGitLabRepository(c.Context, conf.GitLabBaseURL, conf.Slug, conf.Token, ci.GetCurrentBranch(), conf.GitLabProjectID)
 	} else {
-		repo, err = semrel.NewGithubRepository(c.Context, conf.GheHost, conf.Slug, conf.Token)
+		repo, err = semrel.NewGitHubRepository(c.Context, conf.GheHost, conf.Slug, conf.Token)
 	}
+
+	logger.Printf("releasing on: %s\n", repo.Provider())
 
 	exitIfError(err)
 

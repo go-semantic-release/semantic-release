@@ -15,15 +15,15 @@ import (
 )
 
 func TestNewGitlabRepository(t *testing.T) {
-	repo, err := NewGitlabRepository(context.TODO(), "", "", "", "", "")
+	repo, err := NewGitLabRepository(context.TODO(), "", "", "", "", "")
 	if repo != nil || err == nil {
 		t.Fatal("invalid initialization")
 	}
-	repo, err = NewGitlabRepository(context.TODO(), "", "owner/test-repo", "token", "", "1")
+	repo, err = NewGitLabRepository(context.TODO(), "", "owner/test-repo", "token", "", "1")
 	if repo == nil || err != nil || repo.Owner() != "owner" || repo.Repo() != "test-repo" {
 		t.Fatal("invalid initialization")
 	}
-	repo, err = NewGitlabRepository(context.TODO(), "https://mygitlab.com", "owner/test-repo", "token", "", "1")
+	repo, err = NewGitLabRepository(context.TODO(), "https://mygitlab.com", "owner/test-repo", "token", "", "1")
 	if repo.client.BaseURL().String() != "https://mygitlab.com/api/v4/" || err != nil {
 		t.Fatal("invalid custom instance initialization")
 	}
@@ -102,9 +102,9 @@ func GitlabHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "invalid route", http.StatusNotImplemented)
 }
 
-func getNewGitlabTestRepo(t *testing.T) (*GitlabRepository, *httptest.Server) {
+func getNewGitlabTestRepo(t *testing.T) (*GitLabRepository, *httptest.Server) {
 	ts := httptest.NewServer(http.HandlerFunc(GitlabHandler))
-	repo, err := NewGitlabRepository(context.TODO(), ts.URL, "gitlab-examples-ci", "token", "", strconv.Itoa(GITLAB_PROJECT_ID))
+	repo, err := NewGitLabRepository(context.TODO(), ts.URL, "gitlab-examples-ci", "token", "", strconv.Itoa(GITLAB_PROJECT_ID))
 	if err != nil {
 		t.Fatal(err)
 		return nil, nil
