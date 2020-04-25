@@ -59,14 +59,19 @@ var CliFlags = []cli.Flag{
 		Name:  "match",
 		Usage: "Only consider tags matching the given glob(7) pattern, excluding the \"refs/tags/\" prefix.",
 	},
+	&cli.BoolFlag{
+		Name:    "gitlab",
+		Usage:   "run semantic-release on GitLab",
+		EnvVars: []string{"GITLAB_CI"},
+	},
 	&cli.StringFlag{
 		Name:    "gitlab-base-url",
-		Usage:   "Gitlab self hosted api path",
+		Usage:   "GitLab self hosted api path",
 		EnvVars: []string{"CI_SERVER_URL"},
 	},
 	&cli.StringFlag{
 		Name:    "gitlab-project-id",
-		Usage:   "Gitlab project unique id",
+		Usage:   "GitLab project unique id",
 		EnvVars: []string{"CI_PROJECT_ID"},
 	},
 	&cli.BoolFlag{
