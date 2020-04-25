@@ -20,7 +20,7 @@ func TestNewGitlabRepository(t *testing.T) {
 		t.Fatal("invalid initialization")
 	}
 	repo, err = NewGitlabRepository(context.TODO(), "", "owner/test-repo", "token", "", "1")
-	if repo == nil || err != nil {
+	if repo == nil || err != nil || repo.Owner() != "owner" || repo.Repo() != "test-repo" {
 		t.Fatal("invalid initialization")
 	}
 	repo, err = NewGitlabRepository(context.TODO(), "https://mygitlab.com", "owner/test-repo", "token", "", "1")
@@ -40,10 +40,9 @@ func createGitlabTag(name, sha string) *gitlab.Tag {
 }
 
 var (
-	GITLAB_REPO_PRIVATE  = true
 	GITLAB_PROJECT_ID    = 12324322
 	GITLAB_DEFAULTBRANCH = "master"
-	GITLAB_PROJECT       = gitlab.Project{DefaultBranch: GITLAB_DEFAULTBRANCH, Public: !GITLAB_REPO_PRIVATE, ID: GITLAB_PROJECT_ID}
+	GITLAB_PROJECT       = gitlab.Project{DefaultBranch: GITLAB_DEFAULTBRANCH, Visibility: gitlab.PrivateVisibility, ID: GITLAB_PROJECT_ID}
 	GITLAB_COMMITS       = []*gitlab.Commit{
 		createGitlabCommit("abcd", "feat(app): new feature"),
 		createGitlabCommit("dcba", "Fix: bug"),

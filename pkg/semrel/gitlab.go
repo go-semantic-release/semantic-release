@@ -20,15 +20,20 @@ type GitlabRepository struct {
 }
 
 func NewGitlabRepository(ctx context.Context, gitlabBaseUrl, slug, token, branch string, projectID string) (*GitlabRepository, error) {
-	repo := new(GitlabRepository)
-	repo.Ctx = ctx
-	repo.branch = branch
-
 	if projectID == "" {
 		return nil, fmt.Errorf("project id is required")
 	}
 
+	repo := new(GitlabRepository)
 	repo.projectID = projectID
+	repo.Ctx = ctx
+	repo.branch = branch
+
+	if strings.Contains(slug, "/") {
+		split := strings.Split(slug, "/")
+		repo.owner = split[0]
+		repo.repo = split[1]
+	}
 
 	var (
 		client *gitlab.Client
@@ -57,7 +62,7 @@ func (repo *GitlabRepository) GetInfo() (string, bool, error) {
 		return "", false, err
 	}
 
-	return project.DefaultBranch, !project.Public, nil
+	return project.DefaultBranch, project.Visibility == gitlab.PrivateVisibility, nil
 }
 
 func (repo *GitlabRepository) GetCommits(sha string) ([]*Commit, error) {
