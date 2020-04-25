@@ -16,20 +16,21 @@ type (
 
 	// Config is a complete set of app configuration
 	Config struct {
-		Token       string
-		Slug        string
-		Changelog   string
-		Ghr         bool
-		Noci        bool
-		Dry         bool
-		Vf          bool
-		Update      string
-		GheHost     string
-		Gitlab      GitlabConfig
-		Prerelease  bool
-		TravisCom   bool
-		BetaRelease BetaRelease
-		Match       string
+		Token                           string
+		Slug                            string
+		Changelog                       string
+		Ghr                             bool
+		Noci                            bool
+		Dry                             bool
+		Vf                              bool
+		Update                          string
+		GheHost                         string
+		Gitlab                          GitlabConfig
+		Prerelease                      bool
+		TravisCom                       bool
+		BetaRelease                     BetaRelease
+		Match                           string
+		AllowInitialDevelopmentVersions bool
 	}
 
 	BetaRelease struct {
@@ -40,18 +41,19 @@ type (
 // NewConfig returns a new Config instance
 func NewConfig(c *cli.Context) *Config {
 	conf := &Config{
-		Token:      c.String("token"),
-		Slug:       c.String("slug"),
-		Changelog:  c.String("changelog"),
-		Ghr:        c.Bool("ghr"),
-		Noci:       c.Bool("noci"),
-		Dry:        c.Bool("dry"),
-		Vf:         c.Bool("vf"),
-		Update:     c.String("update"),
-		GheHost:    c.String("ghe-host"),
-		Prerelease: c.Bool("prerelease"),
-		TravisCom:  c.Bool("travis-com"),
-		Match:      c.String("match"),
+		Token:                           c.String("token"),
+		Slug:                            c.String("slug"),
+		Changelog:                       c.String("changelog"),
+		Ghr:                             c.Bool("ghr"),
+		Noci:                            c.Bool("noci"),
+		Dry:                             c.Bool("dry"),
+		Vf:                              c.Bool("vf"),
+		Update:                          c.String("update"),
+		GheHost:                         c.String("ghe-host"),
+		Prerelease:                      c.Bool("prerelease"),
+		TravisCom:                       c.Bool("travis-com"),
+		Match:                           c.String("match"),
+		AllowInitialDevelopmentVersions: c.Bool("allow-initial-development-versions"),
 		Gitlab: GitlabConfig{
 			BaseURL:   c.String("gitlab-base-url"),
 			ProjectID: c.String("gitlab-project-id"),

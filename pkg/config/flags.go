@@ -69,4 +69,8 @@ var CliFlags = []cli.Flag{
 		Usage:   "Gitlab project unique id",
 		EnvVars: []string{"CI_PROJECT_ID"},
 	},
+	&cli.BoolFlag{
+		Name:  "allow-initial-development-versions",
+		Usage: "semantic-release will start your initial development release at 0.1.0",
+	},
 }
