@@ -2,11 +2,11 @@ package semrel
 
 import (
 	"fmt"
-	"github.com/go-semantic-release/semantic-release/pkg/config"
 	"strings"
 	"testing"
 
 	"github.com/Masterminds/semver"
+	"github.com/go-semantic-release/semantic-release/pkg/config"
 )
 
 func TestCalculateChange(t *testing.T) {
