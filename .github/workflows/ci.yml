@@ -9,9 +9,21 @@ on:
 
 jobs:
 
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s
+          ./bin/golangci-lint run -v
+
   build:
     name: Build and Run
     runs-on: ${{ matrix.os }}
+    needs: lint
     strategy:
       fail-fast: true
       matrix:
