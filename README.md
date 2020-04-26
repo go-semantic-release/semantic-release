@@ -121,6 +121,31 @@ branches:
     - /^v\d+\.\d+\.\d+$/
 ```
 
+## Example GitLab CI Config
+
+### GitLab token
+It is necessary to create a new Gitlab personal access token with the `api` scope [here](https://gitlab.com/profile/personal_access_tokens).
+Ensure the CI variable is protected and masked as the `GITLAB_TOKEN` has a lot of rights. There is an open issue for project specific [tokens](https://gitlab.com/gitlab-org/gitlab/issues/756)
+You can set the GitLab token via the `GITLAB_TOKEN` environment variable or the `-token` flag.
+
+.gitlab-ci.yml
+```yml
+ stages:
+  # other stages
+  - release
+
+release:
+  image: registry.gitlab.com/go-semantic-release/semantic-release:latest # Replace this with the current release
+  stage: release
+  # Remove this if you want a release created for each push to master
+  when: manual
+  only:
+    - master
+  script:
+    - release
+```
+
+
 ## Beta release support
 Beta release support empowers you to release beta, rc, etc. versions with `semantic-release` (e.g. v2.0.0-beta.1). To enable this feature you need to create a new branch (e.g. beta/v2) and check in a `.semrelrc` file with the following content:
 ```
