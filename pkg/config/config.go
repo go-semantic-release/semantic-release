@@ -62,7 +62,10 @@ func NewConfig(c *cli.Context) *Config {
 	defer f.Close()
 
 	src := &BetaRelease{}
-	json.NewDecoder(f).Decode(src)
+	if err := json.NewDecoder(f).Decode(src); err != nil {
+		return conf
+	}
+
 	conf.BetaRelease = *src
 
 	return conf

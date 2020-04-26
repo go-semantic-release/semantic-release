@@ -12,7 +12,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/config"
 )
 
-var commitPattern = regexp.MustCompile("^(\\w*)(?:\\((.*)\\))?\\: (.*)$")
+var commitPattern = regexp.MustCompile(`^(\w*)(?:\((.*)\))?\: (.*)$`)
 var breakingPattern = regexp.MustCompile("BREAKING CHANGES?")
 
 type Change struct {
@@ -133,13 +133,10 @@ func ApplyChange(version *semver.Version, change Change, allowInitialDevelopment
 		switch {
 		case change.Major:
 			newVersion = version.IncMajor()
-			break
 		case change.Minor:
 			newVersion = version.IncMinor()
-			break
 		case change.Patch:
 			newVersion = version.IncPatch()
-			break
 		}
 		return &newVersion
 	}

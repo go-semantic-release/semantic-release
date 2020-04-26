@@ -68,7 +68,7 @@ func (repo *GitHubRepository) GetCommits(sha string) ([]*Commit, error) {
 
 func (repo *GitHubRepository) GetLatestRelease(vrange string, re *regexp.Regexp) (*Release, error) {
 	allReleases := make(Releases, 0)
-	opts := &github.ReferenceListOptions{"tags", github.ListOptions{PerPage: 100}}
+	opts := &github.ReferenceListOptions{Type: "tags", ListOptions: github.ListOptions{PerPage: 100}}
 	for {
 		refs, resp, err := repo.Client.Git.ListRefs(repo.Ctx, repo.owner, repo.repo, opts)
 		if resp != nil && resp.StatusCode == 404 {
