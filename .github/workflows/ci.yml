@@ -70,4 +70,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITLAB_USER: ${{ secrets.GITLAB_USER }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
         run: ./scripts/release || exit 0
