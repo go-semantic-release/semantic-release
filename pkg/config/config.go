@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/urfave/cli/v2"
@@ -21,7 +22,7 @@ type (
 		GheHost                         string
 		Prerelease                      bool
 		TravisCom                       bool
-		BetaRelease                     BetaRelease
+		BetaRelease                     *BetaRelease
 		Match                           string
 		AllowInitialDevelopmentVersions bool
 		GitLab                          bool
@@ -35,7 +36,7 @@ type (
 )
 
 // NewConfig returns a new Config instance
-func NewConfig(c *cli.Context) *Config {
+func NewConfig(c *cli.Context) (*Config, error) {
 	conf := &Config{
 		Token:                           c.String("token"),
 		Slug:                            c.String("slug"),
@@ -53,20 +54,18 @@ func NewConfig(c *cli.Context) *Config {
 		GitLab:                          c.Bool("gitlab"),
 		GitLabBaseURL:                   c.String("gitlab-base-url"),
 		GitLabProjectID:                 c.String("gitlab-project-id"),
+		BetaRelease:                     &BetaRelease{},
 	}
 
 	f, err := os.OpenFile(".semrelrc", os.O_RDONLY, 0)
 	if err != nil {
-		return conf
+		return conf, nil
 	}
 	defer f.Close()
 
-	src := &BetaRelease{}
-	if err := json.NewDecoder(f).Decode(src); err != nil {
-		return conf
+	if err := json.NewDecoder(f).Decode(conf.BetaRelease); err != nil {
+		return nil, fmt.Errorf("could not parse .semrelrc: %w", err)
 	}
 
-	conf.BetaRelease = *src
-
-	return conf
+	return conf, nil
 }

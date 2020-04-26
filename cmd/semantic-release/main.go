@@ -48,18 +48,17 @@ func main() {
 }
 
 func cliHandler(c *cli.Context) error {
-	conf := config.NewConfig(c)
 
 	logger := log.New(os.Stderr, "[semantic-release]: ", 0)
 	exitIfError := errorHandler(logger)
 
+	conf, err := config.NewConfig(c)
+	exitIfError(err)
+
 	ci := condition.NewCI()
 	logger.Printf("detected CI: %s\n", ci.Name())
 
-	var (
-		repo semrel.Repository
-		err  error
-	)
+	var repo semrel.Repository
 
 	if conf.GitLab {
 		repo, err = semrel.NewGitLabRepository(c.Context, conf.GitLabBaseURL, conf.Slug, conf.Token, ci.GetCurrentBranch(), conf.GitLabProjectID)
