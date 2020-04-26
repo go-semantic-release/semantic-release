@@ -2,6 +2,8 @@
 
 set -e
 
+CGO_ENABLED=0
+
 ./semantic-release -ghr -vf -prerelease -update ./npm-package/package.json
 export VERSION=$(cat .version)
 
