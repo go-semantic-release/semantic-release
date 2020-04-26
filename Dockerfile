@@ -6,7 +6,7 @@ RUN apk update && apk add --no-cache git ca-certificates && update-ca-certificat
 WORKDIR $GOPATH/src/semantic-release
 COPY . .
 
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a --installsuffix cgo -ldflags="-extldflags \'-static\' -s -w -X main.SRVERSION=$VERSION" -o /go/bin/semantic-release ./cmd/semantic-release/
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a --installsuffix cgo -ldflags="-extldflags '-static' -s -w -X main.SRVERSION=$VERSION" -o /go/bin/semantic-release ./cmd/semantic-release/
 
 
 FROM scratch
