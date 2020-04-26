@@ -18,16 +18,22 @@ func TestPackageJson(t *testing.T) {
 	nVerJson := []byte("\"" + nVer + "\"")
 	npmrcPath := "../../test/.npmrc"
 	os.Remove(npmrcPath)
-	packageJson(nVer, f)
+	if err := packageJson(nVer, f); err != nil {
+		t.Fatal(err)
+	}
 	npmfile, err := ioutil.ReadFile(npmrcPath)
-	if err != nil || bytes.Compare(npmfile, []byte(npmrc)) != 0 {
+	if err != nil || !bytes.Equal(npmfile, []byte(npmrc)) {
 		t.Fatal("invalid .npmrc")
 	}
 
-	f.Seek(0, 0)
+	if _, err := f.Seek(0, 0); err != nil {
+		t.Fatal(err)
+	}
 	var data map[string]json.RawMessage
-	json.NewDecoder(f).Decode(&data)
-	if bytes.Compare(data["version"], nVerJson) != 0 {
+	if err := json.NewDecoder(f).Decode(&data); err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(data["version"], nVerJson) {
 		t.Fatal("invalid version")
 	}
 
@@ -36,8 +42,10 @@ func TestPackageJson(t *testing.T) {
 		t.Fatal("fixture package-lock.json missing")
 	}
 	var plData map[string]json.RawMessage
-	json.NewDecoder(plF).Decode(&plData)
-	if bytes.Compare(plData["version"], nVerJson) != 0 {
+	if err := json.NewDecoder(plF).Decode(&plData); err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(plData["version"], nVerJson) {
 		t.Fatal("invalid version")
 	}
 }
@@ -50,16 +58,24 @@ func TestNpmrc(t *testing.T) {
 	defer f.Close()
 	nVer := "1.2.3"
 	npmrcPath := "../../test/.npmrc"
-	ioutil.WriteFile(npmrcPath, []byte("TEST"), 0644)
-	packageJson(nVer, f)
+	if err := ioutil.WriteFile(npmrcPath, []byte("TEST"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := packageJson(nVer, f); err != nil {
+		t.Fatal(err)
+	}
 	npmfile, err := ioutil.ReadFile(npmrcPath)
-	if err != nil || bytes.Compare(npmfile, []byte("TEST")) != 0 {
+	if err != nil || !bytes.Equal(npmfile, []byte("TEST")) {
 		t.Fatal("invalid .npmrc")
 	}
-	f.Seek(0, 0)
+	if _, err := f.Seek(0, 0); err != nil {
+		t.Fatal(err)
+	}
 	var data map[string]json.RawMessage
-	json.NewDecoder(f).Decode(&data)
-	if bytes.Compare(data["version"], []byte("\""+nVer+"\"")) != 0 {
+	if err := json.NewDecoder(f).Decode(&data); err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(data["version"], []byte("\""+nVer+"\"")) {
 		t.Fatal("invalid version")
 	}
 }

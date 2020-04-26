@@ -58,6 +58,7 @@ var (
 	}
 )
 
+//nolint:errcheck
 func githubHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Authorization") != "Bearer token" {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)

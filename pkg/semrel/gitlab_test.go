@@ -60,6 +60,7 @@ var (
 	}
 )
 
+//nolint:errcheck
 func GitlabHandler(w http.ResponseWriter, r *http.Request) {
 	// Rate Limit headers
 	if r.Method == "GET" && r.URL.Path == "/api/v4/" {

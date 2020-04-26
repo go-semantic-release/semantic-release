@@ -19,8 +19,12 @@ func updateJsonFile(newVersion string, file *os.File) error {
 		return err
 	}
 	data["version"] = json.RawMessage("\"" + newVersion + "\"")
-	file.Seek(0, 0)
-	file.Truncate(0)
+	if _, err := file.Seek(0, 0); err != nil {
+		return err
+	}
+	if err := file.Truncate(0); err != nil {
+		return err
+	}
 	enc := json.NewEncoder(file)
 	enc.SetIndent("", "  ")
 	if err := enc.Encode(data); err != nil {
