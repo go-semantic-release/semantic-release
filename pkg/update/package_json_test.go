@@ -1,81 +1,63 @@
 package update
 
 import (
-	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestPackageJson(t *testing.T) {
+	require := require.New(t)
+
 	f, err := os.OpenFile("../../test/package.json", os.O_RDWR, 0)
-	if err != nil {
-		t.Fatal("fixture package.json missing")
-	}
+	require.NoError(err, "fixture package.json missing")
 	defer f.Close()
 	nVer := "1.2.3"
-	nVerJson := []byte("\"" + nVer + "\"")
+	nVerJSON := json.RawMessage("\"" + nVer + "\"")
 	npmrcPath := "../../test/.npmrc"
 	os.Remove(npmrcPath)
-	if err := packageJson(nVer, f); err != nil {
-		t.Fatal(err)
-	}
+	err = packageJson(nVer, f)
+	require.NoError(err)
 	npmfile, err := ioutil.ReadFile(npmrcPath)
-	if err != nil || !bytes.Equal(npmfile, []byte(npmrc)) {
-		t.Fatal("invalid .npmrc")
-	}
-
-	if _, err := f.Seek(0, 0); err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(err)
+	require.Equal([]byte(npmrc), npmfile, "invalid .npmrc")
+	_, err = f.Seek(0, 0)
+	require.NoError(err)
 	var data map[string]json.RawMessage
-	if err := json.NewDecoder(f).Decode(&data); err != nil {
-		t.Fatal(err)
-	}
-	if !bytes.Equal(data["version"], nVerJson) {
-		t.Fatal("invalid version")
-	}
+	err = json.NewDecoder(f).Decode(&data)
+	require.NoError(err)
+
+	require.Equal(nVerJSON, data["version"], "invalid version")
 
 	plF, err := os.OpenFile("../../test/package-lock.json", os.O_RDONLY, 0)
-	if err != nil {
-		t.Fatal("fixture package-lock.json missing")
-	}
+	require.NoError(err, "fixture package-lock.json missing")
 	var plData map[string]json.RawMessage
-	if err := json.NewDecoder(plF).Decode(&plData); err != nil {
-		t.Fatal(err)
-	}
-	if !bytes.Equal(plData["version"], nVerJson) {
-		t.Fatal("invalid version")
-	}
+	err = json.NewDecoder(plF).Decode(&plData)
+	require.NoError(err)
+	require.Equal(nVerJSON, plData["version"], "invalid version")
 }
 
 func TestNpmrc(t *testing.T) {
+	require := require.New(t)
 	f, err := os.OpenFile("../../test/package.json", os.O_RDWR, 0)
-	if err != nil {
-		t.Fatal("fixture missing")
-	}
+	require.NoError(err, "fixture missing")
 	defer f.Close()
 	nVer := "1.2.3"
 	npmrcPath := "../../test/.npmrc"
-	if err := ioutil.WriteFile(npmrcPath, []byte("TEST"), 0644); err != nil {
-		t.Fatal(err)
-	}
-	if err := packageJson(nVer, f); err != nil {
-		t.Fatal(err)
-	}
+	err = ioutil.WriteFile(npmrcPath, []byte("TEST"), 0644)
+	require.NoError(err)
+	err = packageJson(nVer, f)
+	require.NoError(err)
 	npmfile, err := ioutil.ReadFile(npmrcPath)
-	if err != nil || !bytes.Equal(npmfile, []byte("TEST")) {
-		t.Fatal("invalid .npmrc")
-	}
-	if _, err := f.Seek(0, 0); err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(err)
+	require.Equal([]byte("TEST"), npmfile, "invalid .npmrc")
+	_, err = f.Seek(0, 0)
+	require.NoError(err)
 	var data map[string]json.RawMessage
-	if err := json.NewDecoder(f).Decode(&data); err != nil {
-		t.Fatal(err)
-	}
-	if !bytes.Equal(data["version"], []byte("\""+nVer+"\"")) {
-		t.Fatal("invalid version")
-	}
+	err = json.NewDecoder(f).Decode(&data)
+	require.NoError(err)
+	require.Equal(json.RawMessage("\""+nVer+"\""), data["version"], "invalid version")
 }

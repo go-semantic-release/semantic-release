@@ -1,30 +1,38 @@
 package update
 
 import (
+	"errors"
 	"os"
-	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestRegisterApply(t *testing.T) {
+	require := require.New(t)
 	nVer := "1.2.3"
 	Register("package.json", func(newVersion string, file *os.File) error {
-		if newVersion != nVer {
-			t.Fatal("invalid version")
-		}
+		require.Equal(newVersion, nVer, "invalid version")
 		return nil
 	})
 	if err := Apply("../../test/package.json", nVer); err != nil {
-		t.Fatal(err)
+		require.NoError(err)
 	}
 }
 
 func TestApply(t *testing.T) {
-	if err := Apply("invalidFile", ""); err != ErrNoUpdater {
-		t.Fatal(err)
-	}
-	if err := Apply("not/existing/package.json", ""); !strings.Contains(err.Error(), "no such file or directory") &&
-		!strings.Contains(err.Error(), "The system cannot find the path specified.") {
-		t.Fatal(err)
+	require := require.New(t)
+	err := Apply("invalidFile", "")
+	require.Equal(err, ErrNoUpdater)
+
+	err = Apply("not/existing/package.json", "")
+	var pathErr *os.PathError
+	ok := errors.As(err, &pathErr)
+
+	if ok {
+		require.Equal("open", pathErr.Op)
+		require.Equal("not/existing/package.json", pathErr.Path)
+	} else {
+		require.NoError(err)
 	}
 }

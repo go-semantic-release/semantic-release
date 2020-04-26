@@ -11,22 +11,27 @@ import (
 	"testing"
 
 	"github.com/Masterminds/semver"
+	"github.com/stretchr/testify/require"
 	gitlab "github.com/xanzy/go-gitlab"
 )
 
 func TestNewGitlabRepository(t *testing.T) {
+	require := require.New(t)
+
 	repo, err := NewGitLabRepository(context.TODO(), "", "", "", "", "")
-	if repo != nil || err == nil {
-		t.Fatal("invalid initialization")
-	}
+	require.Nil(repo)
+	require.EqualError(err, "project id is required")
+
 	repo, err = NewGitLabRepository(context.TODO(), "", "owner/test-repo", "token", "", "1")
-	if repo == nil || err != nil || repo.Owner() != "owner" || repo.Repo() != "test-repo" {
-		t.Fatal("invalid initialization")
-	}
+	require.NotNil(repo)
+	require.NoError(err)
+	require.Equal(repo.Owner(), "owner")
+	require.Equal(repo.Repo(), "test-repo")
+
 	repo, err = NewGitLabRepository(context.TODO(), "https://mygitlab.com", "owner/test-repo", "token", "", "1")
-	if repo.client.BaseURL().String() != "https://mygitlab.com/api/v4/" || err != nil {
-		t.Fatal("invalid custom instance initialization")
-	}
+	require.NotNil(repo)
+	require.NoError(err)
+	require.Equal("https://mygitlab.com/api/v4/", repo.client.BaseURL().String(), "invalid custom instance initialization")
 }
 
 func createGitlabCommit(sha, message string) *gitlab.Commit {
@@ -106,10 +111,7 @@ func GitlabHandler(w http.ResponseWriter, r *http.Request) {
 func getNewGitlabTestRepo(t *testing.T) (*GitLabRepository, *httptest.Server) {
 	ts := httptest.NewServer(http.HandlerFunc(GitlabHandler))
 	repo, err := NewGitLabRepository(context.TODO(), ts.URL, "gitlab-examples-ci", "token", "", strconv.Itoa(GITLAB_PROJECT_ID))
-	if err != nil {
-		t.Fatal(err)
-		return nil, nil
-	}
+	require.NoError(t, err)
 
 	return repo, ts
 }
@@ -118,24 +120,17 @@ func TestGitlabGetInfo(t *testing.T) {
 	repo, ts := getNewGitlabTestRepo(t)
 	defer ts.Close()
 	defaultBranch, isPrivate, err := repo.GetInfo()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if defaultBranch != GITLAB_DEFAULTBRANCH || !isPrivate {
-		t.Fatal("invalid response")
-	}
+	require.NoError(t, err)
+	require.Equal(t, defaultBranch, GITLAB_DEFAULTBRANCH)
+	require.True(t, isPrivate)
 }
 
 func TestGitlabGetCommits(t *testing.T) {
 	repo, ts := getNewGitlabTestRepo(t)
 	defer ts.Close()
 	commits, err := repo.GetCommits("")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(commits) != 4 {
-		t.Fatal("invalid response")
-	}
+	require.NoError(t, err)
+	require.Len(t, commits, 4)
 
 	if !compareCommit(commits[0], "feat", "app", Change{false, true, false}) ||
 		!compareCommit(commits[1], "fix", "", Change{false, false, true}) ||
@@ -148,54 +143,34 @@ func TestGitlabGetCommits(t *testing.T) {
 func TestGitlabGetLatestRelease(t *testing.T) {
 	repo, ts := getNewGitlabTestRepo(t)
 	defer ts.Close()
-	release, err := repo.GetLatestRelease("", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if release.SHA != "deadbeef" || release.Version.String() != "2020.4.19" {
-		t.Fatal("invalid tag")
+
+	testCases := []struct {
+		vrange          string
+		re              *regexp.Regexp
+		expectedSHA     string
+		expectedVersion string
+	}{
+		{"", nil, "deadbeef", "2020.4.19"},
+		{"", regexp.MustCompile("^v[0-9]*"), "deadbeef", "2.0.0"},
+		{"2-beta", nil, "deadbeef", "2.1.0-beta"},
+		{"3-beta", nil, "deadbeef", "3.0.0-beta.2"},
+		{"4-beta", nil, "deadbeef", "4.0.0-beta"},
 	}
 
-	re := regexp.MustCompile("^v[0-9]*")
-	release, err = repo.GetLatestRelease("", re)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if release.SHA != "deadbeef" || release.Version.String() != "2.0.0" {
-		t.Fatal("invalid tag")
-	}
-
-	release, err = repo.GetLatestRelease("2-beta", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if release.SHA != "deadbeef" || release.Version.String() != "2.1.0-beta" {
-		t.Fatal("invalid tag")
-	}
-
-	release, err = repo.GetLatestRelease("3-beta", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if release.SHA != "deadbeef" || release.Version.String() != "3.0.0-beta.2" {
-		t.Fatal("invalid tag")
-	}
-
-	release, err = repo.GetLatestRelease("4-beta", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if release.SHA != "deadbeef" || release.Version.String() != "4.0.0-beta" {
-		t.Fatal("invalid tag")
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("VersionRange: %s, RE: %s", tc.vrange, tc.re), func(t *testing.T) {
+			release, err := repo.GetLatestRelease(tc.vrange, tc.re)
+			require.NoError(t, err)
+			require.Equal(t, tc.expectedSHA, release.SHA)
+			require.Equal(t, tc.expectedVersion, release.Version.String())
+		})
 	}
 }
 
 func TestGitlabCreateRelease(t *testing.T) {
 	repo, ts := getNewGitlabTestRepo(t)
 	defer ts.Close()
-	newVersion, _ := semver.NewVersion("2.0.0")
+	newVersion := semver.MustParse("2.0.0")
 	err := repo.CreateRelease("", newVersion, false, "", "deadbeef")
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 }

@@ -12,21 +12,26 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/google/go-github/v30/github"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewGithubRepository(t *testing.T) {
+	require := require.New(t)
+
 	repo, err := NewGitHubRepository(context.TODO(), "", "", "")
-	if repo != nil || err == nil {
-		t.Fatal("invalid initialization")
-	}
+	require.Nil(repo)
+	require.EqualError(err, "invalid slug")
+
 	repo, err = NewGitHubRepository(context.TODO(), "", "owner/test-repo", "token")
-	if repo == nil || err != nil {
-		t.Fatal("invalid initialization")
-	}
+	require.NotNil(repo)
+	require.NoError(err)
+	require.Equal(repo.Owner(), "owner")
+	require.Equal(repo.Repo(), "test-repo")
+
 	repo, err = NewGitHubRepository(context.TODO(), "github.enterprise", "owner/test-repo", "token")
-	if repo.Client.BaseURL.Host != "github.enterprise" || err != nil {
-		t.Fatal("invalid enterprise initialization")
-	}
+	require.NotNil(repo)
+	require.NoError(err)
+	require.Equal("github.enterprise", repo.Client.BaseURL.Host)
 }
 
 func createGithubCommit(sha, message string) *github.RepositoryCommit {
@@ -103,10 +108,7 @@ func githubHandler(w http.ResponseWriter, r *http.Request) {
 
 func getNewGithubTestRepo(t *testing.T) (*GitHubRepository, *httptest.Server) {
 	repo, err := NewGitHubRepository(context.TODO(), "", "owner/test-repo", "token")
-	if err != nil {
-		t.Fatal(err)
-		return nil, nil
-	}
+	require.NoError(t, err)
 	ts := httptest.NewServer(http.HandlerFunc(githubHandler))
 	repo.Client.BaseURL, _ = url.Parse(ts.URL + "/")
 	return repo, ts
@@ -116,24 +118,17 @@ func TestGithubGetInfo(t *testing.T) {
 	repo, ts := getNewGithubTestRepo(t)
 	defer ts.Close()
 	defaultBranch, isPrivate, err := repo.GetInfo()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if defaultBranch != GITHUB_DEFAULTBRANCH || !isPrivate {
-		t.Fatal("invalid response")
-	}
+	require.NoError(t, err)
+	require.Equal(t, defaultBranch, GITLAB_DEFAULTBRANCH)
+	require.True(t, isPrivate)
 }
 
 func TestGithubGetCommits(t *testing.T) {
 	repo, ts := getNewGithubTestRepo(t)
 	defer ts.Close()
 	commits, err := repo.GetCommits("")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(commits) != 4 {
-		t.Fatal("invalid response")
-	}
+	require.NoError(t, err)
+	require.Len(t, commits, 4)
 
 	if !compareCommit(commits[0], "feat", "app", Change{false, true, false}) ||
 		!compareCommit(commits[1], "fix", "", Change{false, false, true}) ||
@@ -146,54 +141,34 @@ func TestGithubGetCommits(t *testing.T) {
 func TestGithubGetLatestRelease(t *testing.T) {
 	repo, ts := getNewGithubTestRepo(t)
 	defer ts.Close()
-	release, err := repo.GetLatestRelease("", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if release.SHA != "deadbeef" || release.Version.String() != "2020.4.19" {
-		t.Fatal("invalid tag")
+
+	testCases := []struct {
+		vrange          string
+		re              *regexp.Regexp
+		expectedSHA     string
+		expectedVersion string
+	}{
+		{"", nil, "deadbeef", "2020.4.19"},
+		{"", regexp.MustCompile("^v[0-9]*"), "deadbeef", "2.0.0"},
+		{"2-beta", nil, "deadbeef", "2.1.0-beta"},
+		{"3-beta", nil, "deadbeef", "3.0.0-beta.2"},
+		{"4-beta", nil, "deadbeef", "4.0.0-beta"},
 	}
 
-	re := regexp.MustCompile("^v[0-9]*")
-	release, err = repo.GetLatestRelease("", re)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if release.SHA != "deadbeef" || release.Version.String() != "2.0.0" {
-		t.Fatal("invalid tag")
-	}
-
-	release, err = repo.GetLatestRelease("2-beta", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if release.SHA != "deadbeef" || release.Version.String() != "2.1.0-beta" {
-		t.Fatal("invalid tag")
-	}
-
-	release, err = repo.GetLatestRelease("3-beta", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if release.SHA != "deadbeef" || release.Version.String() != "3.0.0-beta.2" {
-		t.Fatal("invalid tag")
-	}
-
-	release, err = repo.GetLatestRelease("4-beta", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if release.SHA != "deadbeef" || release.Version.String() != "4.0.0-beta" {
-		t.Fatal("invalid tag")
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("VersionRange: %s, RE: %s", tc.vrange, tc.re), func(t *testing.T) {
+			release, err := repo.GetLatestRelease(tc.vrange, tc.re)
+			require.NoError(t, err)
+			require.Equal(t, tc.expectedSHA, release.SHA)
+			require.Equal(t, tc.expectedVersion, release.Version.String())
+		})
 	}
 }
 
 func TestGithubCreateRelease(t *testing.T) {
 	repo, ts := getNewGithubTestRepo(t)
 	defer ts.Close()
-	newVersion, _ := semver.NewVersion("2.0.0")
+	newVersion := semver.MustParse("2.0.0")
 	err := repo.CreateRelease("", newVersion, false, "", "deadbeef")
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 }
