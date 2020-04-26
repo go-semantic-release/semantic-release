@@ -9,8 +9,6 @@ gox -parallel 4 -osarch="linux/amd64 darwin/amd64 linux/arm windows/amd64" -ldfl
 
 ghr $(cat .ghr) bin/
 
-cd ./npm-package && npm publish
-
 # docker build
 export IMAGE_NAME="docker.pkg.github.com/go-semantic-release/semantic-release/semantic-release"
 export IMAGE_NAME_VERSION="$IMAGE_NAME:$VERSION"
@@ -22,3 +20,6 @@ docker tag $IMAGE_NAME_VERSION $IMAGE_NAME
 docker login docker.pkg.github.com -u $GITHUB_ACTOR -p $GITHUB_TOKEN
 docker push $IMAGE_NAME_VERSION
 docker push $IMAGE_NAME
+
+# publish npm package
+cd ./npm-package && npm publish
