@@ -25,8 +25,8 @@ func TestNewGitlabRepository(t *testing.T) {
 	repo, err = NewGitLabRepository(context.TODO(), "", "owner/test-repo", "token", "", "1")
 	require.NotNil(repo)
 	require.NoError(err)
-	require.Equal(repo.Owner(), "owner")
-	require.Equal(repo.Repo(), "test-repo")
+	require.Equal("owner", repo.Owner())
+	require.Equal("test-repo", repo.Repo())
 
 	repo, err = NewGitLabRepository(context.TODO(), "https://mygitlab.com", "owner/test-repo", "token", "", "1")
 	require.NotNil(repo)
@@ -121,7 +121,7 @@ func TestGitlabGetInfo(t *testing.T) {
 	defer ts.Close()
 	defaultBranch, isPrivate, err := repo.GetInfo()
 	require.NoError(t, err)
-	require.Equal(t, defaultBranch, GITLAB_DEFAULTBRANCH)
+	require.Equal(t, GITLAB_DEFAULTBRANCH, defaultBranch)
 	require.True(t, isPrivate)
 }
 
