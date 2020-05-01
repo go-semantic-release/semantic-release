@@ -82,6 +82,9 @@ func (repo *GitHubRepository) GetLatestRelease(vrange string, re *regexp.Regexp)
 			if re != nil && !re.MatchString(tag) {
 				continue
 			}
+			if r.Object.GetType() != "commit" {
+				continue
+			}
 			version, err := semver.NewVersion(tag)
 			if err != nil {
 				continue

@@ -38,8 +38,10 @@ func createGithubCommit(sha, message string) *github.RepositoryCommit {
 	return &github.RepositoryCommit{SHA: &sha, Commit: &github.Commit{Message: &message}}
 }
 
+var commitType = "commit"
+
 func createGithubRef(ref, sha string) *github.Reference {
-	return &github.Reference{Ref: &ref, Object: &github.GitObject{SHA: &sha}}
+	return &github.Reference{Ref: &ref, Object: &github.GitObject{SHA: &sha, Type: &commitType}}
 }
 
 var (
