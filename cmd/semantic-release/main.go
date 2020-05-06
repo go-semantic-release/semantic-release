@@ -15,6 +15,7 @@ import (
 	semrel "github.com/semantic-release/go-semantic-release"
 	"github.com/semantic-release/go-semantic-release/condition"
 	"github.com/semantic-release/go-semantic-release/update"
+	"gopkg.in/src-d/go-git.v4"
 )
 
 var SRVERSION string
@@ -93,6 +94,10 @@ func main() {
 		}
 	} else {
 		curCommitInfo, err := condition.GetCurCommitInfo()
+		if err == git.ErrRepositoryNotExists {
+			logger.Println(`Repository (.git directory) does not exist in local directory. Be sure to
+run go-semantic-release in a git repository`)
+		}
 		exitIfError(err)
 		currentBranch = curCommitInfo.Branch
 	}
