@@ -128,7 +128,12 @@ func cliHandler(c *cli.Context) error {
 	logger.Println("calculating new version...")
 	newVer := semrel.GetNewVersion(conf, commits, release)
 	if newVer == nil {
-		exitIfError(errors.New("no change"), 65)
+		if conf.AllowNoChanges {
+			logger.Println("no change")
+			os.Exit(0)
+		} else {
+			exitIfError(errors.New("no change"), 65)
+		}
 	}
 	logger.Println("new version: " + newVer.String())
 

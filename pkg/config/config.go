@@ -25,6 +25,7 @@ type (
 		BetaRelease                     *BetaRelease
 		Match                           string
 		AllowInitialDevelopmentVersions bool
+		AllowNoChanges                  bool
 		GitLab                          bool
 		GitLabBaseURL                   string
 		GitLabProjectID                 string
@@ -51,6 +52,7 @@ func NewConfig(c *cli.Context) (*Config, error) {
 		TravisCom:                       c.Bool("travis-com"),
 		Match:                           c.String("match"),
 		AllowInitialDevelopmentVersions: c.Bool("allow-initial-development-versions"),
+		AllowNoChanges:                  c.Bool("allow-no-changes"),
 		GitLab:                          c.Bool("gitlab"),
 		GitLabBaseURL:                   c.String("gitlab-base-url"),
 		GitLabProjectID:                 c.String("gitlab-project-id"),

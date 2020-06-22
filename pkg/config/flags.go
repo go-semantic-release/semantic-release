@@ -78,4 +78,9 @@ var CliFlags = []cli.Flag{
 		Name:  "allow-initial-development-versions",
 		Usage: "semantic-release will start your initial development release at 0.1.0",
 	},
+	&cli.BoolFlag{
+		Name:  "allow-no-changes",
+		Value: false,
+		Usage: "Exit with code 0 if no changes are found, useful if semantic-release is automatically run",
+	},
 }
