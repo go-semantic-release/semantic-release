@@ -156,6 +156,50 @@ Beta release support empowers you to release beta, rc, etc. versions with `seman
 ```
 If you commit to this branch a new incremental pre-release is created everytime you push. (2.0.0-beta.1, 2.0.0-beta.2, ...)
 
+## Configuration File
+
+You can store options in a `.semrelrc` file at the root of your project to make running `semantic-release` easier.
+
+```jsonc
+// .semrelrc
+{
+  // github or gitlab token
+  "token": "",
+  // slug of the repository
+  "slug": "",
+  // creates a changelog file
+  "changelog": "",
+  // create a .ghr file with the parameters for ghr
+  "ghr": false,
+  // run semantic-release locally
+  "noci": false,
+  // do not create release
+  "dry": false,
+  // create a .version file
+  "vf": false,
+  // updates the version of a certain file
+  "update": "",
+  // github enterprise host
+  "ghe-host": "",
+  // flags the release as a prerelease
+  "prerelease": false,
+  // force semantic-release to use the travis-ci.com API endpoint
+  "travis-com": false,
+  // Only consider tags matching the given glob(7) pattern, excluding the "refs/tags/" prefix.
+  "match": "*",
+  // run semantic-release on GitLab
+  "gitlab": false,
+  // GitLab self hosted api path
+  "gitlab-base-url": "",
+  // GitLab project unique id [$CI_PROJECT_ID]
+  "gitlab-project-id": "",
+  // semantic-release will start your initial development release at 0.1.0
+  "allow-initial-development-versions": false,
+  // Exit with code 0 if no changes are found, useful if semantic-release is automatically run
+  "allow-no-changes": false
+}
+```
+
 ## Licence
 
 The [MIT License (MIT)](http://opensource.org/licenses/MIT)
