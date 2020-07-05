@@ -47,9 +47,14 @@ func packageJson(newVersion string, file *os.File) error {
 		}
 	}
 
+	if os.Getenv("NPM_CONFIG_USERCONFIG") != "" {
+		return nil
+	}
+
 	npmrcPath := path.Join(path.Dir(file.Name()), ".npmrc")
-	if _, err = os.Stat(npmrcPath); os.IsNotExist(err) && os.Getenv("NPM_CONFIG_USERCONFIG") == "" {
+	if _, err = os.Stat(npmrcPath); os.IsNotExist(err) {
 		return ioutil.WriteFile(npmrcPath, []byte(npmrc), 0644)
 	}
+
 	return err
 }
