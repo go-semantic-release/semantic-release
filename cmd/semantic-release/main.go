@@ -61,7 +61,7 @@ func cliHandler(c *cli.Context) error {
 	var repo semrel.Repository
 
 	if conf.GitLab {
-		repo, err = semrel.NewGitLabRepository(c.Context, conf.GitLabBaseURL, conf.Slug, conf.Token, ci.GetCurrentBranch(), conf.GitLabProjectID)
+		repo, err = semrel.NewGitLabRepository(c.Context, conf.GitLabBaseURL, conf.Token, ci.GetCurrentBranch(), conf.GitLabProjectID)
 	} else {
 		repo, err = semrel.NewGitHubRepository(c.Context, conf.GheHost, conf.Slug, conf.Token)
 	}
@@ -71,10 +71,10 @@ func cliHandler(c *cli.Context) error {
 	exitIfError(err)
 
 	logger.Println("getting default branch...")
-	defaultBranch, isPrivate, err := repo.GetInfo()
+	repoInfo, err := repo.GetInfo()
 	exitIfError(err)
-	logger.Println("found default branch: " + defaultBranch)
-	if isPrivate {
+	logger.Println("found default branch: " + repoInfo.DefaultBranch)
+	if repoInfo.Private {
 		logger.Println("repo is private")
 	}
 
@@ -84,13 +84,13 @@ func cliHandler(c *cli.Context) error {
 	}
 	logger.Println("found current branch: " + currentBranch)
 
-	if conf.BetaRelease.MaintainedVersion != "" && currentBranch == defaultBranch {
+	if conf.BetaRelease.MaintainedVersion != "" && currentBranch == repoInfo.DefaultBranch {
 		exitIfError(fmt.Errorf("maintained version not allowed on default branch"))
 	}
 
 	if conf.BetaRelease.MaintainedVersion != "" {
 		logger.Println("found maintained version: " + conf.BetaRelease.MaintainedVersion)
-		defaultBranch = "*"
+		repoInfo.DefaultBranch = "*"
 	}
 
 	currentSha := ci.GetCurrentSHA()
@@ -100,8 +100,8 @@ func cliHandler(c *cli.Context) error {
 		logger.Println("running CI condition...")
 		config := condition.CIConfig{
 			"token":         conf.Token,
-			"defaultBranch": defaultBranch,
-			"private":       isPrivate || conf.TravisCom,
+			"defaultBranch": repoInfo.DefaultBranch,
+			"private":       repoInfo.Private || conf.TravisCom,
 		}
 		exitIfError(ci.RunCondition(config), 66)
 	}
@@ -153,7 +153,7 @@ func cliHandler(c *cli.Context) error {
 	exitIfError(repo.CreateRelease(changelog, newVer, conf.Prerelease, currentBranch, currentSha))
 
 	if conf.Ghr {
-		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repo.Owner(), repo.Repo(), newVer.String())), 0644))
+		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repoInfo.Owner, repoInfo.Repo, newVer.String())), 0644))
 	}
 
 	if conf.Vf {

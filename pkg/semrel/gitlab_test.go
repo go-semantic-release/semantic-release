@@ -18,17 +18,15 @@ import (
 func TestNewGitlabRepository(t *testing.T) {
 	require := require.New(t)
 
-	repo, err := NewGitLabRepository(context.TODO(), "", "", "", "", "")
+	repo, err := NewGitLabRepository(context.TODO(), "", "", "", "")
 	require.Nil(repo)
 	require.EqualError(err, "project id is required")
 
-	repo, err = NewGitLabRepository(context.TODO(), "", "owner/test-repo", "token", "", "1")
+	repo, err = NewGitLabRepository(context.TODO(), "", "token", "", "1")
 	require.NotNil(repo)
 	require.NoError(err)
-	require.Equal("owner", repo.Owner())
-	require.Equal("test-repo", repo.Repo())
 
-	repo, err = NewGitLabRepository(context.TODO(), "https://mygitlab.com", "owner/test-repo", "token", "", "1")
+	repo, err = NewGitLabRepository(context.TODO(), "https://mygitlab.com", "token", "", "1")
 	require.NotNil(repo)
 	require.NoError(err)
 	require.Equal("https://mygitlab.com/api/v4/", repo.client.BaseURL().String(), "invalid custom instance initialization")
@@ -110,7 +108,7 @@ func GitlabHandler(w http.ResponseWriter, r *http.Request) {
 
 func getNewGitlabTestRepo(t *testing.T) (*GitLabRepository, *httptest.Server) {
 	ts := httptest.NewServer(http.HandlerFunc(GitlabHandler))
-	repo, err := NewGitLabRepository(context.TODO(), ts.URL, "gitlab-examples-ci", "token", "", strconv.Itoa(GITLAB_PROJECT_ID))
+	repo, err := NewGitLabRepository(context.TODO(), ts.URL, "gitlab-examples-ci", "", strconv.Itoa(GITLAB_PROJECT_ID))
 	require.NoError(t, err)
 
 	return repo, ts
@@ -119,10 +117,10 @@ func getNewGitlabTestRepo(t *testing.T) (*GitLabRepository, *httptest.Server) {
 func TestGitlabGetInfo(t *testing.T) {
 	repo, ts := getNewGitlabTestRepo(t)
 	defer ts.Close()
-	defaultBranch, isPrivate, err := repo.GetInfo()
+	repoInfo, err := repo.GetInfo()
 	require.NoError(t, err)
-	require.Equal(t, GITLAB_DEFAULTBRANCH, defaultBranch)
-	require.True(t, isPrivate)
+	require.Equal(t, GITLAB_DEFAULTBRANCH, repoInfo.DefaultBranch)
+	require.True(t, repoInfo.Private)
 }
 
 func TestGitlabGetCommits(t *testing.T) {

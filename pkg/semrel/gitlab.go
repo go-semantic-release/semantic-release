@@ -7,19 +7,17 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver"
-	gitlab "github.com/xanzy/go-gitlab"
+	"github.com/xanzy/go-gitlab"
 )
 
 type GitLabRepository struct {
-	owner     string
-	repo      string
 	projectID string
 	branch    string
 	Ctx       context.Context
 	client    *gitlab.Client
 }
 
-func NewGitLabRepository(ctx context.Context, gitlabBaseUrl, slug, token, branch string, projectID string) (*GitLabRepository, error) {
+func NewGitLabRepository(ctx context.Context, gitlabBaseUrl, token, branch string, projectID string) (*GitLabRepository, error) {
 	if projectID == "" {
 		return nil, fmt.Errorf("project id is required")
 	}
@@ -28,12 +26,6 @@ func NewGitLabRepository(ctx context.Context, gitlabBaseUrl, slug, token, branch
 	repo.projectID = projectID
 	repo.Ctx = ctx
 	repo.branch = branch
-
-	if strings.Contains(slug, "/") {
-		split := strings.Split(slug, "/")
-		repo.owner = split[0]
-		repo.repo = split[1]
-	}
 
 	var (
 		client *gitlab.Client
@@ -55,14 +47,18 @@ func NewGitLabRepository(ctx context.Context, gitlabBaseUrl, slug, token, branch
 	return repo, nil
 }
 
-func (repo *GitLabRepository) GetInfo() (string, bool, error) {
+func (repo *GitLabRepository) GetInfo() (*RepositoryInfo, error) {
 	project, _, err := repo.client.Projects.GetProject(repo.projectID, nil)
 
 	if err != nil {
-		return "", false, err
+		return nil, err
 	}
-
-	return project.DefaultBranch, project.Visibility == gitlab.PrivateVisibility, nil
+	return &RepositoryInfo{
+		Owner:         "",
+		Repo:          "",
+		DefaultBranch: project.DefaultBranch,
+		Private:       project.Visibility == gitlab.PrivateVisibility,
+	}, nil
 }
 
 func (repo *GitLabRepository) GetCommits(sha string) ([]*Commit, error) {
@@ -171,14 +167,6 @@ func parseGitlabCommit(commit *gitlab.Commit) *Commit {
 		Patch: c.Type == "fix",
 	}
 	return c
-}
-
-func (repo *GitLabRepository) Owner() string {
-	return repo.owner
-}
-
-func (repo *GitLabRepository) Repo() string {
-	return repo.repo
 }
 
 func (repo *GitLabRepository) Provider() string {
