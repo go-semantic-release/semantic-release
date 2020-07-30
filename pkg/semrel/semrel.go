@@ -48,6 +48,10 @@ func (r Releases) Swap(i, j int) {
 }
 
 func (releases Releases) GetLatestRelease(vrange string) (*Release, error) {
+	if len(releases) == 0 {
+		return &Release{"", &semver.Version{}}, nil
+	}
+
 	sort.Sort(releases)
 
 	var lastRelease *Release
@@ -95,7 +99,7 @@ func (releases Releases) GetLatestRelease(vrange string) (*Release, error) {
 type Repository interface {
 	GetInfo() (string, bool, error)
 	GetCommits(sha string) ([]*Commit, error)
-	GetLatestRelease(vrange string, re *regexp.Regexp) (*Release, error)
+	GetReleases(re *regexp.Regexp) (Releases, error)
 	CreateRelease(changelog string, newVersion *semver.Version, prerelease bool, branch, sha string) error
 	Owner() string
 	Repo() string

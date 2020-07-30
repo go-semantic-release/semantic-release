@@ -140,7 +140,7 @@ func TestGitlabGetCommits(t *testing.T) {
 	}
 }
 
-func TestGitlabGetLatestRelease(t *testing.T) {
+func TestGitlabGetReleases(t *testing.T) {
 	repo, ts := getNewGitlabTestRepo(t)
 	defer ts.Close()
 
@@ -159,7 +159,9 @@ func TestGitlabGetLatestRelease(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("VersionRange: %s, RE: %s", tc.vrange, tc.re), func(t *testing.T) {
-			release, err := repo.GetLatestRelease(tc.vrange, tc.re)
+			releases, err := repo.GetReleases(tc.re)
+			require.NoError(t, err)
+			release, err := releases.GetLatestRelease(tc.vrange)
 			require.NoError(t, err)
 			require.Equal(t, tc.expectedSHA, release.SHA)
 			require.Equal(t, tc.expectedVersion, release.Version.String())
