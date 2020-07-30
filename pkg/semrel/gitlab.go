@@ -98,7 +98,7 @@ func (repo *GitLabRepository) GetCommits(sha string) ([]*Commit, error) {
 	return allCommits, nil
 }
 
-func (repo *GitLabRepository) GetLatestRelease(vrange string, re *regexp.Regexp) (*Release, error) {
+func (repo *GitLabRepository) GetReleases(re *regexp.Regexp) (Releases, error) {
 	allReleases := make(Releases, 0)
 
 	opts := &gitlab.ListTagsOptions{
@@ -137,7 +137,7 @@ func (repo *GitLabRepository) GetLatestRelease(vrange string, re *regexp.Regexp)
 		opts.Page = resp.NextPage
 	}
 
-	return allReleases.GetLatestRelease(vrange)
+	return allReleases, nil
 }
 
 func (repo *GitLabRepository) CreateRelease(changelog string, newVersion *semver.Version, prerelease bool, branch, sha string) error {

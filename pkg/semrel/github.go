@@ -66,13 +66,13 @@ func (repo *GitHubRepository) GetCommits(sha string) ([]*Commit, error) {
 	return ret, nil
 }
 
-func (repo *GitHubRepository) GetLatestRelease(vrange string, re *regexp.Regexp) (*Release, error) {
+func (repo *GitHubRepository) GetReleases(re *regexp.Regexp) (Releases, error) {
 	allReleases := make(Releases, 0)
 	opts := &github.ReferenceListOptions{Type: "tags", ListOptions: github.ListOptions{PerPage: 100}}
 	for {
 		refs, resp, err := repo.Client.Git.ListRefs(repo.Ctx, repo.owner, repo.repo, opts)
 		if resp != nil && resp.StatusCode == 404 {
-			return &Release{"", &semver.Version{}}, nil
+			return allReleases, nil
 		}
 		if err != nil {
 			return nil, err
@@ -97,7 +97,7 @@ func (repo *GitHubRepository) GetLatestRelease(vrange string, re *regexp.Regexp)
 		opts.Page = resp.NextPage
 	}
 
-	return allReleases.GetLatestRelease(vrange)
+	return allReleases, nil
 }
 
 func (repo *GitHubRepository) CreateRelease(changelog string, newVersion *semver.Version, prerelease bool, branch, sha string) error {
