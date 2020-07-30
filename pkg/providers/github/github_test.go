@@ -1,4 +1,4 @@
-package semrel
+package github
 
 import (
 	"context"
@@ -10,6 +10,8 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/go-semantic-release/semantic-release/pkg/semrel"
+
 	"github.com/Masterminds/semver"
 	"github.com/google/go-github/v30/github"
 	"github.com/stretchr/testify/require"
@@ -18,17 +20,15 @@ import (
 func TestNewGithubRepository(t *testing.T) {
 	require := require.New(t)
 
-	repo, err := NewGitHubRepository(context.TODO(), "", "", "")
+	repo, err := NewRepository(context.TODO(), "", "", "")
 	require.Nil(repo)
 	require.EqualError(err, "invalid slug")
 
-	repo, err = NewGitHubRepository(context.TODO(), "", "owner/test-repo", "token")
+	repo, err = NewRepository(context.TODO(), "", "owner/test-repo", "token")
 	require.NotNil(repo)
 	require.NoError(err)
-	require.Equal("owner", repo.Owner())
-	require.Equal("test-repo", repo.Repo())
 
-	repo, err = NewGitHubRepository(context.TODO(), "github.enterprise", "owner/test-repo", "token")
+	repo, err = NewRepository(context.TODO(), "github.enterprise", "owner/test-repo", "token")
 	require.NotNil(repo)
 	require.NoError(err)
 	require.Equal("github.enterprise", repo.Client.BaseURL.Host)
@@ -118,7 +118,7 @@ func githubHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getNewGithubTestRepo(t *testing.T) (*GitHubRepository, *httptest.Server) {
-	repo, err := NewGitHubRepository(context.TODO(), "", "owner/test-repo", "token")
+	repo, err := NewRepository(context.TODO(), "", "owner/test-repo", "token")
 	require.NoError(t, err)
 	ts := httptest.NewServer(http.HandlerFunc(githubHandler))
 	repo.Client.BaseURL, _ = url.Parse(ts.URL + "/")
@@ -136,6 +136,18 @@ func TestGithubGetInfo(t *testing.T) {
 	require.True(t, repoInfo.Private)
 }
 
+func compareCommit(c *semrel.Commit, t, s string, change semrel.Change) bool {
+	if c.Type != t || c.Scope != s {
+		return false
+	}
+	if c.Change.Major != change.Major ||
+		c.Change.Minor != change.Minor ||
+		c.Change.Patch != change.Patch {
+		return false
+	}
+	return true
+}
+
 func TestGithubGetCommits(t *testing.T) {
 	repo, ts := getNewGithubTestRepo(t)
 	defer ts.Close()
@@ -143,10 +155,10 @@ func TestGithubGetCommits(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, commits, 4)
 
-	if !compareCommit(commits[0], "feat", "app", Change{false, true, false}) ||
-		!compareCommit(commits[1], "fix", "", Change{false, false, true}) ||
-		!compareCommit(commits[2], "", "", Change{false, false, false}) ||
-		!compareCommit(commits[3], "chore", "", Change{true, false, false}) {
+	if !compareCommit(commits[0], "feat", "app", semrel.Change{Major: false, Minor: true, Patch: false}) ||
+		!compareCommit(commits[1], "fix", "", semrel.Change{Major: false, Minor: false, Patch: true}) ||
+		!compareCommit(commits[2], "", "", semrel.Change{Major: false, Minor: false, Patch: false}) ||
+		!compareCommit(commits[3], "chore", "", semrel.Change{Major: true, Minor: false, Patch: false}) {
 		t.Fatal("invalid commits")
 	}
 }

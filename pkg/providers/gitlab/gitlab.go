@@ -1,10 +1,11 @@
-package semrel
+package gitlab
 
 import (
 	"context"
 	"fmt"
 	"regexp"
-	"strings"
+
+	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 
 	"github.com/Masterminds/semver"
 	"github.com/xanzy/go-gitlab"
@@ -17,7 +18,7 @@ type GitLabRepository struct {
 	client    *gitlab.Client
 }
 
-func NewGitLabRepository(ctx context.Context, gitlabBaseUrl, token, branch string, projectID string) (*GitLabRepository, error) {
+func NewRepository(ctx context.Context, gitlabBaseUrl, token, branch string, projectID string) (*GitLabRepository, error) {
 	if projectID == "" {
 		return nil, fmt.Errorf("project id is required")
 	}
@@ -47,13 +48,13 @@ func NewGitLabRepository(ctx context.Context, gitlabBaseUrl, token, branch strin
 	return repo, nil
 }
 
-func (repo *GitLabRepository) GetInfo() (*RepositoryInfo, error) {
+func (repo *GitLabRepository) GetInfo() (*semrel.RepositoryInfo, error) {
 	project, _, err := repo.client.Projects.GetProject(repo.projectID, nil)
 
 	if err != nil {
 		return nil, err
 	}
-	return &RepositoryInfo{
+	return &semrel.RepositoryInfo{
 		Owner:         "",
 		Repo:          "",
 		DefaultBranch: project.DefaultBranch,
@@ -61,7 +62,7 @@ func (repo *GitLabRepository) GetInfo() (*RepositoryInfo, error) {
 	}, nil
 }
 
-func (repo *GitLabRepository) GetCommits(sha string) ([]*Commit, error) {
+func (repo *GitLabRepository) GetCommits(sha string) ([]*semrel.Commit, error) {
 	opts := &gitlab.ListCommitsOptions{
 		ListOptions: gitlab.ListOptions{
 			Page:    1,
@@ -71,7 +72,7 @@ func (repo *GitLabRepository) GetCommits(sha string) ([]*Commit, error) {
 		All:     gitlab.Bool(true),
 	}
 
-	allCommits := make([]*Commit, 0)
+	allCommits := make([]*semrel.Commit, 0)
 
 	for {
 		commits, resp, err := repo.client.Commits.ListCommits(repo.projectID, opts)
@@ -81,7 +82,7 @@ func (repo *GitLabRepository) GetCommits(sha string) ([]*Commit, error) {
 		}
 
 		for _, commit := range commits {
-			allCommits = append(allCommits, parseGitlabCommit(commit))
+			allCommits = append(allCommits, semrel.NewCommit(commit.ID, commit.Message))
 		}
 
 		if resp.CurrentPage >= resp.TotalPages {
@@ -94,8 +95,8 @@ func (repo *GitLabRepository) GetCommits(sha string) ([]*Commit, error) {
 	return allCommits, nil
 }
 
-func (repo *GitLabRepository) GetReleases(re *regexp.Regexp) (Releases, error) {
-	allReleases := make(Releases, 0)
+func (repo *GitLabRepository) GetReleases(re *regexp.Regexp) (semrel.Releases, error) {
+	allReleases := make(semrel.Releases, 0)
 
 	opts := &gitlab.ListTagsOptions{
 		ListOptions: gitlab.ListOptions{
@@ -120,7 +121,7 @@ func (repo *GitLabRepository) GetReleases(re *regexp.Regexp) (Releases, error) {
 				continue
 			}
 
-			allReleases = append(allReleases, &Release{
+			allReleases = append(allReleases, &semrel.Release{
 				SHA:     tag.Commit.ID,
 				Version: version,
 			})
@@ -148,25 +149,6 @@ func (repo *GitLabRepository) CreateRelease(changelog string, newVersion *semver
 	})
 
 	return err
-}
-
-func parseGitlabCommit(commit *gitlab.Commit) *Commit {
-	c := new(Commit)
-	c.SHA = commit.ID
-	c.Raw = strings.Split(commit.Message, "\n")
-	found := commitPattern.FindAllStringSubmatch(c.Raw[0], -1)
-	if len(found) < 1 {
-		return c
-	}
-	c.Type = strings.ToLower(found[0][1])
-	c.Scope = found[0][2]
-	c.Message = found[0][3]
-	c.Change = Change{
-		Major: breakingPattern.MatchString(commit.Message),
-		Minor: c.Type == "feat",
-		Patch: c.Type == "fix",
-	}
-	return c
 }
 
 func (repo *GitLabRepository) Provider() string {
