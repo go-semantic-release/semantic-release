@@ -1,4 +1,4 @@
-package semrel
+package github
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver"
+	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/google/go-github/v30/github"
 	"golang.org/x/oauth2"
 )
@@ -19,7 +20,7 @@ type GitHubRepository struct {
 	Client *github.Client
 }
 
-func NewGitHubRepository(ctx context.Context, gheHost, slug, token string) (*GitHubRepository, error) {
+func NewRepository(ctx context.Context, gheHost, slug, token string) (*GitHubRepository, error) {
 	if !strings.Contains(slug, "/") {
 		return nil, errors.New("invalid slug")
 	}
@@ -42,12 +43,12 @@ func NewGitHubRepository(ctx context.Context, gheHost, slug, token string) (*Git
 	return repo, nil
 }
 
-func (repo *GitHubRepository) GetInfo() (*RepositoryInfo, error) {
+func (repo *GitHubRepository) GetInfo() (*semrel.RepositoryInfo, error) {
 	r, _, err := repo.Client.Repositories.Get(repo.Ctx, repo.owner, repo.repo)
 	if err != nil {
 		return nil, err
 	}
-	return &RepositoryInfo{
+	return &semrel.RepositoryInfo{
 		Owner:         r.GetOwner().GetName(),
 		Repo:          r.GetName(),
 		DefaultBranch: r.GetDefaultBranch(),
@@ -55,7 +56,7 @@ func (repo *GitHubRepository) GetInfo() (*RepositoryInfo, error) {
 	}, nil
 }
 
-func (repo *GitHubRepository) GetCommits(sha string) ([]*Commit, error) {
+func (repo *GitHubRepository) GetCommits(sha string) ([]*semrel.Commit, error) {
 	opts := &github.CommitsListOptions{
 		SHA:         sha,
 		ListOptions: github.ListOptions{PerPage: 100},
@@ -64,15 +65,15 @@ func (repo *GitHubRepository) GetCommits(sha string) ([]*Commit, error) {
 	if err != nil {
 		return nil, err
 	}
-	ret := make([]*Commit, len(commits))
+	ret := make([]*semrel.Commit, len(commits))
 	for i, commit := range commits {
-		ret[i] = parseGithubCommit(commit)
+		ret[i] = semrel.NewCommit(commit.GetSHA(), commit.Commit.GetMessage())
 	}
 	return ret, nil
 }
 
-func (repo *GitHubRepository) GetReleases(re *regexp.Regexp) (Releases, error) {
-	allReleases := make(Releases, 0)
+func (repo *GitHubRepository) GetReleases(re *regexp.Regexp) (semrel.Releases, error) {
+	allReleases := make(semrel.Releases, 0)
 	opts := &github.ReferenceListOptions{Type: "tags", ListOptions: github.ListOptions{PerPage: 100}}
 	for {
 		refs, resp, err := repo.Client.Git.ListRefs(repo.Ctx, repo.owner, repo.repo, opts)
@@ -94,7 +95,7 @@ func (repo *GitHubRepository) GetReleases(re *regexp.Regexp) (Releases, error) {
 			if err != nil {
 				continue
 			}
-			allReleases = append(allReleases, &Release{r.Object.GetSHA(), version})
+			allReleases = append(allReleases, &semrel.Release{SHA: r.Object.GetSHA(), Version: version})
 		}
 		if resp.NextPage == 0 {
 			break
@@ -133,33 +134,6 @@ func (repo *GitHubRepository) CreateRelease(changelog string, newVersion *semver
 		return err
 	}
 	return nil
-}
-
-func parseGithubCommit(commit *github.RepositoryCommit) *Commit {
-	c := new(Commit)
-	c.SHA = commit.GetSHA()
-	c.Raw = strings.Split(commit.Commit.GetMessage(), "\n")
-	found := commitPattern.FindAllStringSubmatch(c.Raw[0], -1)
-	if len(found) < 1 {
-		return c
-	}
-	c.Type = strings.ToLower(found[0][1])
-	c.Scope = found[0][2]
-	c.Message = found[0][3]
-	c.Change = Change{
-		Major: breakingPattern.MatchString(commit.Commit.GetMessage()),
-		Minor: c.Type == "feat",
-		Patch: c.Type == "fix",
-	}
-	return c
-}
-
-func (repo *GitHubRepository) Owner() string {
-	return repo.owner
-}
-
-func (repo *GitHubRepository) Repo() string {
-	return repo.repo
 }
 
 func (repo *GitHubRepository) Provider() string {

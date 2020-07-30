@@ -1,4 +1,4 @@
-package semrel
+package gitlab
 
 import (
 	"context"
@@ -11,22 +11,23 @@ import (
 	"testing"
 
 	"github.com/Masterminds/semver"
+	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/stretchr/testify/require"
-	gitlab "github.com/xanzy/go-gitlab"
+	"github.com/xanzy/go-gitlab"
 )
 
 func TestNewGitlabRepository(t *testing.T) {
 	require := require.New(t)
 
-	repo, err := NewGitLabRepository(context.TODO(), "", "", "", "")
+	repo, err := NewRepository(context.TODO(), "", "", "", "")
 	require.Nil(repo)
 	require.EqualError(err, "project id is required")
 
-	repo, err = NewGitLabRepository(context.TODO(), "", "token", "", "1")
+	repo, err = NewRepository(context.TODO(), "", "token", "", "1")
 	require.NotNil(repo)
 	require.NoError(err)
 
-	repo, err = NewGitLabRepository(context.TODO(), "https://mygitlab.com", "token", "", "1")
+	repo, err = NewRepository(context.TODO(), "https://mygitlab.com", "token", "", "1")
 	require.NotNil(repo)
 	require.NoError(err)
 	require.Equal("https://mygitlab.com/api/v4/", repo.client.BaseURL().String(), "invalid custom instance initialization")
@@ -108,7 +109,7 @@ func GitlabHandler(w http.ResponseWriter, r *http.Request) {
 
 func getNewGitlabTestRepo(t *testing.T) (*GitLabRepository, *httptest.Server) {
 	ts := httptest.NewServer(http.HandlerFunc(GitlabHandler))
-	repo, err := NewGitLabRepository(context.TODO(), ts.URL, "gitlab-examples-ci", "", strconv.Itoa(GITLAB_PROJECT_ID))
+	repo, err := NewRepository(context.TODO(), ts.URL, "gitlab-examples-ci", "", strconv.Itoa(GITLAB_PROJECT_ID))
 	require.NoError(t, err)
 
 	return repo, ts
@@ -123,6 +124,18 @@ func TestGitlabGetInfo(t *testing.T) {
 	require.True(t, repoInfo.Private)
 }
 
+func compareCommit(c *semrel.Commit, t, s string, change semrel.Change) bool {
+	if c.Type != t || c.Scope != s {
+		return false
+	}
+	if c.Change.Major != change.Major ||
+		c.Change.Minor != change.Minor ||
+		c.Change.Patch != change.Patch {
+		return false
+	}
+	return true
+}
+
 func TestGitlabGetCommits(t *testing.T) {
 	repo, ts := getNewGitlabTestRepo(t)
 	defer ts.Close()
@@ -130,10 +143,10 @@ func TestGitlabGetCommits(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, commits, 4)
 
-	if !compareCommit(commits[0], "feat", "app", Change{false, true, false}) ||
-		!compareCommit(commits[1], "fix", "", Change{false, false, true}) ||
-		!compareCommit(commits[2], "", "", Change{false, false, false}) ||
-		!compareCommit(commits[3], "chore", "", Change{true, false, false}) {
+	if !compareCommit(commits[0], "feat", "app", semrel.Change{Major: false, Minor: true, Patch: false}) ||
+		!compareCommit(commits[1], "fix", "", semrel.Change{Major: false, Minor: false, Patch: true}) ||
+		!compareCommit(commits[2], "", "", semrel.Change{Major: false, Minor: false, Patch: false}) ||
+		!compareCommit(commits[3], "chore", "", semrel.Change{Major: true, Minor: false, Patch: false}) {
 		t.Fatal("invalid commits")
 	}
 }

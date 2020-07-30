@@ -11,6 +11,8 @@ import (
 
 	"github.com/go-semantic-release/semantic-release/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/pkg/config"
+	"github.com/go-semantic-release/semantic-release/pkg/providers/github"
+	"github.com/go-semantic-release/semantic-release/pkg/providers/gitlab"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/go-semantic-release/semantic-release/pkg/update"
 	"github.com/urfave/cli/v2"
@@ -61,9 +63,9 @@ func cliHandler(c *cli.Context) error {
 	var repo semrel.Repository
 
 	if conf.GitLab {
-		repo, err = semrel.NewGitLabRepository(c.Context, conf.GitLabBaseURL, conf.Token, ci.GetCurrentBranch(), conf.GitLabProjectID)
+		repo, err = gitlab.NewRepository(c.Context, conf.GitLabBaseURL, conf.Token, ci.GetCurrentBranch(), conf.GitLabProjectID)
 	} else {
-		repo, err = semrel.NewGitHubRepository(c.Context, conf.GheHost, conf.Slug, conf.Token)
+		repo, err = github.NewRepository(c.Context, conf.GheHost, conf.Slug, conf.Token)
 	}
 
 	logger.Printf("releasing on: %s\n", repo.Provider())
