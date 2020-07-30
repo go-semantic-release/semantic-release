@@ -42,12 +42,17 @@ func NewGitHubRepository(ctx context.Context, gheHost, slug, token string) (*Git
 	return repo, nil
 }
 
-func (repo *GitHubRepository) GetInfo() (string, bool, error) {
+func (repo *GitHubRepository) GetInfo() (*RepositoryInfo, error) {
 	r, _, err := repo.Client.Repositories.Get(repo.Ctx, repo.owner, repo.repo)
 	if err != nil {
-		return "", false, err
+		return nil, err
 	}
-	return r.GetDefaultBranch(), r.GetPrivate(), nil
+	return &RepositoryInfo{
+		Owner:         r.GetOwner().GetName(),
+		Repo:          r.GetName(),
+		DefaultBranch: r.GetDefaultBranch(),
+		Private:       r.GetPrivate(),
+	}, nil
 }
 
 func (repo *GitHubRepository) GetCommits(sha string) ([]*Commit, error) {

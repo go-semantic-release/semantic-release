@@ -47,8 +47,17 @@ func createGithubRef(ref, sha string) *github.Reference {
 var (
 	GITHUB_REPO_PRIVATE  = true
 	GITHUB_DEFAULTBRANCH = "master"
-	GITHUB_REPO          = github.Repository{DefaultBranch: &GITHUB_DEFAULTBRANCH, Private: &GITHUB_REPO_PRIVATE}
-	GITHUB_COMMITS       = []*github.RepositoryCommit{
+	GITHUB_REPO_NAME     = "test-repo"
+	GITHUB_OWNER_NAME    = "owner"
+	GITHUB_REPO          = github.Repository{
+		DefaultBranch: &GITHUB_DEFAULTBRANCH,
+		Private:       &GITHUB_REPO_PRIVATE,
+		Owner: &github.User{
+			Name: &GITHUB_OWNER_NAME,
+		},
+		Name: &GITHUB_REPO_NAME,
+	}
+	GITHUB_COMMITS = []*github.RepositoryCommit{
 		createGithubCommit("abcd", "feat(app): new feature"),
 		createGithubCommit("dcba", "Fix: bug"),
 		createGithubCommit("cdba", "Initial commit"),
@@ -119,10 +128,12 @@ func getNewGithubTestRepo(t *testing.T) (*GitHubRepository, *httptest.Server) {
 func TestGithubGetInfo(t *testing.T) {
 	repo, ts := getNewGithubTestRepo(t)
 	defer ts.Close()
-	defaultBranch, isPrivate, err := repo.GetInfo()
+	repoInfo, err := repo.GetInfo()
 	require.NoError(t, err)
-	require.Equal(t, GITLAB_DEFAULTBRANCH, defaultBranch)
-	require.True(t, isPrivate)
+	require.Equal(t, GITHUB_DEFAULTBRANCH, repoInfo.DefaultBranch)
+	require.Equal(t, GITHUB_OWNER_NAME, repoInfo.Owner)
+	require.Equal(t, GITHUB_REPO_NAME, repoInfo.Repo)
+	require.True(t, repoInfo.Private)
 }
 
 func TestGithubGetCommits(t *testing.T) {
