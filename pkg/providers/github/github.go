@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver"
+	"github.com/go-semantic-release/semantic-release/pkg/providers"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/google/go-github/v30/github"
 	"golang.org/x/oauth2"
@@ -43,12 +44,12 @@ func NewRepository(ctx context.Context, gheHost, slug, token string) (*GitHubRep
 	return repo, nil
 }
 
-func (repo *GitHubRepository) GetInfo() (*semrel.RepositoryInfo, error) {
+func (repo *GitHubRepository) GetInfo() (*providers.RepositoryInfo, error) {
 	r, _, err := repo.Client.Repositories.Get(repo.Ctx, repo.owner, repo.repo)
 	if err != nil {
 		return nil, err
 	}
-	return &semrel.RepositoryInfo{
+	return &providers.RepositoryInfo{
 		Owner:         r.GetOwner().GetName(),
 		Repo:          r.GetName(),
 		DefaultBranch: r.GetDefaultBranch(),
@@ -106,15 +107,15 @@ func (repo *GitHubRepository) GetReleases(re *regexp.Regexp) (semrel.Releases, e
 	return allReleases, nil
 }
 
-func (repo *GitHubRepository) CreateRelease(changelog string, newVersion *semver.Version, prerelease bool, branch, sha string) error {
-	tag := fmt.Sprintf("v%s", newVersion.String())
-	isPrerelease := prerelease || newVersion.Prerelease() != ""
+func (repo *GitHubRepository) CreateRelease(release *providers.RepositoryRelease) error {
+	tag := fmt.Sprintf("v%s", release.NewVersion.String())
+	isPrerelease := release.Prerelease || release.NewVersion.Prerelease() != ""
 
-	if branch != sha {
+	if release.Branch != release.SHA {
 		ref := "refs/tags/" + tag
 		tagOpts := &github.Reference{
 			Ref:    &ref,
-			Object: &github.GitObject{SHA: &sha},
+			Object: &github.GitObject{SHA: &release.SHA},
 		}
 		_, _, err := repo.Client.Git.CreateRef(repo.Ctx, repo.owner, repo.repo, tagOpts)
 		if err != nil {
@@ -125,15 +126,12 @@ func (repo *GitHubRepository) CreateRelease(changelog string, newVersion *semver
 	opts := &github.RepositoryRelease{
 		TagName:         &tag,
 		Name:            &tag,
-		TargetCommitish: &branch,
-		Body:            &changelog,
+		TargetCommitish: &release.Branch,
+		Body:            &release.Changelog,
 		Prerelease:      &isPrerelease,
 	}
 	_, _, err := repo.Client.Repositories.CreateRelease(repo.Ctx, repo.owner, repo.repo, opts)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (repo *GitHubRepository) Provider() string {

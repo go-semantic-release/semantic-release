@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/go-semantic-release/semantic-release/pkg/semrel"
-
 	"github.com/Masterminds/semver"
+	"github.com/go-semantic-release/semantic-release/pkg/providers"
+	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/xanzy/go-gitlab"
 )
 
@@ -48,13 +48,13 @@ func NewRepository(ctx context.Context, gitlabBaseUrl, token, branch string, pro
 	return repo, nil
 }
 
-func (repo *GitLabRepository) GetInfo() (*semrel.RepositoryInfo, error) {
+func (repo *GitLabRepository) GetInfo() (*providers.RepositoryInfo, error) {
 	project, _, err := repo.client.Projects.GetProject(repo.projectID, nil)
 
 	if err != nil {
 		return nil, err
 	}
-	return &semrel.RepositoryInfo{
+	return &providers.RepositoryInfo{
 		Owner:         "",
 		Repo:          "",
 		DefaultBranch: project.DefaultBranch,
@@ -137,15 +137,15 @@ func (repo *GitLabRepository) GetReleases(re *regexp.Regexp) (semrel.Releases, e
 	return allReleases, nil
 }
 
-func (repo *GitLabRepository) CreateRelease(changelog string, newVersion *semver.Version, prerelease bool, branch, sha string) error {
-	tag := fmt.Sprintf("v%s", newVersion.String())
+func (repo *GitLabRepository) CreateRelease(release *providers.RepositoryRelease) error {
+	tag := fmt.Sprintf("v%s", release.NewVersion.String())
 
 	// Gitlab does not have any notion of pre-releases
 	_, _, err := repo.client.Releases.CreateRelease(repo.projectID, &gitlab.CreateReleaseOptions{
 		TagName: &tag,
-		Ref:     &sha,
+		Ref:     &release.SHA,
 		// TODO: this may been to be wrapped in ```
-		Description: &changelog,
+		Description: &release.Changelog,
 	})
 
 	return err

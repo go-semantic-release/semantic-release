@@ -115,21 +115,6 @@ func (releases Releases) GetLatestRelease(vrange string) (*Release, error) {
 	return &Release{lastRelease.SHA, &npver}, nil
 }
 
-type RepositoryInfo struct {
-	Owner         string
-	Repo          string
-	DefaultBranch string
-	Private       bool
-}
-
-type Repository interface {
-	GetInfo() (*RepositoryInfo, error)
-	GetCommits(sha string) ([]*Commit, error)
-	GetReleases(re *regexp.Regexp) (Releases, error)
-	CreateRelease(changelog string, newVersion *semver.Version, prerelease bool, branch, sha string) error
-	Provider() string
-}
-
 func CalculateChange(commits []*Commit, latestRelease *Release) Change {
 	var change Change
 	for _, commit := range commits {

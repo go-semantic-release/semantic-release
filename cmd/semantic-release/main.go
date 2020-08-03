@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-semantic-release/semantic-release/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/pkg/config"
+	"github.com/go-semantic-release/semantic-release/pkg/providers"
 	"github.com/go-semantic-release/semantic-release/pkg/providers/github"
 	"github.com/go-semantic-release/semantic-release/pkg/providers/gitlab"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
@@ -60,7 +61,7 @@ func cliHandler(c *cli.Context) error {
 	ci := condition.NewCI()
 	logger.Printf("detected CI: %s\n", ci.Name())
 
-	var repo semrel.Repository
+	var repo providers.Repository
 
 	if conf.GitLab {
 		repo, err = gitlab.NewRepository(c.Context, conf.GitLabBaseURL, conf.Token, ci.GetCurrentBranch(), conf.GitLabProjectID)
@@ -152,7 +153,14 @@ func cliHandler(c *cli.Context) error {
 	}
 
 	logger.Println("creating release...")
-	exitIfError(repo.CreateRelease(changelog, newVer, conf.Prerelease, currentBranch, currentSha))
+	newRelease := &providers.RepositoryRelease{
+		Changelog:  changelog,
+		NewVersion: newVer,
+		Prerelease: conf.Prerelease,
+		Branch:     currentBranch,
+		SHA:        currentSha,
+	}
+	exitIfError(repo.CreateRelease(newRelease))
 
 	if conf.Ghr {
 		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repoInfo.Owner, repoInfo.Repo, newVer.String())), 0644))
