@@ -10,9 +10,9 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/go-semantic-release/semantic-release/pkg/semrel"
-
 	"github.com/Masterminds/semver"
+	"github.com/go-semantic-release/semantic-release/pkg/providers"
+	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/google/go-github/v30/github"
 	"github.com/stretchr/testify/require"
 )
@@ -196,6 +196,6 @@ func TestGithubCreateRelease(t *testing.T) {
 	repo, ts := getNewGithubTestRepo(t)
 	defer ts.Close()
 	newVersion := semver.MustParse("2.0.0")
-	err := repo.CreateRelease("", newVersion, false, "", "deadbeef")
+	err := repo.CreateRelease(&providers.RepositoryRelease{NewVersion: newVersion, SHA: "deadbeef"})
 	require.NoError(t, err)
 }
