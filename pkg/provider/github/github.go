@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver"
-	"github.com/go-semantic-release/semantic-release/pkg/providers"
+	"github.com/go-semantic-release/semantic-release/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/google/go-github/v30/github"
 	"golang.org/x/oauth2"
@@ -44,12 +44,12 @@ func NewRepository(ctx context.Context, gheHost, slug, token string) (*GitHubRep
 	return repo, nil
 }
 
-func (repo *GitHubRepository) GetInfo() (*providers.RepositoryInfo, error) {
+func (repo *GitHubRepository) GetInfo() (*provider.RepositoryInfo, error) {
 	r, _, err := repo.Client.Repositories.Get(repo.Ctx, repo.owner, repo.repo)
 	if err != nil {
 		return nil, err
 	}
-	return &providers.RepositoryInfo{
+	return &provider.RepositoryInfo{
 		Owner:         r.GetOwner().GetName(),
 		Repo:          r.GetName(),
 		DefaultBranch: r.GetDefaultBranch(),
@@ -107,7 +107,7 @@ func (repo *GitHubRepository) GetReleases(re *regexp.Regexp) (semrel.Releases, e
 	return allReleases, nil
 }
 
-func (repo *GitHubRepository) CreateRelease(release *providers.RepositoryRelease) error {
+func (repo *GitHubRepository) CreateRelease(release *provider.RepositoryRelease) error {
 	tag := fmt.Sprintf("v%s", release.NewVersion.String())
 	isPrerelease := release.Prerelease || release.NewVersion.Prerelease() != ""
 

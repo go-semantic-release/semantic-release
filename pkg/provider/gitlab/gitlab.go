@@ -6,7 +6,7 @@ import (
 	"regexp"
 
 	"github.com/Masterminds/semver"
-	"github.com/go-semantic-release/semantic-release/pkg/providers"
+	"github.com/go-semantic-release/semantic-release/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/xanzy/go-gitlab"
 )
@@ -48,13 +48,13 @@ func NewRepository(ctx context.Context, gitlabBaseUrl, token, branch string, pro
 	return repo, nil
 }
 
-func (repo *GitLabRepository) GetInfo() (*providers.RepositoryInfo, error) {
+func (repo *GitLabRepository) GetInfo() (*provider.RepositoryInfo, error) {
 	project, _, err := repo.client.Projects.GetProject(repo.projectID, nil)
 
 	if err != nil {
 		return nil, err
 	}
-	return &providers.RepositoryInfo{
+	return &provider.RepositoryInfo{
 		Owner:         "",
 		Repo:          "",
 		DefaultBranch: project.DefaultBranch,
@@ -137,7 +137,7 @@ func (repo *GitLabRepository) GetReleases(re *regexp.Regexp) (semrel.Releases, e
 	return allReleases, nil
 }
 
-func (repo *GitLabRepository) CreateRelease(release *providers.RepositoryRelease) error {
+func (repo *GitLabRepository) CreateRelease(release *provider.RepositoryRelease) error {
 	tag := fmt.Sprintf("v%s", release.NewVersion.String())
 
 	// Gitlab does not have any notion of pre-releases

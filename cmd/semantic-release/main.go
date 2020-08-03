@@ -11,9 +11,9 @@ import (
 
 	"github.com/go-semantic-release/semantic-release/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/pkg/config"
-	"github.com/go-semantic-release/semantic-release/pkg/providers"
-	"github.com/go-semantic-release/semantic-release/pkg/providers/github"
-	"github.com/go-semantic-release/semantic-release/pkg/providers/gitlab"
+	"github.com/go-semantic-release/semantic-release/pkg/provider"
+	"github.com/go-semantic-release/semantic-release/pkg/provider/github"
+	"github.com/go-semantic-release/semantic-release/pkg/provider/gitlab"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/go-semantic-release/semantic-release/pkg/update"
 	"github.com/urfave/cli/v2"
@@ -61,7 +61,7 @@ func cliHandler(c *cli.Context) error {
 	ci := condition.NewCI()
 	logger.Printf("detected CI: %s\n", ci.Name())
 
-	var repo providers.Repository
+	var repo provider.Repository
 
 	if conf.GitLab {
 		repo, err = gitlab.NewRepository(c.Context, conf.GitLabBaseURL, conf.Token, ci.GetCurrentBranch(), conf.GitLabProjectID)
@@ -153,7 +153,7 @@ func cliHandler(c *cli.Context) error {
 	}
 
 	logger.Println("creating release...")
-	newRelease := &providers.RepositoryRelease{
+	newRelease := &provider.RepositoryRelease{
 		Changelog:  changelog,
 		NewVersion: newVer,
 		Prerelease: conf.Prerelease,
