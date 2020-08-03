@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-semantic-release/semantic-release/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/pkg/config"
+	"github.com/go-semantic-release/semantic-release/pkg/generator/changelog"
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/pkg/provider/github"
 	"github.com/go-semantic-release/semantic-release/pkg/provider/gitlab"
@@ -147,14 +148,19 @@ func cliHandler(c *cli.Context) error {
 	}
 
 	logger.Println("generating changelog...")
-	changelog := semrel.GetChangelog(commits, release, newVer)
+	changelogGenerator := &changelog.DefaultGenerator{}
+	changelogRes := changelogGenerator.Generate(&changelog.Config{
+		Commits:       commits,
+		LatestRelease: release,
+		NewVersion:    newVer,
+	})
 	if conf.Changelog != "" {
-		exitIfError(ioutil.WriteFile(conf.Changelog, []byte(changelog), 0644))
+		exitIfError(ioutil.WriteFile(conf.Changelog, []byte(changelogRes), 0644))
 	}
 
 	logger.Println("creating release...")
 	newRelease := &provider.RepositoryRelease{
-		Changelog:  changelog,
+		Changelog:  changelogRes,
 		NewVersion: newVer,
 		Prerelease: conf.Prerelease,
 		Branch:     currentBranch,
