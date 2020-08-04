@@ -39,12 +39,14 @@ func errorHandler(logger *log.Logger) func(error, ...int) {
 }
 
 func main() {
-	app := cli.NewApp()
-	app.Name = "semantic-release"
-	app.Usage = "automates the package release workflow including: determining the next version number and generating the change log"
-	app.Version = SRVERSION
-	app.Flags = config.CliFlags
-	app.Action = cliHandler
+	app := &cli.App{
+		Name:     "semantic-release",
+		Usage:    "automates the package release workflow including: determining the next version number and generating the change log",
+		Version:  SRVERSION,
+		Commands: nil,
+		Flags:    config.CliFlags,
+		Action:   cliHandler,
+	}
 
 	err := app.Run(os.Args)
 	if err != nil {
