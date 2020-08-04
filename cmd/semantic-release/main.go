@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/go-semantic-release/semantic-release/pkg/analyzer/commit"
 	"github.com/go-semantic-release/semantic-release/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/pkg/config"
 	"github.com/go-semantic-release/semantic-release/pkg/generator/changelog"
@@ -128,8 +129,11 @@ func cliHandler(c *cli.Context) error {
 	}
 
 	logger.Println("getting commits...")
-	commits, err := repo.GetCommits(currentSha)
+	rawCommits, err := repo.GetCommits(currentSha)
 	exitIfError(err)
+
+	commitAnalyzer := &commit.DefaultAnalyzer{}
+	commits := commitAnalyzer.Analyze(rawCommits)
 
 	logger.Println("calculating new version...")
 	newVer := semrel.GetNewVersion(conf, commits, release)

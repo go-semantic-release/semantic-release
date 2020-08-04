@@ -12,7 +12,6 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
-	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/stretchr/testify/require"
 	"github.com/xanzy/go-gitlab"
 )
@@ -125,18 +124,6 @@ func TestGitlabGetInfo(t *testing.T) {
 	require.True(t, repoInfo.Private)
 }
 
-func compareCommit(c *semrel.Commit, t, s string, change semrel.Change) bool {
-	if c.Type != t || c.Scope != s {
-		return false
-	}
-	if c.Change.Major != change.Major ||
-		c.Change.Minor != change.Minor ||
-		c.Change.Patch != change.Patch {
-		return false
-	}
-	return true
-}
-
 func TestGitlabGetCommits(t *testing.T) {
 	repo, ts := getNewGitlabTestRepo(t)
 	defer ts.Close()
@@ -144,11 +131,9 @@ func TestGitlabGetCommits(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, commits, 4)
 
-	if !compareCommit(commits[0], "feat", "app", semrel.Change{Major: false, Minor: true, Patch: false}) ||
-		!compareCommit(commits[1], "fix", "", semrel.Change{Major: false, Minor: false, Patch: true}) ||
-		!compareCommit(commits[2], "", "", semrel.Change{Major: false, Minor: false, Patch: false}) ||
-		!compareCommit(commits[3], "chore", "", semrel.Change{Major: true, Minor: false, Patch: false}) {
-		t.Fatal("invalid commits")
+	for i, c := range commits {
+		require.Equal(t, c.SHA, GITLAB_COMMITS[i].ID)
+		require.Equal(t, c.RawMessage, GITLAB_COMMITS[i].Message)
 	}
 }
 
