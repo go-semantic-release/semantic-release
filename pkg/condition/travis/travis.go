@@ -1,15 +1,16 @@
-package condition
+package travis
 
 import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/shuheiktgw/go-travis"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/shuheiktgw/go-travis"
 )
 
 type TravisCI struct {
@@ -27,7 +28,7 @@ func (ci *TravisCI) GetCurrentSHA() string {
 	return os.Getenv("TRAVIS_COMMIT")
 }
 
-func (ci *TravisCI) RunCondition(config CIConfig) error {
+func (ci *TravisCI) RunCondition(config map[string]interface{}) error {
 	token := config["token"].(string)
 	defaultBranch := config["defaultBranch"].(string)
 	private := config["private"].(bool)

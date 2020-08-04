@@ -4,6 +4,10 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/go-semantic-release/semantic-release/pkg/condition/github"
+	"github.com/go-semantic-release/semantic-release/pkg/condition/gitlab"
+	"github.com/go-semantic-release/semantic-release/pkg/condition/travis"
 )
 
 func ReadGitHead() string {
@@ -14,11 +18,9 @@ func ReadGitHead() string {
 	return strings.TrimSpace(strings.TrimPrefix(string(data), "ref: refs/heads/"))
 }
 
-type CIConfig map[string]interface{}
-
 type CI interface {
 	Name() string
-	RunCondition(config CIConfig) error
+	RunCondition(map[string]interface{}) error
 	GetCurrentBranch() string
 	GetCurrentSHA() string
 }
@@ -30,7 +32,7 @@ func (d DefaultCI) Name() string {
 	return "none"
 }
 
-func (d DefaultCI) RunCondition(config CIConfig) error {
+func (d DefaultCI) RunCondition(map[string]interface{}) error {
 	return nil
 }
 
@@ -44,13 +46,13 @@ func (d DefaultCI) GetCurrentSHA() string {
 
 func NewCI() CI {
 	if os.Getenv("GITHUB_ACTIONS") == "true" {
-		return &GitHubActions{}
+		return &github.GitHubActions{}
 	}
 	if os.Getenv("TRAVIS") == "true" {
-		return &TravisCI{}
+		return &travis.TravisCI{}
 	}
 	if os.Getenv("GITLAB_CI") == "true" {
-		return &GitLab{}
+		return &gitlab.GitLab{}
 	}
 	return &DefaultCI{}
 }
