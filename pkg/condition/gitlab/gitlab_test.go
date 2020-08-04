@@ -1,4 +1,4 @@
-package condition
+package gitlab
 
 import (
 	"os"
@@ -10,6 +10,6 @@ import (
 func TestGitlabValid(t *testing.T) {
 	gl := GitLab{}
 	os.Setenv("CI_COMMIT_BRANCH", "")
-	err := gl.RunCondition(CIConfig{"defaultBranch": ""})
+	err := gl.RunCondition(map[string]interface{}{"defaultBranch": ""})
 	assert.EqualError(t, err, "This test run is not running on a branch build.")
 }

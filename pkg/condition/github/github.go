@@ -1,4 +1,4 @@
-package condition
+package github
 
 import (
 	"fmt"
@@ -28,7 +28,7 @@ func (gha *GitHubActions) IsBranchRef() bool {
 	return false
 }
 
-func (gha *GitHubActions) RunCondition(config CIConfig) error {
+func (gha *GitHubActions) RunCondition(config map[string]interface{}) error {
 	defaultBranch := config["defaultBranch"].(string)
 	if !gha.IsBranchRef() {
 		return fmt.Errorf("This test run is not running on a branch build.")
