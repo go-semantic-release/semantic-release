@@ -17,7 +17,8 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/provider/github"
 	"github.com/go-semantic-release/semantic-release/pkg/provider/gitlab"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
-	"github.com/go-semantic-release/semantic-release/pkg/update"
+	"github.com/go-semantic-release/semantic-release/pkg/updater"
+	_ "github.com/go-semantic-release/semantic-release/pkg/updater/npm"
 	"github.com/urfave/cli/v2"
 )
 
@@ -181,7 +182,7 @@ func cliHandler(c *cli.Context) error {
 	}
 
 	if conf.Update != "" {
-		exitIfError(update.Apply(conf.Update, newVer.String()))
+		exitIfError(updater.Apply(conf.Update, newVer.String()))
 	}
 
 	logger.Println("done.")

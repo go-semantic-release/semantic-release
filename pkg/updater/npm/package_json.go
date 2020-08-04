@@ -1,16 +1,18 @@
-package update
+package npm
 
 import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path"
+
+	"github.com/go-semantic-release/semantic-release/pkg/updater"
 )
 
 const npmrc = "//registry.npmjs.org/:_authToken=${NPM_TOKEN}\n"
 
 func init() {
-	Register("package.json", packageJson)
+	updater.Register("package.json", packageJson)
 }
 
 func updateJsonFile(newVersion string, file *os.File) error {
