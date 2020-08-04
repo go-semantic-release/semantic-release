@@ -2,117 +2,12 @@ package semrel
 
 import (
 	"fmt"
-	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/Masterminds/semver"
 	"github.com/go-semantic-release/semantic-release/pkg/config"
 )
-
-var commitPattern = regexp.MustCompile(`^(\w*)(?:\((.*)\))?\: (.*)$`)
-var breakingPattern = regexp.MustCompile("BREAKING CHANGES?")
-
-type Change struct {
-	Major, Minor, Patch bool
-}
-
-type Commit struct {
-	SHA     string
-	Raw     []string
-	Type    string
-	Scope   string
-	Message string
-	Change  Change
-}
-
-func NewCommit(sha, msg string) *Commit {
-	c := new(Commit)
-	c.SHA = sha
-	c.Raw = strings.Split(msg, "\n")
-	found := commitPattern.FindAllStringSubmatch(c.Raw[0], -1)
-	if len(found) < 1 {
-		return c
-	}
-	c.Type = strings.ToLower(found[0][1])
-	c.Scope = found[0][2]
-	c.Message = found[0][3]
-	c.Change = Change{
-		Major: breakingPattern.MatchString(msg),
-		Minor: c.Type == "feat",
-		Patch: c.Type == "fix",
-	}
-	return c
-}
-
-type Release struct {
-	SHA     string
-	Version *semver.Version
-}
-
-type Releases []*Release
-
-func (r Releases) Len() int {
-	return len(r)
-}
-
-func (r Releases) Less(i, j int) bool {
-	return r[j].Version.LessThan(r[i].Version)
-}
-
-func (r Releases) Swap(i, j int) {
-	r[i], r[j] = r[j], r[i]
-}
-
-func (releases Releases) GetLatestRelease(vrange string) (*Release, error) {
-	if len(releases) == 0 {
-		return &Release{"", &semver.Version{}}, nil
-	}
-
-	sort.Sort(releases)
-
-	var lastRelease *Release
-	for _, r := range releases {
-		if r.Version.Prerelease() == "" {
-			lastRelease = r
-			break
-		}
-	}
-
-	if vrange == "" {
-		if lastRelease != nil {
-			return lastRelease, nil
-		}
-		return &Release{"", &semver.Version{}}, nil
-	}
-
-	constraint, err := semver.NewConstraint(vrange)
-	if err != nil {
-		return nil, err
-	}
-	for _, r := range releases {
-		if constraint.Check(r.Version) {
-			return r, nil
-		}
-	}
-
-	nver, err := semver.NewVersion(vrange)
-	if err != nil {
-		return nil, err
-	}
-
-	splitPre := strings.SplitN(vrange, "-", 2)
-	if len(splitPre) == 1 {
-		return &Release{lastRelease.SHA, nver}, nil
-	}
-
-	npver, err := nver.SetPrerelease(splitPre[1])
-	if err != nil {
-		return nil, err
-	}
-	return &Release{lastRelease.SHA, &npver}, nil
-}
 
 func CalculateChange(commits []*Commit, latestRelease *Release) Change {
 	var change Change
