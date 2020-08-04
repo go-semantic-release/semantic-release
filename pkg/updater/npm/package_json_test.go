@@ -1,4 +1,4 @@
-package update
+package npm
 
 import (
 	"encoding/json"
@@ -12,12 +12,12 @@ import (
 func TestPackageJson(t *testing.T) {
 	require := require.New(t)
 
-	f, err := os.OpenFile("../../test/package.json", os.O_RDWR, 0)
+	f, err := os.OpenFile("../../../test/package.json", os.O_RDWR, 0)
 	require.NoError(err, "fixture package.json missing")
 	defer f.Close()
 	nVer := "1.2.3"
 	nVerJSON := json.RawMessage("\"" + nVer + "\"")
-	npmrcPath := "../../test/.npmrc"
+	npmrcPath := "../../../test/.npmrc"
 	os.Remove(npmrcPath)
 	err = packageJson(nVer, f)
 	require.NoError(err)
@@ -32,7 +32,7 @@ func TestPackageJson(t *testing.T) {
 
 	require.Equal(nVerJSON, data["version"], "invalid version")
 
-	plF, err := os.OpenFile("../../test/package-lock.json", os.O_RDONLY, 0)
+	plF, err := os.OpenFile("../../../test/package-lock.json", os.O_RDONLY, 0)
 	require.NoError(err, "fixture package-lock.json missing")
 	var plData map[string]json.RawMessage
 	err = json.NewDecoder(plF).Decode(&plData)
@@ -42,11 +42,11 @@ func TestPackageJson(t *testing.T) {
 
 func TestNpmrc(t *testing.T) {
 	require := require.New(t)
-	f, err := os.OpenFile("../../test/package.json", os.O_RDWR, 0)
+	f, err := os.OpenFile("../../../test/package.json", os.O_RDWR, 0)
 	require.NoError(err, "fixture missing")
 	defer f.Close()
 	nVer := "1.2.3"
-	npmrcPath := "../../test/.npmrc"
+	npmrcPath := "../../../test/.npmrc"
 	err = ioutil.WriteFile(npmrcPath, []byte("TEST"), 0644)
 	require.NoError(err)
 	err = packageJson(nVer, f)
