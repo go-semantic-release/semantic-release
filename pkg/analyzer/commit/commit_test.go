@@ -40,6 +40,24 @@ func TestDefaultAnalyzer(t *testing.T) {
 			"",
 			semrel.Change{Major: false, Minor: true, Patch: false},
 		},
+		{
+			createRawCommit("b", "feat(web): new feature"),
+			"feat",
+			"web",
+			semrel.Change{Major: false, Minor: true, Patch: false},
+		},
+		{
+			createRawCommit("c", "new feature"),
+			"",
+			"",
+			semrel.Change{Major: false, Minor: false, Patch: false},
+		},
+		{
+			createRawCommit("d", "chore: break\nBREAKING CHANGE: breaks everything"),
+			"chore",
+			"",
+			semrel.Change{Major: true, Minor: false, Patch: false},
+		},
 	}
 
 	defaultAnalyzer := &DefaultAnalyzer{}
