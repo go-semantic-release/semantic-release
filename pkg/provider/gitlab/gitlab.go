@@ -62,7 +62,7 @@ func (repo *GitLabRepository) GetInfo() (*provider.RepositoryInfo, error) {
 	}, nil
 }
 
-func (repo *GitLabRepository) GetCommits(sha string) ([]*semrel.Commit, error) {
+func (repo *GitLabRepository) GetCommits(sha string) ([]*semrel.RawCommit, error) {
 	opts := &gitlab.ListCommitsOptions{
 		ListOptions: gitlab.ListOptions{
 			Page:    1,
@@ -72,7 +72,7 @@ func (repo *GitLabRepository) GetCommits(sha string) ([]*semrel.Commit, error) {
 		All:     gitlab.Bool(true),
 	}
 
-	allCommits := make([]*semrel.Commit, 0)
+	allCommits := make([]*semrel.RawCommit, 0)
 
 	for {
 		commits, resp, err := repo.client.Commits.ListCommits(repo.projectID, opts)
@@ -82,7 +82,10 @@ func (repo *GitLabRepository) GetCommits(sha string) ([]*semrel.Commit, error) {
 		}
 
 		for _, commit := range commits {
-			allCommits = append(allCommits, semrel.NewCommit(commit.ID, commit.Message))
+			allCommits = append(allCommits, &semrel.RawCommit{
+				SHA:        commit.ID,
+				RawMessage: commit.Message,
+			})
 		}
 
 		if resp.CurrentPage >= resp.TotalPages {

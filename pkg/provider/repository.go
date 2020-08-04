@@ -24,7 +24,7 @@ type RepositoryRelease struct {
 
 type Repository interface {
 	GetInfo() (*RepositoryInfo, error)
-	GetCommits(sha string) ([]*semrel.Commit, error)
+	GetCommits(sha string) ([]*semrel.RawCommit, error)
 	GetReleases(re *regexp.Regexp) (semrel.Releases, error)
 	CreateRelease(*RepositoryRelease) error
 	Provider() string

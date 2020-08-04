@@ -57,7 +57,7 @@ func (repo *GitHubRepository) GetInfo() (*provider.RepositoryInfo, error) {
 	}, nil
 }
 
-func (repo *GitHubRepository) GetCommits(sha string) ([]*semrel.Commit, error) {
+func (repo *GitHubRepository) GetCommits(sha string) ([]*semrel.RawCommit, error) {
 	opts := &github.CommitsListOptions{
 		SHA:         sha,
 		ListOptions: github.ListOptions{PerPage: 100},
@@ -66,9 +66,12 @@ func (repo *GitHubRepository) GetCommits(sha string) ([]*semrel.Commit, error) {
 	if err != nil {
 		return nil, err
 	}
-	ret := make([]*semrel.Commit, len(commits))
+	ret := make([]*semrel.RawCommit, len(commits))
 	for i, commit := range commits {
-		ret[i] = semrel.NewCommit(commit.GetSHA(), commit.Commit.GetMessage())
+		ret[i] = &semrel.RawCommit{
+			SHA:        commit.GetSHA(),
+			RawMessage: commit.Commit.GetMessage(),
+		}
 	}
 	return ret, nil
 }
