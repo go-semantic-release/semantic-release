@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"regexp"
 	"testing"
 
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
@@ -154,15 +153,15 @@ func TestGithubGetReleases(t *testing.T) {
 
 	testCases := []struct {
 		vrange          string
-		re              *regexp.Regexp
+		re              string
 		expectedSHA     string
 		expectedVersion string
 	}{
-		{"", nil, "deadbeef", "2020.4.19"},
-		{"", regexp.MustCompile("^v[0-9]*"), "deadbeef", "2.0.0"},
-		{"2-beta", nil, "deadbeef", "2.1.0-beta"},
-		{"3-beta", nil, "deadbeef", "3.0.0-beta.2"},
-		{"4-beta", nil, "deadbeef", "4.0.0-beta"},
+		{"", "", "deadbeef", "2020.4.19"},
+		{"", "^v[0-9]*", "deadbeef", "2.0.0"},
+		{"2-beta", "", "deadbeef", "2.1.0-beta"},
+		{"3-beta", "", "deadbeef", "3.0.0-beta.2"},
+		{"4-beta", "", "deadbeef", "4.0.0-beta"},
 	}
 
 	for _, tc := range testCases {

@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"regexp"
 	"strings"
 
 	"github.com/Masterminds/semver"
@@ -116,11 +115,11 @@ func cliHandler(c *cli.Context) error {
 	}
 
 	logger.Println("getting latest release...")
-	var matchRegex *regexp.Regexp
+	matchRegex := ""
 	match := strings.TrimSpace(conf.Match)
 	if match != "" {
 		logger.Printf("getting latest release matching %s...", match)
-		matchRegex = regexp.MustCompile("^" + match)
+		matchRegex = "^" + match
 	}
 	releases, err := repo.GetReleases(matchRegex)
 	exitIfError(err)
