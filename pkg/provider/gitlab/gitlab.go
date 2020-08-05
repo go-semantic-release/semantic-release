@@ -98,8 +98,8 @@ func (repo *GitLabRepository) GetCommits(sha string) ([]*semrel.RawCommit, error
 	return allCommits, nil
 }
 
-func (repo *GitLabRepository) GetReleases(re *regexp.Regexp) (semrel.Releases, error) {
-	allReleases := make(semrel.Releases, 0)
+func (repo *GitLabRepository) GetReleases(re *regexp.Regexp) ([]*semrel.Release, error) {
+	allReleases := make([]*semrel.Release, 0)
 
 	opts := &gitlab.ListTagsOptions{
 		ListOptions: gitlab.ListOptions{
@@ -141,7 +141,7 @@ func (repo *GitLabRepository) GetReleases(re *regexp.Regexp) (semrel.Releases, e
 }
 
 func (repo *GitLabRepository) CreateRelease(release *provider.RepositoryRelease) error {
-	tag := fmt.Sprintf("v%s", release.NewVersion.String())
+	tag := fmt.Sprintf("v%s", release.NewVersion)
 
 	// Gitlab does not have any notion of pre-releases
 	_, _, err := repo.client.Releases.CreateRelease(repo.projectID, &gitlab.CreateReleaseOptions{

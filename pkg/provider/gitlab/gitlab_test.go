@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/Masterminds/semver"
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
+	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/stretchr/testify/require"
 	"github.com/xanzy/go-gitlab"
 )
@@ -158,7 +158,7 @@ func TestGitlabGetReleases(t *testing.T) {
 		t.Run(fmt.Sprintf("VersionRange: %s, RE: %s", tc.vrange, tc.re), func(t *testing.T) {
 			releases, err := repo.GetReleases(tc.re)
 			require.NoError(t, err)
-			release, err := releases.GetLatestRelease(tc.vrange)
+			release, err := semrel.Releases(releases).GetLatestRelease(tc.vrange)
 			require.NoError(t, err)
 			require.Equal(t, tc.expectedSHA, release.SHA)
 			require.Equal(t, tc.expectedVersion, release.Version)
@@ -169,7 +169,6 @@ func TestGitlabGetReleases(t *testing.T) {
 func TestGitlabCreateRelease(t *testing.T) {
 	repo, ts := getNewGitlabTestRepo(t)
 	defer ts.Close()
-	newVersion := semver.MustParse("2.0.0")
-	err := repo.CreateRelease(&provider.RepositoryRelease{NewVersion: newVersion, SHA: "deadbeef"})
+	err := repo.CreateRelease(&provider.RepositoryRelease{NewVersion: "2.0.0", SHA: "deadbeef"})
 	require.NoError(t, err)
 }
