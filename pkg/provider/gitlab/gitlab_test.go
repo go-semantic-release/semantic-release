@@ -17,16 +17,24 @@ import (
 func TestNewGitlabRepository(t *testing.T) {
 	require := require.New(t)
 
-	repo, err := NewRepository("", "", "", "")
-	require.Nil(repo)
+	var repo *GitLabRepository
+	repo = &GitLabRepository{}
+	err := repo.Init(map[string]string{})
 	require.EqualError(err, "project id is required")
 
-	repo, err = NewRepository("", "token", "", "1")
-	require.NotNil(repo)
+	repo = &GitLabRepository{}
+	err = repo.Init(map[string]string{
+		"token":     "token",
+		"projectID": "1",
+	})
 	require.NoError(err)
 
-	repo, err = NewRepository("https://mygitlab.com", "token", "", "1")
-	require.NotNil(repo)
+	repo = &GitLabRepository{}
+	err = repo.Init(map[string]string{
+		"gitlabBaseUrl": "https://mygitlab.com",
+		"token":         "token",
+		"projectID":     "1",
+	})
 	require.NoError(err)
 	require.Equal("https://mygitlab.com/api/v4/", repo.client.BaseURL().String(), "invalid custom instance initialization")
 }
@@ -107,7 +115,13 @@ func GitlabHandler(w http.ResponseWriter, r *http.Request) {
 
 func getNewGitlabTestRepo(t *testing.T) (*GitLabRepository, *httptest.Server) {
 	ts := httptest.NewServer(http.HandlerFunc(GitlabHandler))
-	repo, err := NewRepository(ts.URL, "gitlab-examples-ci", "", strconv.Itoa(GITLAB_PROJECT_ID))
+	repo := &GitLabRepository{}
+	err := repo.Init(map[string]string{
+		"gitlabBaseUrl": ts.URL,
+		"token":         "gitlab-examples-ci",
+		"branch":        "",
+		"projectID":     strconv.Itoa(GITLAB_PROJECT_ID),
+	})
 	require.NoError(t, err)
 
 	return repo, ts

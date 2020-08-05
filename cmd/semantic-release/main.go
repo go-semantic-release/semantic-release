@@ -69,9 +69,20 @@ func cliHandler(c *cli.Context) error {
 	var repo provider.Repository
 
 	if conf.GitLab {
-		repo, err = gitlab.NewRepository(c.Context, conf.GitLabBaseURL, conf.Token, ci.GetCurrentBranch(), conf.GitLabProjectID)
+		repo = &gitlab.GitLabRepository{}
+		err = repo.Init(map[string]string{
+			"gitlabBaseUrl": conf.GitLabBaseURL,
+			"token":         conf.Token,
+			"branch":        ci.GetCurrentBranch(),
+			"projectID":     conf.GitLabProjectID,
+		})
 	} else {
-		repo, err = github.NewRepository(c.Context, conf.GheHost, conf.Slug, conf.Token)
+		repo = &github.GitHubRepository{}
+		err = repo.Init(map[string]string{
+			"gheHost": conf.GheHost,
+			"slug":    conf.Slug,
+			"token":   conf.Token,
+		})
 	}
 
 	logger.Printf("releasing on: %s\n", repo.Provider())

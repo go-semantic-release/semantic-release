@@ -16,12 +16,15 @@ type GitLabRepository struct {
 	client    *gitlab.Client
 }
 
-func NewRepository(gitlabBaseUrl, token, branch, projectID string) (*GitLabRepository, error) {
+func (repo *GitLabRepository) Init(config map[string]string) error {
+	gitlabBaseUrl := config["gitlabBaseUrl"]
+	token := config["token"]
+	branch := config["branch"]
+	projectID := config["projectID"]
 	if projectID == "" {
-		return nil, fmt.Errorf("project id is required")
+		return fmt.Errorf("project id is required")
 	}
 
-	repo := new(GitLabRepository)
 	repo.projectID = projectID
 	repo.branch = branch
 
@@ -37,12 +40,11 @@ func NewRepository(gitlabBaseUrl, token, branch, projectID string) (*GitLabRepos
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create client: %w", err)
+		return fmt.Errorf("failed to create client: %w", err)
 	}
 
 	repo.client = client
-
-	return repo, nil
+	return nil
 }
 
 func (repo *GitLabRepository) GetInfo() (*provider.RepositoryInfo, error) {
