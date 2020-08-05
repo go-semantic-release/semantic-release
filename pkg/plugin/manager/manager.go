@@ -14,6 +14,8 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/pkg/provider/github"
 	"github.com/go-semantic-release/semantic-release/pkg/provider/gitlab"
+	"github.com/go-semantic-release/semantic-release/pkg/updater"
+	"github.com/go-semantic-release/semantic-release/pkg/updater/npm"
 )
 
 type Manager struct {
@@ -50,4 +52,13 @@ func (m *Manager) GetCommitAnalyzer() (commit.Analyzer, error) {
 
 func (m *Manager) GetChangelogGenerator() (changelog.Generator, error) {
 	return &changelog.DefaultGenerator{}, nil
+}
+
+func (m *Manager) GetUpdater() (updater.Updater, error) {
+	updater := &updater.ChainedUpdater{
+		Updaters: []updater.FilesUpdater{
+			&npm.Updater{},
+		},
+	}
+	return updater, nil
 }

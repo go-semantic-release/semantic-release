@@ -1,38 +1,31 @@
 package updater
 
 import (
-	"errors"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-func TestRegisterApply(t *testing.T) {
-	require := require.New(t)
-	nVer := "1.2.3"
-	Register("package.json", func(newVersion string, file *os.File) error {
-		require.Equal(newVersion, nVer, "invalid version")
-		return nil
-	})
-	if err := Apply("../../test/package.json", nVer); err != nil {
-		require.NoError(err)
-	}
+type testFileUpdater struct {
+	req  *require.Assertions
+	nVer string
 }
 
-func TestApply(t *testing.T) {
+func (tfu *testFileUpdater) ForFiles() string {
+	return "package\\.json"
+}
+
+func (tfu *testFileUpdater) Apply(file, newVersion string) error {
+	tfu.req.Equal(newVersion, tfu.nVer, "invalid version")
+	return nil
+}
+
+func TestChainedUpdater(t *testing.T) {
 	require := require.New(t)
-	err := Apply("invalidFile", "")
-	require.Equal(err, ErrNoUpdater)
-
-	err = Apply("not/existing/package.json", "")
-	var pathErr *os.PathError
-	ok := errors.As(err, &pathErr)
-
-	if ok {
-		require.Equal("open", pathErr.Op)
-		require.Equal("not/existing/package.json", pathErr.Path)
-	} else {
+	nVer := "1.2.3"
+	tfu := &testFileUpdater{require, nVer}
+	updaters := &ChainedUpdater{Updaters: []FilesUpdater{tfu}}
+	if err := updaters.Apply("../../test/package.json", nVer); err != nil {
 		require.NoError(err)
 	}
 }

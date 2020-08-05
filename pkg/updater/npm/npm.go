@@ -5,17 +5,23 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-
-	"github.com/go-semantic-release/semantic-release/pkg/updater"
 )
 
 const npmrc = "//registry.npmjs.org/:_authToken=${NPM_TOKEN}\n"
 
-func init() {
-	updater.Register("package.json", packageJson)
+type Updater struct {
 }
 
-func updateJsonFile(newVersion string, file *os.File) error {
+func (u *Updater) ForFiles() string {
+	return "package\\.json"
+}
+
+func updateJsonFile(fName, newVersion string) error {
+	file, err := os.OpenFile(fName, os.O_RDWR, 0)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
 	var data map[string]json.RawMessage
 	if err := json.NewDecoder(file).Decode(&data); err != nil {
 		return err
@@ -35,16 +41,14 @@ func updateJsonFile(newVersion string, file *os.File) error {
 	return nil
 }
 
-func packageJson(newVersion string, file *os.File) error {
-	if err := updateJsonFile(newVersion, file); err != nil {
+func (u *Updater) Apply(file, newVersion string) error {
+	if err := updateJsonFile(file, newVersion); err != nil {
 		return err
 	}
 
-	packageLockPath := path.Join(path.Dir(file.Name()), "package-lock.json")
-	plFile, err := os.OpenFile(packageLockPath, os.O_RDWR, 0)
-	if err == nil {
-		defer plFile.Close()
-		if err := updateJsonFile(newVersion, plFile); err != nil {
+	packageLockPath := path.Join(path.Dir(file), "package-lock.json")
+	if _, err := os.Stat(packageLockPath); err == nil {
+		if err := updateJsonFile(packageLockPath, newVersion); err != nil {
 			return err
 		}
 	}
@@ -53,7 +57,8 @@ func packageJson(newVersion string, file *os.File) error {
 		return nil
 	}
 
-	npmrcPath := path.Join(path.Dir(file.Name()), ".npmrc")
+	var err error
+	npmrcPath := path.Join(path.Dir(file), ".npmrc")
 	if _, err = os.Stat(npmrcPath); os.IsNotExist(err) {
 		return ioutil.WriteFile(npmrcPath, []byte(npmrc), 0644)
 	}
