@@ -14,8 +14,6 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/plugin/manager"
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
-	"github.com/go-semantic-release/semantic-release/pkg/updater"
-	_ "github.com/go-semantic-release/semantic-release/pkg/updater/npm"
 	"github.com/urfave/cli/v2"
 )
 
@@ -191,6 +189,8 @@ func cliHandler(c *cli.Context) error {
 	}
 
 	if conf.Update != "" {
+		updater, err := pluginManager.GetUpdater()
+		exitIfError(err)
 		exitIfError(updater.Apply(conf.Update, newVer))
 	}
 

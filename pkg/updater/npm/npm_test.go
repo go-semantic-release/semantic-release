@@ -9,23 +9,25 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPackageJson(t *testing.T) {
+func TestNpmUpdater(t *testing.T) {
 	require := require.New(t)
 
-	f, err := os.OpenFile("../../../test/package.json", os.O_RDWR, 0)
-	require.NoError(err, "fixture package.json missing")
-	defer f.Close()
+	updater := &Updater{}
+
 	nVer := "1.2.3"
 	nVerJSON := json.RawMessage("\"" + nVer + "\"")
 	npmrcPath := "../../../test/.npmrc"
+	pkgJsonPath := "../../../test/package.json"
 	os.Remove(npmrcPath)
-	err = packageJson(nVer, f)
+
+	err := updater.Apply(pkgJsonPath, nVer)
 	require.NoError(err)
 	npmfile, err := ioutil.ReadFile(npmrcPath)
 	require.NoError(err)
 	require.Equal([]byte(npmrc), npmfile, "invalid .npmrc")
-	_, err = f.Seek(0, 0)
+	f, err := os.OpenFile(pkgJsonPath, os.O_RDONLY, 0)
 	require.NoError(err)
+	defer f.Close()
 	var data map[string]json.RawMessage
 	err = json.NewDecoder(f).Decode(&data)
 	require.NoError(err)
@@ -42,19 +44,23 @@ func TestPackageJson(t *testing.T) {
 
 func TestNpmrc(t *testing.T) {
 	require := require.New(t)
-	f, err := os.OpenFile("../../../test/package.json", os.O_RDWR, 0)
-	require.NoError(err, "fixture missing")
-	defer f.Close()
+
 	nVer := "1.2.3"
 	npmrcPath := "../../../test/.npmrc"
-	err = ioutil.WriteFile(npmrcPath, []byte("TEST"), 0644)
+	pkgJsonPath := "../../../test/package.json"
+
+	err := ioutil.WriteFile(npmrcPath, []byte("TEST"), 0644)
 	require.NoError(err)
-	err = packageJson(nVer, f)
+
+	updater := &Updater{}
+	err = updater.Apply(pkgJsonPath, nVer)
 	require.NoError(err)
 	npmfile, err := ioutil.ReadFile(npmrcPath)
 	require.NoError(err)
 	require.Equal([]byte("TEST"), npmfile, "invalid .npmrc")
-	_, err = f.Seek(0, 0)
+	f, err := os.OpenFile(pkgJsonPath, os.O_RDONLY, 0)
+	require.NoError(err)
+	defer f.Close()
 	require.NoError(err)
 	var data map[string]json.RawMessage
 	err = json.NewDecoder(f).Decode(&data)

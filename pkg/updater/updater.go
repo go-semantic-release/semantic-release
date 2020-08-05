@@ -1,35 +1,35 @@
 package updater
 
 import (
-	"errors"
-	"os"
 	"path"
-	"sync"
+	"regexp"
 )
 
-type Updater func(string, *os.File) error
-
-var updatersMu sync.RWMutex
-var updaters = make(map[string]Updater)
-
-var ErrNoUpdater = errors.New("no updater registered")
-
-func Register(name string, u Updater) {
-	updatersMu.Lock()
-	defer updatersMu.Unlock()
-	updaters[name] = u
+type Updater interface {
+	Apply(file, newVersion string) error
 }
 
-func Apply(file, newVersion string) error {
-	name := path.Base(file)
-	ufn, ok := updaters[name]
-	if !ok {
-		return ErrNoUpdater
+type FilesUpdater interface {
+	ForFiles() string
+	Updater
+}
+
+type ChainedUpdater struct {
+	Updaters []FilesUpdater
+}
+
+func (u *ChainedUpdater) Apply(file, newVersion string) error {
+	for _, fu := range u.Updaters {
+		re, err := regexp.Compile(fu.ForFiles())
+		if err != nil {
+			return err
+		}
+		if !re.MatchString(path.Base(file)) {
+			continue
+		}
+		if err := fu.Apply(file, newVersion); err != nil {
+			return err
+		}
 	}
-	f, err := os.OpenFile(file, os.O_RDWR, 0)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	return ufn(newVersion, f)
+	return nil
 }
