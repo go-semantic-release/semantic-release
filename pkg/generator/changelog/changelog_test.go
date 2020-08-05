@@ -15,7 +15,7 @@ func TestDefaultGenerator(t *testing.T) {
 		{SHA: "123456789", Type: "feat", Scope: "app", Message: "commit message"},
 		{SHA: "abcd", Type: "fix", Scope: "", Message: "commit message"},
 		{SHA: "12345678", Type: "yolo", Scope: "swag", Message: "commit message"},
-		{SHA: "12345678", Type: "chore", Scope: "", Message: "commit message", Raw: []string{"", "BREAKING CHANGE: test"}, Change: semrel.Change{Major: true}},
+		{SHA: "12345678", Type: "chore", Scope: "", Message: "commit message", Raw: []string{"", "BREAKING CHANGE: test"}, Change: &semrel.Change{Major: true}},
 		{SHA: "stop", Type: "chore", Scope: "", Message: "not included"},
 	}
 	changelogConfig.LatestRelease = &semrel.Release{SHA: "stop"}
