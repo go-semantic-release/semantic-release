@@ -1,7 +1,6 @@
 package github
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -18,18 +17,18 @@ import (
 func TestNewGithubRepository(t *testing.T) {
 	require := require.New(t)
 
-	repo, err := NewRepository(context.TODO(), "", "", "")
+	repo, err := NewRepository("", "", "")
 	require.Nil(repo)
 	require.EqualError(err, "invalid slug")
 
-	repo, err = NewRepository(context.TODO(), "", "owner/test-repo", "token")
+	repo, err = NewRepository("", "owner/test-repo", "token")
 	require.NotNil(repo)
 	require.NoError(err)
 
-	repo, err = NewRepository(context.TODO(), "github.enterprise", "owner/test-repo", "token")
+	repo, err = NewRepository("github.enterprise", "owner/test-repo", "token")
 	require.NotNil(repo)
 	require.NoError(err)
-	require.Equal("github.enterprise", repo.Client.BaseURL.Host)
+	require.Equal("github.enterprise", repo.client.BaseURL.Host)
 }
 
 func createGithubCommit(sha, message string) *github.RepositoryCommit {
@@ -116,10 +115,10 @@ func githubHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getNewGithubTestRepo(t *testing.T) (*GitHubRepository, *httptest.Server) {
-	repo, err := NewRepository(context.TODO(), "", "owner/test-repo", "token")
+	repo, err := NewRepository("", "owner/test-repo", "token")
 	require.NoError(t, err)
 	ts := httptest.NewServer(http.HandlerFunc(githubHandler))
-	repo.Client.BaseURL, _ = url.Parse(ts.URL + "/")
+	repo.client.BaseURL, _ = url.Parse(ts.URL + "/")
 	return repo, ts
 }
 

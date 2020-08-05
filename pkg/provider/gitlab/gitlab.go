@@ -1,7 +1,6 @@
 package gitlab
 
 import (
-	"context"
 	"fmt"
 	"regexp"
 
@@ -14,18 +13,16 @@ import (
 type GitLabRepository struct {
 	projectID string
 	branch    string
-	Ctx       context.Context
 	client    *gitlab.Client
 }
 
-func NewRepository(ctx context.Context, gitlabBaseUrl, token, branch string, projectID string) (*GitLabRepository, error) {
+func NewRepository(gitlabBaseUrl, token, branch, projectID string) (*GitLabRepository, error) {
 	if projectID == "" {
 		return nil, fmt.Errorf("project id is required")
 	}
 
 	repo := new(GitLabRepository)
 	repo.projectID = projectID
-	repo.Ctx = ctx
 	repo.branch = branch
 
 	var (
