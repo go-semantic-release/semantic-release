@@ -10,9 +10,9 @@ import (
 
 func TestCalculateChange(t *testing.T) {
 	commits := []*Commit{
-		{SHA: "a", Change: Change{true, false, false}},
-		{SHA: "b", Change: Change{false, true, false}},
-		{SHA: "c", Change: Change{false, false, true}},
+		{SHA: "a", Change: &Change{Major: true, Minor: false, Patch: false}},
+		{SHA: "b", Change: &Change{Major: false, Minor: true, Patch: false}},
+		{SHA: "c", Change: &Change{Major: false, Minor: false, Patch: true}},
 	}
 	change := CalculateChange(commits, &Release{})
 	if !change.Major || !change.Minor || !change.Patch {
@@ -22,22 +22,21 @@ func TestCalculateChange(t *testing.T) {
 	if change.Major || change.Minor || change.Patch {
 		t.Fail()
 	}
-	version, _ := semver.NewVersion("1.0.0")
-	newVersion := GetNewVersion(&config.Config{}, commits, &Release{SHA: "b", Version: version})
+	newVersion := GetNewVersion(&config.Config{}, commits, &Release{SHA: "b", Version: "1.0.0"})
 	if newVersion.String() != "2.0.0" {
 		t.Fail()
 	}
 }
 
 func TestApplyChange(t *testing.T) {
-	NoChange := Change{false, false, false}
-	PatchChange := Change{false, false, true}
-	MinorChange := Change{false, true, true}
-	MajorChange := Change{true, true, true}
+	NoChange := &Change{Major: false, Minor: false, Patch: false}
+	PatchChange := &Change{Major: false, Minor: false, Patch: true}
+	MinorChange := &Change{Major: false, Minor: true, Patch: true}
+	MajorChange := &Change{Major: true, Minor: true, Patch: true}
 
 	testCases := []struct {
 		currentVersion                  string
-		change                          Change
+		change                          *Change
 		expectedVersion                 string
 		allowInitialDevelopmentVersions bool
 	}{
@@ -72,7 +71,7 @@ func TestApplyChange(t *testing.T) {
 				t.Errorf("failed to create version: %v", err)
 			}
 
-			actual := ApplyChange(current, tc.change, tc.allowInitialDevelopmentVersions)
+			actual := ApplyChange(current.String(), tc.change, tc.allowInitialDevelopmentVersions)
 
 			// Handle no new version case
 			if actual != nil && tc.expectedVersion != "" {

@@ -1,0 +1,27 @@
+syntax = "proto3";
+option go_package = "github.com/go-semantic-release/semantic-release/pkg/semrel";
+
+message RawCommit {
+    string SHA = 1;
+    string RawMessage = 2;
+}
+
+message Change {
+    bool Major = 1;
+    bool Minor = 2;
+    bool Patch = 3;
+}
+
+message Commit {
+    string SHA = 1;
+    repeated string Raw = 2;
+    string Type = 3;
+    string Scope = 4;
+    string Message = 5;
+    Change Change = 6;
+}
+
+message Release {
+    string SHA = 1;
+    string Version = 2;
+}
