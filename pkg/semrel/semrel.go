@@ -9,7 +9,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/config"
 )
 
-func CalculateChange(commits []*Commit, latestRelease *Release) *Change {
+func calculateChange(commits []*Commit, latestRelease *Release) *Change {
 	change := &Change{}
 	for _, commit := range commits {
 		if latestRelease.SHA == commit.SHA {
@@ -22,7 +22,7 @@ func CalculateChange(commits []*Commit, latestRelease *Release) *Change {
 	return change
 }
 
-func ApplyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVersions bool) string {
+func applyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVersions bool) string {
 	version := semver.MustParse(rawVersion)
 	change := &Change{
 		Major: rawChange.Major,
@@ -67,5 +67,5 @@ func ApplyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVe
 }
 
 func GetNewVersion(conf *config.Config, commits []*Commit, latestRelease *Release) string {
-	return ApplyChange(latestRelease.Version, CalculateChange(commits, latestRelease), conf.AllowInitialDevelopmentVersions)
+	return applyChange(latestRelease.Version, calculateChange(commits, latestRelease), conf.AllowInitialDevelopmentVersions)
 }

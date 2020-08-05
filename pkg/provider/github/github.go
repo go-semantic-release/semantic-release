@@ -77,7 +77,7 @@ func (repo *GitHubRepository) GetCommits(sha string) ([]*semrel.RawCommit, error
 }
 
 func (repo *GitHubRepository) GetReleases(re *regexp.Regexp) ([]*semrel.Release, error) {
-	allReleases := make(semrel.Releases, 0)
+	allReleases := make([]*semrel.Release, 0)
 	opts := &github.ReferenceListOptions{Type: "tags", ListOptions: github.ListOptions{PerPage: 100}}
 	for {
 		refs, resp, err := repo.Client.Git.ListRefs(repo.Ctx, repo.owner, repo.repo, opts)
