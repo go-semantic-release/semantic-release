@@ -7,29 +7,29 @@ import (
 	"github.com/Masterminds/semver"
 )
 
-type Releases []*Release
+type releases []*Release
 
-func (r Releases) Len() int {
+func (r releases) Len() int {
 	return len(r)
 }
 
-func (r Releases) Less(i, j int) bool {
+func (r releases) Less(i, j int) bool {
 	return semver.MustParse(r[j].Version).LessThan(semver.MustParse(r[i].Version))
 }
 
-func (r Releases) Swap(i, j int) {
+func (r releases) Swap(i, j int) {
 	r[i], r[j] = r[j], r[i]
 }
 
-func (releases Releases) GetLatestRelease(vrange string) (*Release, error) {
-	if len(releases) == 0 {
+func (r releases) GetLatestRelease(vrange string) (*Release, error) {
+	if len(r) == 0 {
 		return &Release{SHA: "", Version: "0.0.0"}, nil
 	}
 
-	sort.Sort(releases)
+	sort.Sort(r)
 
 	var lastRelease *Release
-	for _, r := range releases {
+	for _, r := range r {
 		if semver.MustParse(r.Version).Prerelease() == "" {
 			lastRelease = r
 			break
@@ -47,7 +47,7 @@ func (releases Releases) GetLatestRelease(vrange string) (*Release, error) {
 	if err != nil {
 		return nil, err
 	}
-	for _, r := range releases {
+	for _, r := range r {
 		if constraint.Check(semver.MustParse(r.Version)) {
 			return r, nil
 		}
@@ -68,4 +68,8 @@ func (releases Releases) GetLatestRelease(vrange string) (*Release, error) {
 		return nil, err
 	}
 	return &Release{SHA: lastRelease.SHA, Version: npver.String()}, nil
+}
+
+func GetLatestReleaseFromReleases(rawReleases []*Release, vrange string) (*Release, error) {
+	return releases(rawReleases).GetLatestRelease(vrange)
 }

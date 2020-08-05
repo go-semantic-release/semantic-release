@@ -9,24 +9,24 @@ import (
 
 func TestReleases(t *testing.T) {
 	testCases := []struct {
-		Releases      Releases
+		Releases      releases
 		VRange        string
 		LatestVersion string
 	}{
 		{
-			Releases{},
+			releases{},
 			"",
 			"0.0.0",
 		},
 		{
-			Releases{
+			releases{
 				{SHA: "a", Version: "0.1.0"},
 			},
 			"",
 			"0.1.0",
 		},
 		{
-			Releases{
+			releases{
 				{SHA: "a", Version: "1.0.0"},
 				{SHA: "b", Version: "1.1.0"},
 				{SHA: "c", Version: "2.0.0-beta"},
@@ -36,7 +36,7 @@ func TestReleases(t *testing.T) {
 			"1.1.0",
 		},
 		{
-			Releases{
+			releases{
 				{SHA: "a", Version: "1.0.0"},
 				{SHA: "b", Version: "1.1.0"},
 				{SHA: "c", Version: "2.0.0"},
@@ -47,7 +47,7 @@ func TestReleases(t *testing.T) {
 			"2.1.0-beta",
 		},
 		{
-			Releases{
+			releases{
 				{SHA: "a", Version: "1.0.0"},
 				{SHA: "b", Version: "1.1.0"},
 				{SHA: "c", Version: "3.0.0-rc.1"},
@@ -58,7 +58,7 @@ func TestReleases(t *testing.T) {
 			"3.0.0-rc.2",
 		},
 		{
-			Releases{
+			releases{
 				{SHA: "a", Version: "1.0.0"},
 				{SHA: "b", Version: "1.1.0"},
 				{SHA: "c", Version: "3.0.0-rc.1"},

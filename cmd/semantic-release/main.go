@@ -122,9 +122,9 @@ func cliHandler(c *cli.Context) error {
 		logger.Printf("getting latest release matching %s...", match)
 		matchRegex = regexp.MustCompile("^" + match)
 	}
-	rawReleases, err := repo.GetReleases(matchRegex)
+	releases, err := repo.GetReleases(matchRegex)
 	exitIfError(err)
-	release, err := semrel.Releases(rawReleases).GetLatestRelease(conf.BetaRelease.MaintainedVersion)
+	release, err := semrel.GetLatestReleaseFromReleases(releases, conf.BetaRelease.MaintainedVersion)
 	exitIfError(err)
 	logger.Println("found version: " + release.Version)
 

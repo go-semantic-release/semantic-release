@@ -158,7 +158,7 @@ func TestGitlabGetReleases(t *testing.T) {
 		t.Run(fmt.Sprintf("VersionRange: %s, RE: %s", tc.vrange, tc.re), func(t *testing.T) {
 			releases, err := repo.GetReleases(tc.re)
 			require.NoError(t, err)
-			release, err := semrel.Releases(releases).GetLatestRelease(tc.vrange)
+			release, err := semrel.GetLatestReleaseFromReleases(releases, tc.vrange)
 			require.NoError(t, err)
 			require.Equal(t, tc.expectedSHA, release.SHA)
 			require.Equal(t, tc.expectedVersion, release.Version)

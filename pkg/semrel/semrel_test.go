@@ -14,11 +14,11 @@ func TestCalculateChange(t *testing.T) {
 		{SHA: "b", Change: &Change{Major: false, Minor: true, Patch: false}},
 		{SHA: "c", Change: &Change{Major: false, Minor: false, Patch: true}},
 	}
-	change := CalculateChange(commits, &Release{})
+	change := calculateChange(commits, &Release{})
 	if !change.Major || !change.Minor || !change.Patch {
 		t.Fail()
 	}
-	change = CalculateChange(commits, &Release{SHA: "a"})
+	change = calculateChange(commits, &Release{SHA: "a"})
 	if change.Major || change.Minor || change.Patch {
 		t.Fail()
 	}
@@ -40,7 +40,7 @@ func TestApplyChange(t *testing.T) {
 		expectedVersion                 string
 		allowInitialDevelopmentVersions bool
 	}{
-		// No Previous Releases
+		// No Previous releases
 		{"0.0.0", NoChange, "1.0.0", false},
 		{"0.0.0", PatchChange, "1.0.0", false},
 		{"0.0.0", MinorChange, "1.0.0", false},
@@ -71,7 +71,7 @@ func TestApplyChange(t *testing.T) {
 				t.Errorf("failed to create version: %v", err)
 			}
 
-			actual := ApplyChange(current.String(), tc.change, tc.allowInitialDevelopmentVersions)
+			actual := applyChange(current.String(), tc.change, tc.allowInitialDevelopmentVersions)
 
 			// Handle no new version case
 			if actual != "" && tc.expectedVersion != "" {
