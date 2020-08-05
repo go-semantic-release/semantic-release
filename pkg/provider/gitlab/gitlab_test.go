@@ -1,7 +1,6 @@
 package gitlab
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -18,15 +17,15 @@ import (
 func TestNewGitlabRepository(t *testing.T) {
 	require := require.New(t)
 
-	repo, err := NewRepository(context.TODO(), "", "", "", "")
+	repo, err := NewRepository("", "", "", "")
 	require.Nil(repo)
 	require.EqualError(err, "project id is required")
 
-	repo, err = NewRepository(context.TODO(), "", "token", "", "1")
+	repo, err = NewRepository("", "token", "", "1")
 	require.NotNil(repo)
 	require.NoError(err)
 
-	repo, err = NewRepository(context.TODO(), "https://mygitlab.com", "token", "", "1")
+	repo, err = NewRepository("https://mygitlab.com", "token", "", "1")
 	require.NotNil(repo)
 	require.NoError(err)
 	require.Equal("https://mygitlab.com/api/v4/", repo.client.BaseURL().String(), "invalid custom instance initialization")
@@ -108,7 +107,7 @@ func GitlabHandler(w http.ResponseWriter, r *http.Request) {
 
 func getNewGitlabTestRepo(t *testing.T) (*GitLabRepository, *httptest.Server) {
 	ts := httptest.NewServer(http.HandlerFunc(GitlabHandler))
-	repo, err := NewRepository(context.TODO(), ts.URL, "gitlab-examples-ci", "", strconv.Itoa(GITLAB_PROJECT_ID))
+	repo, err := NewRepository(ts.URL, "gitlab-examples-ci", "", strconv.Itoa(GITLAB_PROJECT_ID))
 	require.NoError(t, err)
 
 	return repo, ts

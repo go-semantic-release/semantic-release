@@ -17,11 +17,10 @@ import (
 type GitHubRepository struct {
 	owner  string
 	repo   string
-	Ctx    context.Context
-	Client *github.Client
+	client *github.Client
 }
 
-func NewRepository(ctx context.Context, gheHost, slug, token string) (*GitHubRepository, error) {
+func NewRepository(gheHost, slug, token string) (*GitHubRepository, error) {
 	if !strings.Contains(slug, "/") {
 		return nil, errors.New("invalid slug")
 	}
@@ -29,23 +28,22 @@ func NewRepository(ctx context.Context, gheHost, slug, token string) (*GitHubRep
 	split := strings.Split(slug, "/")
 	repo.owner = split[0]
 	repo.repo = split[1]
-	repo.Ctx = ctx
-	oauthClient := oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token}))
+	oauthClient := oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token}))
 	if gheHost != "" {
 		gheUrl := fmt.Sprintf("https://%s/api/v3/", gheHost)
 		rClient, err := github.NewEnterpriseClient(gheUrl, gheUrl, oauthClient)
 		if err != nil {
 			return nil, err
 		}
-		repo.Client = rClient
+		repo.client = rClient
 	} else {
-		repo.Client = github.NewClient(oauthClient)
+		repo.client = github.NewClient(oauthClient)
 	}
 	return repo, nil
 }
 
 func (repo *GitHubRepository) GetInfo() (*provider.RepositoryInfo, error) {
-	r, _, err := repo.Client.Repositories.Get(repo.Ctx, repo.owner, repo.repo)
+	r, _, err := repo.client.Repositories.Get(context.Background(), repo.owner, repo.repo)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +60,7 @@ func (repo *GitHubRepository) GetCommits(sha string) ([]*semrel.RawCommit, error
 		SHA:         sha,
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
-	commits, _, err := repo.Client.Repositories.ListCommits(repo.Ctx, repo.owner, repo.repo, opts)
+	commits, _, err := repo.client.Repositories.ListCommits(context.Background(), repo.owner, repo.repo, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +79,7 @@ func (repo *GitHubRepository) GetReleases(rawRe string) ([]*semrel.Release, erro
 	allReleases := make([]*semrel.Release, 0)
 	opts := &github.ReferenceListOptions{Type: "tags", ListOptions: github.ListOptions{PerPage: 100}}
 	for {
-		refs, resp, err := repo.Client.Git.ListRefs(repo.Ctx, repo.owner, repo.repo, opts)
+		refs, resp, err := repo.client.Git.ListRefs(context.Background(), repo.owner, repo.repo, opts)
 		if resp != nil && resp.StatusCode == 404 {
 			return allReleases, nil
 		}
@@ -121,7 +119,7 @@ func (repo *GitHubRepository) CreateRelease(release *provider.RepositoryRelease)
 			Ref:    &ref,
 			Object: &github.GitObject{SHA: &release.SHA},
 		}
-		_, _, err := repo.Client.Git.CreateRef(repo.Ctx, repo.owner, repo.repo, tagOpts)
+		_, _, err := repo.client.Git.CreateRef(context.Background(), repo.owner, repo.repo, tagOpts)
 		if err != nil {
 			return err
 		}
@@ -134,7 +132,7 @@ func (repo *GitHubRepository) CreateRelease(release *provider.RepositoryRelease)
 		Body:            &release.Changelog,
 		Prerelease:      &isPrerelease,
 	}
-	_, _, err := repo.Client.Repositories.CreateRelease(repo.Ctx, repo.owner, repo.repo, opts)
+	_, _, err := repo.client.Repositories.CreateRelease(context.Background(), repo.owner, repo.repo, opts)
 	return err
 }
 
