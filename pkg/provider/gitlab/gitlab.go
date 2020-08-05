@@ -19,8 +19,8 @@ type GitLabRepository struct {
 func (repo *GitLabRepository) Init(config map[string]string) error {
 	gitlabBaseUrl := config["gitlabBaseUrl"]
 	token := config["token"]
-	branch := config["branch"]
-	projectID := config["projectID"]
+	branch := config["gitlabBranch"]
+	projectID := config["gitlabProjectID"]
 	if projectID == "" {
 		return fmt.Errorf("project id is required")
 	}

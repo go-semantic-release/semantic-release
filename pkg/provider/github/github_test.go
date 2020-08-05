@@ -24,17 +24,17 @@ func TestNewGithubRepository(t *testing.T) {
 
 	repo = &GitHubRepository{}
 	err = repo.Init(map[string]string{
-		"gheHost": "",
-		"slug":    "owner/test-repo",
-		"token":   "token",
+		"githubEnterpriseHost": "",
+		"slug":                 "owner/test-repo",
+		"token":                "token",
 	})
 	require.NoError(err)
 
 	repo = &GitHubRepository{}
 	err = repo.Init(map[string]string{
-		"gheHost": "github.enterprise",
-		"slug":    "owner/test-repo",
-		"token":   "token",
+		"githubEnterpriseHost": "github.enterprise",
+		"slug":                 "owner/test-repo",
+		"token":                "token",
 	})
 	require.NoError(err)
 	require.Equal("github.enterprise", repo.client.BaseURL.Host)
