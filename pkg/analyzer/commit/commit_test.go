@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func compareCommit(c *semrel.Commit, t, s string, change semrel.Change) bool {
+func compareCommit(c *semrel.Commit, t, s string, change *semrel.Change) bool {
 	if c.Type != t || c.Scope != s {
 		return false
 	}
@@ -32,31 +32,31 @@ func TestDefaultAnalyzer(t *testing.T) {
 		RawCommit *semrel.RawCommit
 		Type      string
 		Scope     string
-		Change    semrel.Change
+		Change    *semrel.Change
 	}{
 		{
 			createRawCommit("a", "feat: new feature"),
 			"feat",
 			"",
-			semrel.Change{Major: false, Minor: true, Patch: false},
+			&semrel.Change{Major: false, Minor: true, Patch: false},
 		},
 		{
 			createRawCommit("b", "feat(web): new feature"),
 			"feat",
 			"web",
-			semrel.Change{Major: false, Minor: true, Patch: false},
+			&semrel.Change{Major: false, Minor: true, Patch: false},
 		},
 		{
 			createRawCommit("c", "new feature"),
 			"",
 			"",
-			semrel.Change{Major: false, Minor: false, Patch: false},
+			&semrel.Change{Major: false, Minor: false, Patch: false},
 		},
 		{
 			createRawCommit("d", "chore: break\nBREAKING CHANGE: breaks everything"),
 			"chore",
 			"",
-			semrel.Change{Major: true, Minor: false, Patch: false},
+			&semrel.Change{Major: true, Minor: false, Patch: false},
 		},
 	}
 

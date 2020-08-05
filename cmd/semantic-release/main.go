@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/Masterminds/semver"
 	"github.com/go-semantic-release/semantic-release/pkg/analyzer/commit"
 	"github.com/go-semantic-release/semantic-release/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/pkg/config"
@@ -125,9 +126,9 @@ func cliHandler(c *cli.Context) error {
 	exitIfError(err)
 	release, err := releases.GetLatestRelease(conf.BetaRelease.MaintainedVersion)
 	exitIfError(err)
-	logger.Println("found version: " + release.Version.String())
+	logger.Println("found version: " + release.Version)
 
-	if strings.Contains(conf.BetaRelease.MaintainedVersion, "-") && release.Version.Prerelease() == "" {
+	if strings.Contains(conf.BetaRelease.MaintainedVersion, "-") && semver.MustParse(release.Version).Prerelease() == "" {
 		exitIfError(fmt.Errorf("no pre-release for this version possible"))
 	}
 

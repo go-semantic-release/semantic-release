@@ -99,7 +99,7 @@ func (repo *GitHubRepository) GetReleases(re *regexp.Regexp) (semrel.Releases, e
 			if err != nil {
 				continue
 			}
-			allReleases = append(allReleases, &semrel.Release{SHA: r.Object.GetSHA(), Version: version})
+			allReleases = append(allReleases, &semrel.Release{SHA: r.Object.GetSHA(), Version: version.String()})
 		}
 		if resp.NextPage == 0 {
 			break

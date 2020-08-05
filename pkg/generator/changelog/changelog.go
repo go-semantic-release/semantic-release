@@ -69,7 +69,7 @@ func (*DefaultGenerator) Generate(changelogConfig *Config) string {
 		if changelogConfig.LatestRelease.SHA == commit.SHA {
 			break
 		}
-		if commit.Change.Major {
+		if commit.Change != nil && commit.Change.Major {
 			typeScopeMap["%%bc%%"] += fmt.Sprintf("%s\n```%s\n```\n", formatCommit(commit), strings.Join(commit.Raw[1:], "\n"))
 			continue
 		}
