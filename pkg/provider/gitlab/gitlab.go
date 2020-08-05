@@ -98,7 +98,8 @@ func (repo *GitLabRepository) GetCommits(sha string) ([]*semrel.RawCommit, error
 	return allCommits, nil
 }
 
-func (repo *GitLabRepository) GetReleases(re *regexp.Regexp) ([]*semrel.Release, error) {
+func (repo *GitLabRepository) GetReleases(rawRe string) ([]*semrel.Release, error) {
+	re := regexp.MustCompile(rawRe)
 	allReleases := make([]*semrel.Release, 0)
 
 	opts := &gitlab.ListTagsOptions{
@@ -115,7 +116,7 @@ func (repo *GitLabRepository) GetReleases(re *regexp.Regexp) ([]*semrel.Release,
 		}
 
 		for _, tag := range tags {
-			if re != nil && !re.MatchString(tag.Name) {
+			if rawRe != "" && !re.MatchString(tag.Name) {
 				continue
 			}
 

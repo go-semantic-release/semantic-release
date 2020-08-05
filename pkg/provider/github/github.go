@@ -76,7 +76,8 @@ func (repo *GitHubRepository) GetCommits(sha string) ([]*semrel.RawCommit, error
 	return ret, nil
 }
 
-func (repo *GitHubRepository) GetReleases(re *regexp.Regexp) ([]*semrel.Release, error) {
+func (repo *GitHubRepository) GetReleases(rawRe string) ([]*semrel.Release, error) {
+	re := regexp.MustCompile(rawRe)
 	allReleases := make([]*semrel.Release, 0)
 	opts := &github.ReferenceListOptions{Type: "tags", ListOptions: github.ListOptions{PerPage: 100}}
 	for {
@@ -89,7 +90,7 @@ func (repo *GitHubRepository) GetReleases(re *regexp.Regexp) ([]*semrel.Release,
 		}
 		for _, r := range refs {
 			tag := strings.TrimPrefix(r.GetRef(), "refs/tags/")
-			if re != nil && !re.MatchString(tag) {
+			if rawRe != "" && !re.MatchString(tag) {
 				continue
 			}
 			if r.Object.GetType() != "commit" {
