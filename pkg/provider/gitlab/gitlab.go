@@ -126,7 +126,7 @@ func (repo *GitLabRepository) GetReleases(re *regexp.Regexp) (semrel.Releases, e
 
 			allReleases = append(allReleases, &semrel.Release{
 				SHA:     tag.Commit.ID,
-				Version: version,
+				Version: version.String(),
 			})
 		}
 

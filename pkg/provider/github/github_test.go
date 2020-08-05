@@ -172,7 +172,7 @@ func TestGithubGetReleases(t *testing.T) {
 			release, err := releases.GetLatestRelease(tc.vrange)
 			require.NoError(t, err)
 			require.Equal(t, tc.expectedSHA, release.SHA)
-			require.Equal(t, tc.expectedVersion, release.Version.String())
+			require.Equal(t, tc.expectedVersion, release.Version)
 		})
 	}
 }
