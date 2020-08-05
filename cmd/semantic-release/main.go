@@ -9,13 +9,10 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver"
-	"github.com/go-semantic-release/semantic-release/pkg/analyzer/commit"
-	"github.com/go-semantic-release/semantic-release/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/pkg/config"
 	"github.com/go-semantic-release/semantic-release/pkg/generator/changelog"
+	"github.com/go-semantic-release/semantic-release/pkg/plugin/manager"
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
-	"github.com/go-semantic-release/semantic-release/pkg/provider/github"
-	"github.com/go-semantic-release/semantic-release/pkg/provider/gitlab"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/go-semantic-release/semantic-release/pkg/updater"
 	_ "github.com/go-semantic-release/semantic-release/pkg/updater/npm"
@@ -63,27 +60,24 @@ func cliHandler(c *cli.Context) error {
 	conf, err := config.NewConfig(c)
 	exitIfError(err)
 
-	ci := condition.NewCI()
+	pluginManager, err := manager.New(conf)
+	exitIfError(err)
+
+	ci, err := pluginManager.GetCICondition()
+	exitIfError(err)
 	logger.Printf("detected CI: %s\n", ci.Name())
 
-	var repo provider.Repository
+	repo, err := pluginManager.GetProvider()
+	exitIfError(err)
 
-	if conf.GitLab {
-		repo = &gitlab.GitLabRepository{}
-		err = repo.Init(map[string]string{
-			"gitlabBaseUrl": conf.GitLabBaseURL,
-			"token":         conf.Token,
-			"branch":        ci.GetCurrentBranch(),
-			"projectID":     conf.GitLabProjectID,
-		})
-	} else {
-		repo = &github.GitHubRepository{}
-		err = repo.Init(map[string]string{
-			"gheHost": conf.GheHost,
-			"slug":    conf.Slug,
-			"token":   conf.Token,
-		})
-	}
+	err = repo.Init(map[string]string{
+		"gitlabBaseUrl":        conf.GitLabBaseURL,
+		"token":                conf.Token,
+		"gitlabBranch":         ci.GetCurrentBranch(),
+		"gitlabProjectID":      conf.GitLabProjectID,
+		"githubEnterpriseHost": conf.GheHost,
+		"slug":                 conf.Slug,
+	})
 
 	logger.Printf("releasing on: %s\n", repo.Provider())
 
@@ -146,7 +140,8 @@ func cliHandler(c *cli.Context) error {
 	rawCommits, err := repo.GetCommits(currentSha)
 	exitIfError(err)
 
-	commitAnalyzer := &commit.DefaultAnalyzer{}
+	commitAnalyzer, err := pluginManager.GetCommitAnalyzer()
+	exitIfError(err)
 	commits := commitAnalyzer.Analyze(rawCommits)
 
 	logger.Println("calculating new version...")
@@ -166,7 +161,8 @@ func cliHandler(c *cli.Context) error {
 	}
 
 	logger.Println("generating changelog...")
-	changelogGenerator := &changelog.DefaultGenerator{}
+	changelogGenerator, err := pluginManager.GetChangelogGenerator()
+	exitIfError(err)
 	changelogRes := changelogGenerator.Generate(&changelog.Config{
 		Commits:       commits,
 		LatestRelease: release,
