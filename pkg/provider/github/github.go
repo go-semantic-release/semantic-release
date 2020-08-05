@@ -76,7 +76,7 @@ func (repo *GitHubRepository) GetCommits(sha string) ([]*semrel.RawCommit, error
 	return ret, nil
 }
 
-func (repo *GitHubRepository) GetReleases(re *regexp.Regexp) (semrel.Releases, error) {
+func (repo *GitHubRepository) GetReleases(re *regexp.Regexp) ([]*semrel.Release, error) {
 	allReleases := make(semrel.Releases, 0)
 	opts := &github.ReferenceListOptions{Type: "tags", ListOptions: github.ListOptions{PerPage: 100}}
 	for {
@@ -111,8 +111,8 @@ func (repo *GitHubRepository) GetReleases(re *regexp.Regexp) (semrel.Releases, e
 }
 
 func (repo *GitHubRepository) CreateRelease(release *provider.RepositoryRelease) error {
-	tag := fmt.Sprintf("v%s", release.NewVersion.String())
-	isPrerelease := release.Prerelease || release.NewVersion.Prerelease() != ""
+	tag := fmt.Sprintf("v%s", release.NewVersion)
+	isPrerelease := release.Prerelease || semver.MustParse(release.NewVersion).Prerelease() != ""
 
 	if release.Branch != release.SHA {
 		ref := "refs/tags/" + tag

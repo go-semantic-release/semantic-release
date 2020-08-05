@@ -10,8 +10,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/Masterminds/semver"
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
+	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/google/go-github/v30/github"
 	"github.com/stretchr/testify/require"
 )
@@ -169,7 +169,7 @@ func TestGithubGetReleases(t *testing.T) {
 		t.Run(fmt.Sprintf("VersionRange: %s, RE: %s", tc.vrange, tc.re), func(t *testing.T) {
 			releases, err := repo.GetReleases(tc.re)
 			require.NoError(t, err)
-			release, err := releases.GetLatestRelease(tc.vrange)
+			release, err := semrel.Releases(releases).GetLatestRelease(tc.vrange)
 			require.NoError(t, err)
 			require.Equal(t, tc.expectedSHA, release.SHA)
 			require.Equal(t, tc.expectedVersion, release.Version)
@@ -180,7 +180,6 @@ func TestGithubGetReleases(t *testing.T) {
 func TestGithubCreateRelease(t *testing.T) {
 	repo, ts := getNewGithubTestRepo(t)
 	defer ts.Close()
-	newVersion := semver.MustParse("2.0.0")
-	err := repo.CreateRelease(&provider.RepositoryRelease{NewVersion: newVersion, SHA: "deadbeef"})
+	err := repo.CreateRelease(&provider.RepositoryRelease{NewVersion: "2.0.0", SHA: "deadbeef"})
 	require.NoError(t, err)
 }
