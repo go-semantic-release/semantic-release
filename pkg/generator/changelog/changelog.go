@@ -6,14 +6,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Masterminds/semver"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 )
 
 type Config struct {
 	Commits       []*semrel.Commit
 	LatestRelease *semrel.Release
-	NewVersion    *semver.Version
+	NewVersion    string
 }
 
 type Generator interface {
@@ -63,7 +62,7 @@ func getSortedKeys(m *map[string]string) []string {
 }
 
 func (*DefaultGenerator) Generate(changelogConfig *Config) string {
-	ret := fmt.Sprintf("## %s (%s)\n\n", changelogConfig.NewVersion.String(), time.Now().UTC().Format("2006-01-02"))
+	ret := fmt.Sprintf("## %s (%s)\n\n", changelogConfig.NewVersion, time.Now().UTC().Format("2006-01-02"))
 	typeScopeMap := make(map[string]string)
 	for _, commit := range changelogConfig.Commits {
 		if changelogConfig.LatestRelease.SHA == commit.SHA {

@@ -141,7 +141,7 @@ func cliHandler(c *cli.Context) error {
 
 	logger.Println("calculating new version...")
 	newVer := semrel.GetNewVersion(conf, commits, release)
-	if newVer == nil {
+	if newVer == "" {
 		if conf.AllowNoChanges {
 			logger.Println("no change")
 			os.Exit(0)
@@ -149,7 +149,7 @@ func cliHandler(c *cli.Context) error {
 			exitIfError(errors.New("no change"), 65)
 		}
 	}
-	logger.Println("new version: " + newVer.String())
+	logger.Println("new version: " + newVer)
 
 	if conf.Dry {
 		exitIfError(errors.New("DRY RUN: no release was created"), 65)
@@ -169,7 +169,7 @@ func cliHandler(c *cli.Context) error {
 	logger.Println("creating release...")
 	newRelease := &provider.RepositoryRelease{
 		Changelog:  changelogRes,
-		NewVersion: newVer.String(),
+		NewVersion: newVer,
 		Prerelease: conf.Prerelease,
 		Branch:     currentBranch,
 		SHA:        currentSha,
@@ -177,15 +177,15 @@ func cliHandler(c *cli.Context) error {
 	exitIfError(repo.CreateRelease(newRelease))
 
 	if conf.Ghr {
-		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repoInfo.Owner, repoInfo.Repo, newVer.String())), 0644))
+		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repoInfo.Owner, repoInfo.Repo, newVer)), 0644))
 	}
 
 	if conf.Vf {
-		exitIfError(ioutil.WriteFile(".version", []byte(newVer.String()), 0644))
+		exitIfError(ioutil.WriteFile(".version", []byte(newVer), 0644))
 	}
 
 	if conf.Update != "" {
-		exitIfError(updater.Apply(conf.Update, newVer.String()))
+		exitIfError(updater.Apply(conf.Update, newVer))
 	}
 
 	logger.Println("done.")

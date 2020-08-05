@@ -22,7 +22,7 @@ func CalculateChange(commits []*Commit, latestRelease *Release) *Change {
 	return change
 }
 
-func ApplyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVersions bool) *semver.Version {
+func ApplyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVersions bool) string {
 	version := semver.MustParse(rawVersion)
 	change := &Change{
 		Major: rawChange.Major,
@@ -37,7 +37,7 @@ func ApplyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVe
 		change.Minor = true
 	}
 	if !change.Major && !change.Minor && !change.Patch {
-		return nil
+		return ""
 	}
 	var newVersion semver.Version
 	preRel := version.Prerelease()
@@ -50,7 +50,7 @@ func ApplyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVe
 		case change.Patch:
 			newVersion = version.IncPatch()
 		}
-		return &newVersion
+		return newVersion.String()
 	}
 	preRelVer := strings.Split(preRel, ".")
 	if len(preRelVer) > 1 {
@@ -63,9 +63,9 @@ func ApplyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVe
 		preRel += ".1"
 	}
 	newVersion, _ = version.SetPrerelease(preRel)
-	return &newVersion
+	return newVersion.String()
 }
 
-func GetNewVersion(conf *config.Config, commits []*Commit, latestRelease *Release) *semver.Version {
+func GetNewVersion(conf *config.Config, commits []*Commit, latestRelease *Release) string {
 	return ApplyChange(latestRelease.Version, CalculateChange(commits, latestRelease), conf.AllowInitialDevelopmentVersions)
 }
