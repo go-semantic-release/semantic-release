@@ -1,0 +1,16 @@
+syntax = "proto3";
+option go_package = "github.com/go-semantic-release/semantic-release/pkg/analyzer/commit";
+
+import "pkg/semrel/structs.proto";
+
+message CommitAnalyzerRequest {
+    repeated RawCommit RawCommits = 1;
+}
+
+message CommitAnalyzerResponse {
+    repeated Commit Commits = 1;
+}
+
+service CommitAnalyzerPlugin {
+    rpc Analyze(CommitAnalyzerRequest) returns (CommitAnalyzerResponse);
+}
