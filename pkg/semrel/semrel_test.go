@@ -23,7 +23,7 @@ func TestCalculateChange(t *testing.T) {
 		t.Fail()
 	}
 	newVersion := GetNewVersion(&config.Config{}, commits, &Release{SHA: "b", Version: "1.0.0"})
-	if newVersion.String() != "2.0.0" {
+	if newVersion != "2.0.0" {
 		t.Fail()
 	}
 }
@@ -74,8 +74,8 @@ func TestApplyChange(t *testing.T) {
 			actual := ApplyChange(current.String(), tc.change, tc.allowInitialDevelopmentVersions)
 
 			// Handle no new version case
-			if actual != nil && tc.expectedVersion != "" {
-				if actual.String() != tc.expectedVersion {
+			if actual != "" && tc.expectedVersion != "" {
+				if actual != tc.expectedVersion {
 					t.Errorf("expected: %s, got: %s", tc.expectedVersion, actual)
 				}
 			}

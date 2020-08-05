@@ -4,7 +4,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Masterminds/semver"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 )
 
@@ -19,7 +18,7 @@ func TestDefaultGenerator(t *testing.T) {
 		{SHA: "stop", Type: "chore", Scope: "", Message: "not included"},
 	}
 	changelogConfig.LatestRelease = &semrel.Release{SHA: "stop"}
-	changelogConfig.NewVersion, _ = semver.NewVersion("2.0.0")
+	changelogConfig.NewVersion = "2.0.0"
 	generator := &DefaultGenerator{}
 	changelog := generator.Generate(changelogConfig)
 	if !strings.Contains(changelog, "* **app:** commit message (12345678)") ||
