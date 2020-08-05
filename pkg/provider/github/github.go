@@ -21,7 +21,7 @@ type GitHubRepository struct {
 }
 
 func (repo *GitHubRepository) Init(config map[string]string) error {
-	gheHost := config["gheHost"]
+	gheHost := config["githubEnterpriseHost"]
 	slug := config["slug"]
 	token := config["token"]
 	if !strings.Contains(slug, "/") {
