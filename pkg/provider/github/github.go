@@ -20,11 +20,13 @@ type GitHubRepository struct {
 	client *github.Client
 }
 
-func NewRepository(gheHost, slug, token string) (*GitHubRepository, error) {
+func (repo *GitHubRepository) Init(config map[string]string) error {
+	gheHost := config["gheHost"]
+	slug := config["slug"]
+	token := config["token"]
 	if !strings.Contains(slug, "/") {
-		return nil, errors.New("invalid slug")
+		return errors.New("invalid slug")
 	}
-	repo := new(GitHubRepository)
 	split := strings.Split(slug, "/")
 	repo.owner = split[0]
 	repo.repo = split[1]
@@ -33,13 +35,13 @@ func NewRepository(gheHost, slug, token string) (*GitHubRepository, error) {
 		gheUrl := fmt.Sprintf("https://%s/api/v3/", gheHost)
 		rClient, err := github.NewEnterpriseClient(gheUrl, gheUrl, oauthClient)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		repo.client = rClient
 	} else {
 		repo.client = github.NewClient(oauthClient)
 	}
-	return repo, nil
+	return nil
 }
 
 func (repo *GitHubRepository) GetInfo() (*provider.RepositoryInfo, error) {

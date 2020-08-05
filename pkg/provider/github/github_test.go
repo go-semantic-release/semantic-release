@@ -17,16 +17,25 @@ import (
 func TestNewGithubRepository(t *testing.T) {
 	require := require.New(t)
 
-	repo, err := NewRepository("", "", "")
-	require.Nil(repo)
+	var repo *GitHubRepository
+	repo = &GitHubRepository{}
+	err := repo.Init(map[string]string{})
 	require.EqualError(err, "invalid slug")
 
-	repo, err = NewRepository("", "owner/test-repo", "token")
-	require.NotNil(repo)
+	repo = &GitHubRepository{}
+	err = repo.Init(map[string]string{
+		"gheHost": "",
+		"slug":    "owner/test-repo",
+		"token":   "token",
+	})
 	require.NoError(err)
 
-	repo, err = NewRepository("github.enterprise", "owner/test-repo", "token")
-	require.NotNil(repo)
+	repo = &GitHubRepository{}
+	err = repo.Init(map[string]string{
+		"gheHost": "github.enterprise",
+		"slug":    "owner/test-repo",
+		"token":   "token",
+	})
 	require.NoError(err)
 	require.Equal("github.enterprise", repo.client.BaseURL.Host)
 }
@@ -115,7 +124,11 @@ func githubHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getNewGithubTestRepo(t *testing.T) (*GitHubRepository, *httptest.Server) {
-	repo, err := NewRepository("", "owner/test-repo", "token")
+	repo := &GitHubRepository{}
+	err := repo.Init(map[string]string{
+		"slug":  "owner/test-repo",
+		"token": "token",
+	})
 	require.NoError(t, err)
 	ts := httptest.NewServer(http.HandlerFunc(githubHandler))
 	repo.client.BaseURL, _ = url.Parse(ts.URL + "/")
