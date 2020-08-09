@@ -6,7 +6,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 )
 
-const PluginNameCommitAnalyzer = "commit_analyzer"
+const CommitAnalyzerPluginName = "commit_analyzer"
 
 type CommitAnalyzerServer struct {
 	Impl CommitAnalyzer

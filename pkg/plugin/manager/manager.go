@@ -18,15 +18,15 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/updater/npm"
 )
 
-type Manager struct {
+type PluginManager struct {
 	config *config.Config
 }
 
-func New(config *config.Config) (*Manager, error) {
-	return &Manager{config}, nil
+func New(config *config.Config) (*PluginManager, error) {
+	return &PluginManager{config}, nil
 }
 
-func (m *Manager) GetCICondition() (condition.CICondition, error) {
+func (m *PluginManager) GetCICondition() (condition.CICondition, error) {
 	if os.Getenv("GITHUB_ACTIONS") == "true" {
 		return &githubCI.GitHubActions{}, nil
 	}
@@ -39,22 +39,22 @@ func (m *Manager) GetCICondition() (condition.CICondition, error) {
 	return &defaultci.DefaultCI{}, nil
 }
 
-func (m *Manager) GetProvider() (provider.Repository, error) {
+func (m *PluginManager) GetProvider() (provider.Repository, error) {
 	if m.config.GitLab {
 		return &gitlab.GitLabRepository{}, nil
 	}
 	return &github.GitHubRepository{}, nil
 }
 
-func (m *Manager) GetCommitAnalyzer() (analyzer.CommitAnalyzer, error) {
+func (m *PluginManager) GetCommitAnalyzer() (analyzer.CommitAnalyzer, error) {
 	return &analyzer.DefaultCommitAnalyzer{}, nil
 }
 
-func (m *Manager) GetChangelogGenerator() (generator.ChangelogGenerator, error) {
+func (m *PluginManager) GetChangelogGenerator() (generator.ChangelogGenerator, error) {
 	return &generator.DefaultChangelogGenerator{}, nil
 }
 
-func (m *Manager) GetUpdater() (updater.Updater, error) {
+func (m *PluginManager) GetUpdater() (updater.Updater, error) {
 	updater := &updater.ChainedUpdater{
 		Updaters: []updater.FilesUpdater{
 			&npm.Updater{},

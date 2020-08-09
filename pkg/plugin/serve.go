@@ -24,8 +24,8 @@ func Serve(opts *ServeOpts) {
 
 	switch {
 	case opts.CommitAnalyzer != nil:
-		pluginSet[analyzer.PluginNameCommitAnalyzer] = &GRPCWrapper{
-			Type: analyzer.PluginNameCommitAnalyzer,
+		pluginSet[analyzer.CommitAnalyzerPluginName] = &GRPCWrapper{
+			Type: analyzer.CommitAnalyzerPluginName,
 			Impl: opts.CommitAnalyzer(),
 		}
 	}
