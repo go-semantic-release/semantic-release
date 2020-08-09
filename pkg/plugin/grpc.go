@@ -1,22 +1,21 @@
-package wrapper
+package plugin
 
 import (
 	"context"
 	"errors"
 
 	"github.com/go-semantic-release/semantic-release/pkg/analyzer"
-
 	"github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
 )
 
-type GRPC struct {
+type GRPCWrapper struct {
 	Type string
 	Impl interface{}
 	plugin.NetRPCUnsupportedPlugin
 }
 
-func (p *GRPC) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
+func (p *GRPCWrapper) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
 	switch p.Type {
 	case analyzer.PluginNameCommitAnalyzer:
 		analyzer.RegisterCommitAnalyzerPluginServer(s, &analyzer.CommitAnalyzerServer{
@@ -26,7 +25,7 @@ func (p *GRPC) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
 	return nil
 }
 
-func (p *GRPC) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
+func (p *GRPCWrapper) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
 	switch p.Type {
 	case analyzer.PluginNameCommitAnalyzer:
 		return &analyzer.CommitAnalyzerClient{

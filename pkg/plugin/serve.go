@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"github.com/go-semantic-release/semantic-release/pkg/analyzer"
-	"github.com/go-semantic-release/semantic-release/pkg/plugin/wrapper"
 	"github.com/hashicorp/go-plugin"
 )
 
@@ -25,7 +24,7 @@ func Serve(opts *ServeOpts) {
 
 	switch {
 	case opts.CommitAnalyzer != nil:
-		pluginSet[analyzer.PluginNameCommitAnalyzer] = &wrapper.GRPC{
+		pluginSet[analyzer.PluginNameCommitAnalyzer] = &GRPCWrapper{
 			Type: analyzer.PluginNameCommitAnalyzer,
 			Impl: opts.CommitAnalyzer(),
 		}

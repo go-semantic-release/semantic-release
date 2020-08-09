@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-semantic-release/semantic-release/pkg/analyzer"
 
-	"github.com/go-semantic-release/semantic-release/pkg/plugin/wrapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 )
@@ -32,7 +31,7 @@ func startPlugin(opts *PluginOpts) (interface{}, error) {
 		HandshakeConfig: Handshake,
 		VersionedPlugins: map[int]plugin.PluginSet{
 			1: {
-				opts.Type: &wrapper.GRPC{
+				opts.Type: &GRPCWrapper{
 					Type: opts.Type,
 				},
 			},
