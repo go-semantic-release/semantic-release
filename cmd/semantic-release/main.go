@@ -10,7 +10,8 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/go-semantic-release/semantic-release/pkg/config"
-	"github.com/go-semantic-release/semantic-release/pkg/generator/changelog"
+	"github.com/go-semantic-release/semantic-release/pkg/generator"
+	"github.com/go-semantic-release/semantic-release/pkg/plugin/buildin"
 	"github.com/go-semantic-release/semantic-release/pkg/plugin/manager"
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
@@ -38,7 +39,7 @@ func main() {
 		Name:     "semantic-release",
 		Usage:    "automates the package release workflow including: determining the next version number and generating the change log",
 		Version:  SRVERSION,
-		Commands: nil,
+		Commands: buildin.GetPluginCommands(),
 		Flags:    config.CliFlags,
 		Action:   cliHandler,
 	}
@@ -161,7 +162,7 @@ func cliHandler(c *cli.Context) error {
 	logger.Println("generating changelog...")
 	changelogGenerator, err := pluginManager.GetChangelogGenerator()
 	exitIfError(err)
-	changelogRes := changelogGenerator.Generate(&changelog.Config{
+	changelogRes := changelogGenerator.Generate(&generator.ChangelogGeneratorConfig{
 		Commits:       commits,
 		LatestRelease: release,
 		NewVersion:    newVer,
