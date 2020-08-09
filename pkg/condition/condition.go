@@ -1,6 +1,6 @@
 package condition
 
-type CI interface {
+type CICondition interface {
 	Name() string
 	RunCondition(map[string]interface{}) error
 	GetCurrentBranch() string

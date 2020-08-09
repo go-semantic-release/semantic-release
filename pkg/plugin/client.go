@@ -4,7 +4,8 @@ import (
 	"os/exec"
 	"sync"
 
-	"github.com/go-semantic-release/semantic-release/pkg/analyzer/commit"
+	"github.com/go-semantic-release/semantic-release/pkg/analyzer"
+
 	"github.com/go-semantic-release/semantic-release/pkg/plugin/wrapper"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
@@ -55,10 +56,10 @@ func startPlugin(opts *PluginOpts) (interface{}, error) {
 	return raw, nil
 }
 
-func StartCommitAnalyzerPlugin(opts *PluginOpts) (commit.Analyzer, error) {
+func StartCommitAnalyzerPlugin(opts *PluginOpts) (analyzer.CommitAnalyzer, error) {
 	raw, err := startPlugin(opts)
 	if err != nil {
 		return nil, err
 	}
-	return raw.(commit.Analyzer), nil
+	return raw.(analyzer.CommitAnalyzer), nil
 }

@@ -3,7 +3,8 @@ package manager
 import (
 	"os"
 
-	"github.com/go-semantic-release/semantic-release/pkg/analyzer/commit"
+	"github.com/go-semantic-release/semantic-release/pkg/analyzer"
+
 	"github.com/go-semantic-release/semantic-release/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/pkg/condition/defaultci"
 	githubCI "github.com/go-semantic-release/semantic-release/pkg/condition/github"
@@ -26,7 +27,7 @@ func New(config *config.Config) (*Manager, error) {
 	return &Manager{config}, nil
 }
 
-func (m *Manager) GetCICondition() (condition.CI, error) {
+func (m *Manager) GetCICondition() (condition.CICondition, error) {
 	if os.Getenv("GITHUB_ACTIONS") == "true" {
 		return &githubCI.GitHubActions{}, nil
 	}
@@ -46,8 +47,8 @@ func (m *Manager) GetProvider() (provider.Repository, error) {
 	return &github.GitHubRepository{}, nil
 }
 
-func (m *Manager) GetCommitAnalyzer() (commit.Analyzer, error) {
-	return &commit.DefaultAnalyzer{}, nil
+func (m *Manager) GetCommitAnalyzer() (analyzer.CommitAnalyzer, error) {
+	return &analyzer.DefaultCommitAnalyzer{}, nil
 }
 
 func (m *Manager) GetChangelogGenerator() (changelog.Generator, error) {
