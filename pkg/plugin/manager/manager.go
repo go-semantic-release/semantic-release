@@ -11,6 +11,8 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/condition/travis"
 	"github.com/go-semantic-release/semantic-release/pkg/config"
 	"github.com/go-semantic-release/semantic-release/pkg/generator"
+	"github.com/go-semantic-release/semantic-release/pkg/plugin"
+	"github.com/go-semantic-release/semantic-release/pkg/plugin/buildin"
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/pkg/provider/github"
 	"github.com/go-semantic-release/semantic-release/pkg/provider/gitlab"
@@ -47,7 +49,13 @@ func (m *PluginManager) GetProvider() (provider.Repository, error) {
 }
 
 func (m *PluginManager) GetCommitAnalyzer() (analyzer.CommitAnalyzer, error) {
-	return &analyzer.DefaultCommitAnalyzer{}, nil
+	ca, err := plugin.StartCommitAnalyzerPlugin(buildin.GetPluginOpts(analyzer.CommitAnalyzerPluginName))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ca, nil
 }
 
 func (m *PluginManager) GetChangelogGenerator() (generator.ChangelogGenerator, error) {
@@ -61,4 +69,8 @@ func (m *PluginManager) GetUpdater() (updater.Updater, error) {
 		},
 	}
 	return updater, nil
+}
+
+func (m *PluginManager) Stop() {
+	plugin.KillAllPlugins()
 }

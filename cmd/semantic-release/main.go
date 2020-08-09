@@ -61,6 +61,7 @@ func cliHandler(c *cli.Context) error {
 
 	pluginManager, err := manager.New(conf)
 	exitIfError(err)
+	defer pluginManager.Stop()
 
 	ci, err := pluginManager.GetCICondition()
 	exitIfError(err)
