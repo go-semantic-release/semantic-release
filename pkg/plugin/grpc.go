@@ -17,7 +17,7 @@ type GRPCWrapper struct {
 
 func (p *GRPCWrapper) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
 	switch p.Type {
-	case analyzer.PluginNameCommitAnalyzer:
+	case analyzer.CommitAnalyzerPluginName:
 		analyzer.RegisterCommitAnalyzerPluginServer(s, &analyzer.CommitAnalyzerServer{
 			Impl: p.Impl.(analyzer.CommitAnalyzer),
 		})
@@ -27,7 +27,7 @@ func (p *GRPCWrapper) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) erro
 
 func (p *GRPCWrapper) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
 	switch p.Type {
-	case analyzer.PluginNameCommitAnalyzer:
+	case analyzer.CommitAnalyzerPluginName:
 		return &analyzer.CommitAnalyzerClient{
 			Impl: analyzer.NewCommitAnalyzerPluginClient(c),
 		}, nil
