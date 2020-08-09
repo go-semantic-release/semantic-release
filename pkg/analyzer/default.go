@@ -1,4 +1,4 @@
-package commit
+package analyzer
 
 import (
 	"regexp"
@@ -10,9 +10,9 @@ import (
 var commitPattern = regexp.MustCompile(`^(\w*)(?:\((.*)\))?\: (.*)$`)
 var breakingPattern = regexp.MustCompile("BREAKING CHANGES?")
 
-type DefaultAnalyzer struct{}
+type DefaultCommitAnalyzer struct{}
 
-func (da *DefaultAnalyzer) analyzeSingleCommit(rawCommit *semrel.RawCommit) *semrel.Commit {
+func (da *DefaultCommitAnalyzer) analyzeSingleCommit(rawCommit *semrel.RawCommit) *semrel.Commit {
 	c := &semrel.Commit{Change: &semrel.Change{}}
 	c.SHA = rawCommit.SHA
 	c.Raw = strings.Split(rawCommit.RawMessage, "\n")
@@ -31,7 +31,7 @@ func (da *DefaultAnalyzer) analyzeSingleCommit(rawCommit *semrel.RawCommit) *sem
 	return c
 }
 
-func (da *DefaultAnalyzer) Analyze(rawCommits []*semrel.RawCommit) []*semrel.Commit {
+func (da *DefaultCommitAnalyzer) Analyze(rawCommits []*semrel.RawCommit) []*semrel.Commit {
 	ret := make([]*semrel.Commit, len(rawCommits))
 	for i, c := range rawCommits {
 		ret[i] = da.analyzeSingleCommit(c)

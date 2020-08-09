@@ -1,4 +1,4 @@
-package commit
+package analyzer
 
 import (
 	"fmt"
@@ -60,7 +60,7 @@ func TestDefaultAnalyzer(t *testing.T) {
 		},
 	}
 
-	defaultAnalyzer := &DefaultAnalyzer{}
+	defaultAnalyzer := &DefaultCommitAnalyzer{}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("AnalyzeCommitMessage: %s", tc.RawCommit.RawMessage), func(t *testing.T) {
 			require.True(t, compareCommit(defaultAnalyzer.analyzeSingleCommit(tc.RawCommit), tc.Type, tc.Scope, tc.Change))

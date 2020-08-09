@@ -1,7 +1,7 @@
 package plugin
 
 import (
-	"github.com/go-semantic-release/semantic-release/pkg/analyzer/commit"
+	"github.com/go-semantic-release/semantic-release/pkg/analyzer"
 	"github.com/go-semantic-release/semantic-release/pkg/plugin/wrapper"
 	"github.com/hashicorp/go-plugin"
 )
@@ -11,7 +11,7 @@ var Handshake = plugin.HandshakeConfig{
 	MagicCookieValue: "beepboop",
 }
 
-type CommitAnalyzerFunc func() commit.Analyzer
+type CommitAnalyzerFunc func() analyzer.CommitAnalyzer
 
 //type ChangelogGeneratorFunc func() changelog.Generator
 
@@ -25,8 +25,8 @@ func Serve(opts *ServeOpts) {
 
 	switch {
 	case opts.CommitAnalyzer != nil:
-		pluginSet[wrapper.TypeCommitAnalyzer] = &wrapper.GRPC{
-			Type: wrapper.TypeCommitAnalyzer,
+		pluginSet[analyzer.PluginNameCommitAnalyzer] = &wrapper.GRPC{
+			Type: analyzer.PluginNameCommitAnalyzer,
 			Impl: opts.CommitAnalyzer(),
 		}
 	}
