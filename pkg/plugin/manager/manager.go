@@ -4,14 +4,13 @@ import (
 	"os"
 
 	"github.com/go-semantic-release/semantic-release/pkg/analyzer"
-
 	"github.com/go-semantic-release/semantic-release/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/pkg/condition/defaultci"
 	githubCI "github.com/go-semantic-release/semantic-release/pkg/condition/github"
 	gitlabCI "github.com/go-semantic-release/semantic-release/pkg/condition/gitlab"
 	"github.com/go-semantic-release/semantic-release/pkg/condition/travis"
 	"github.com/go-semantic-release/semantic-release/pkg/config"
-	"github.com/go-semantic-release/semantic-release/pkg/generator/changelog"
+	"github.com/go-semantic-release/semantic-release/pkg/generator"
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/pkg/provider/github"
 	"github.com/go-semantic-release/semantic-release/pkg/provider/gitlab"
@@ -51,8 +50,8 @@ func (m *Manager) GetCommitAnalyzer() (analyzer.CommitAnalyzer, error) {
 	return &analyzer.DefaultCommitAnalyzer{}, nil
 }
 
-func (m *Manager) GetChangelogGenerator() (changelog.Generator, error) {
-	return &changelog.DefaultGenerator{}, nil
+func (m *Manager) GetChangelogGenerator() (generator.ChangelogGenerator, error) {
+	return &generator.DefaultChangelogGenerator{}, nil
 }
 
 func (m *Manager) GetUpdater() (updater.Updater, error) {

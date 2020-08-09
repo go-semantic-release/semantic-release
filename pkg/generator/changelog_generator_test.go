@@ -1,4 +1,4 @@
-package changelog
+package generator
 
 import (
 	"strings"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestDefaultGenerator(t *testing.T) {
-	changelogConfig := &Config{}
+	changelogConfig := &ChangelogGeneratorConfig{}
 	changelogConfig.Commits = []*semrel.Commit{
 		{},
 		{SHA: "123456789", Type: "feat", Scope: "app", Message: "commit message"},
@@ -19,7 +19,7 @@ func TestDefaultGenerator(t *testing.T) {
 	}
 	changelogConfig.LatestRelease = &semrel.Release{SHA: "stop"}
 	changelogConfig.NewVersion = "2.0.0"
-	generator := &DefaultGenerator{}
+	generator := &DefaultChangelogGenerator{}
 	changelog := generator.Generate(changelogConfig)
 	if !strings.Contains(changelog, "* **app:** commit message (12345678)") ||
 		!strings.Contains(changelog, "* commit message (abcd)") ||

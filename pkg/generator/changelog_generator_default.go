@@ -1,4 +1,4 @@
-package changelog
+package generator
 
 import (
 	"fmt"
@@ -9,17 +9,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 )
 
-type Config struct {
-	Commits       []*semrel.Commit
-	LatestRelease *semrel.Release
-	NewVersion    string
-}
-
-type Generator interface {
-	Generate(*Config) string
-}
-
-type DefaultGenerator struct{}
+type DefaultChangelogGenerator struct{}
 
 func trimSHA(sha string) string {
 	if len(sha) < 9 {
@@ -61,7 +51,7 @@ func getSortedKeys(m *map[string]string) []string {
 	return keys
 }
 
-func (*DefaultGenerator) Generate(changelogConfig *Config) string {
+func (*DefaultChangelogGenerator) Generate(changelogConfig *ChangelogGeneratorConfig) string {
 	ret := fmt.Sprintf("## %s (%s)\n\n", changelogConfig.NewVersion, time.Now().UTC().Format("2006-01-02"))
 	typeScopeMap := make(map[string]string)
 	for _, commit := range changelogConfig.Commits {
