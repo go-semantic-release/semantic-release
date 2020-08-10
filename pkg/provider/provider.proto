@@ -4,28 +4,78 @@ option go_package = "github.com/go-semantic-release/semantic-release/pkg/provide
 import "pkg/semrel/structs.proto";
 
 message RepositoryInfo {
-    string Owner = 1;
-    string Repo = 2;
-    string DefaultBranch = 3;
-    bool Private = 4;
+  string Owner = 1;
+  string Repo = 2;
+  string DefaultBranch = 3;
+  bool Private = 4;
 }
 
 message CreateReleaseConfig {
-    string Changelog = 1;
-    string NewVersion = 2;
-    bool Prerelease = 3;
-    string Branch = 4;
-    string SHA = 5;
+  string Changelog = 1;
+  string NewVersion = 2;
+  bool Prerelease = 3;
+  string Branch = 4;
+  string SHA = 5;
+}
+
+message ProviderInit {
+  message Request {
+    map<string, string> Config = 1;
+  }
+  message Response {
+    string Error = 1;
+  }
 }
 
 message ProviderName {
-    message Request {
-    }
-    message Response {
-        string Name = 1;
-    }
+  message Request {}
+  message Response {
+    string Name = 1;
+  }
 }
 
-service RepositoryProviderPlugin {
-    rpc Name(ProviderName.Request) returns (ProviderName.Response);
+message GetInfo {
+  message Request {}
+  message Response {
+    RepositoryInfo Info = 1;
+    string Error = 2;
+  }
+}
+
+message GetCommits {
+  message Request {
+    string SHA = 1;
+  }
+  message Response {
+    repeated RawCommit RawCommits = 1;
+    string Error = 2;
+  }
+}
+
+message GetReleases {
+  message Request {
+    string Regexp = 1;
+  }
+  message Response {
+    repeated Release Releases = 1;
+    string Error = 2;
+  }
+}
+
+message CreateRelease {
+  message Request {
+    CreateReleaseConfig Config = 1;
+  }
+  message Response {
+    string Error = 1;
+  }
+}
+
+service ProviderPlugin {
+  rpc Init(ProviderInit.Request) returns (ProviderInit.Response);
+  rpc Name(ProviderName.Request) returns (ProviderName.Response);
+  rpc GetInfo(GetInfo.Request) returns (GetInfo.Response);
+  rpc GetCommits(GetCommits.Request) returns (GetCommits.Response);
+  rpc GetReleases(GetReleases.Request) returns (GetReleases.Response);
+  rpc CreateRelease(CreateRelease.Request) returns (CreateRelease.Response);
 }

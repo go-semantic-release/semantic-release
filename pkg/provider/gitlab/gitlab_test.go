@@ -181,6 +181,6 @@ func TestGitlabGetReleases(t *testing.T) {
 func TestGitlabCreateRelease(t *testing.T) {
 	repo, ts := getNewGitlabTestRepo(t)
 	defer ts.Close()
-	err := repo.CreateRelease(&provider.RepositoryRelease{NewVersion: "2.0.0", SHA: "deadbeef"})
+	err := repo.CreateRelease(&provider.CreateReleaseConfig{NewVersion: "2.0.0", SHA: "deadbeef"})
 	require.NoError(t, err)
 }
