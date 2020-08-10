@@ -4,6 +4,8 @@ import (
 	"os/exec"
 	"sync"
 
+	"github.com/go-semantic-release/semantic-release/pkg/condition"
+
 	"github.com/go-semantic-release/semantic-release/pkg/analyzer"
 
 	"github.com/hashicorp/go-hclog"
@@ -63,4 +65,12 @@ func StartCommitAnalyzerPlugin(opts *PluginOpts) (analyzer.CommitAnalyzer, error
 		return nil, err
 	}
 	return raw.(analyzer.CommitAnalyzer), nil
+}
+
+func StartCIConditionPlugin(opts *PluginOpts) (condition.CICondition, error) {
+	raw, err := startPlugin(opts)
+	if err != nil {
+		return nil, err
+	}
+	return raw.(condition.CICondition), nil
 }

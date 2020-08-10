@@ -10,7 +10,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-semantic-release/semantic-release/pkg/condition"
+	"github.com/go-semantic-release/semantic-release/pkg/plugin"
 	"github.com/shuheiktgw/go-travis"
+	"github.com/urfave/cli/v2"
 )
 
 type TravisCI struct {
@@ -104,4 +107,13 @@ func (ci *TravisCI) RunCondition(config map[string]string) error {
 		time.Sleep(3 * time.Second)
 	}
 	return errors.New("Timeout. Could not get accumulated results after 100 attempts.")
+}
+
+func Main(c *cli.Context) error {
+	plugin.Serve(&plugin.ServeOpts{
+		CICondition: func() condition.CICondition {
+			return &TravisCI{}
+		},
+	})
+	return nil
 }

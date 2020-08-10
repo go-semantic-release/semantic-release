@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/go-semantic-release/semantic-release/pkg/condition"
+	"github.com/go-semantic-release/semantic-release/pkg/plugin"
+	"github.com/urfave/cli/v2"
 )
 
 type GitHubActions struct {
@@ -36,5 +40,14 @@ func (gha *GitHubActions) RunCondition(config map[string]string) error {
 	if branch := gha.GetCurrentBranch(); defaultBranch != "*" && branch != defaultBranch {
 		return fmt.Errorf("This test run was triggered on the branch %s, while semantic-release is configured to only publish from %s.", branch, defaultBranch)
 	}
+	return nil
+}
+
+func Main(c *cli.Context) error {
+	plugin.Serve(&plugin.ServeOpts{
+		CICondition: func() condition.CICondition {
+			return &GitHubActions{}
+		},
+	})
 	return nil
 }

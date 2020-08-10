@@ -12,11 +12,11 @@ type CIConditionServer struct {
 	UnimplementedCIConditionPluginServer
 }
 
-func (c CIConditionServer) Name(ctx context.Context, request *Name_Request) (*Name_Response, error) {
+func (c *CIConditionServer) Name(ctx context.Context, request *Name_Request) (*Name_Response, error) {
 	return &Name_Response{Value: c.Impl.Name()}, nil
 }
 
-func (c CIConditionServer) RunCondition(ctx context.Context, request *RunCondition_Request) (*RunCondition_Response, error) {
+func (c *CIConditionServer) RunCondition(ctx context.Context, request *RunCondition_Request) (*RunCondition_Response, error) {
 	err := c.Impl.RunCondition(request.Value)
 	ret := &RunCondition_Response{}
 	if err != nil {
@@ -25,11 +25,11 @@ func (c CIConditionServer) RunCondition(ctx context.Context, request *RunConditi
 	return ret, nil
 }
 
-func (c CIConditionServer) GetCurrentBranch(ctx context.Context, request *GetCurrentBranch_Request) (*GetCurrentBranch_Response, error) {
+func (c *CIConditionServer) GetCurrentBranch(ctx context.Context, request *GetCurrentBranch_Request) (*GetCurrentBranch_Response, error) {
 	return &GetCurrentBranch_Response{Value: c.Impl.GetCurrentBranch()}, nil
 }
 
-func (c CIConditionServer) GetCurrentSHA(ctx context.Context, request *GetCurrentSHA_Request) (*GetCurrentSHA_Response, error) {
+func (c *CIConditionServer) GetCurrentSHA(ctx context.Context, request *GetCurrentSHA_Request) (*GetCurrentSHA_Response, error) {
 	return &GetCurrentSHA_Response{Value: c.Impl.GetCurrentSHA()}, nil
 }
 
@@ -37,7 +37,7 @@ type CIConditionClient struct {
 	Impl CIConditionPluginClient
 }
 
-func (c CIConditionClient) Name() string {
+func (c *CIConditionClient) Name() string {
 	name, err := c.Impl.Name(context.Background(), &Name_Request{})
 	if err != nil {
 		panic(err)
@@ -45,7 +45,7 @@ func (c CIConditionClient) Name() string {
 	return name.Value
 }
 
-func (c CIConditionClient) RunCondition(m map[string]string) error {
+func (c *CIConditionClient) RunCondition(m map[string]string) error {
 	res, err := c.Impl.RunCondition(context.Background(), &RunCondition_Request{Value: m})
 	if err != nil {
 		return err
@@ -56,7 +56,7 @@ func (c CIConditionClient) RunCondition(m map[string]string) error {
 	return errors.New(res.Error)
 }
 
-func (c CIConditionClient) GetCurrentBranch() string {
+func (c *CIConditionClient) GetCurrentBranch() string {
 	res, err := c.Impl.GetCurrentBranch(context.Background(), &GetCurrentBranch_Request{})
 	if err != nil {
 		panic(err)
@@ -64,7 +64,7 @@ func (c CIConditionClient) GetCurrentBranch() string {
 	return res.Value
 }
 
-func (c CIConditionClient) GetCurrentSHA() string {
+func (c *CIConditionClient) GetCurrentSHA() string {
 	res, err := c.Impl.GetCurrentSHA(context.Background(), &GetCurrentSHA_Request{})
 	if err != nil {
 		panic(err)
