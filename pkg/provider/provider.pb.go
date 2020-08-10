@@ -7,7 +7,7 @@
 package provider
 
 import (
-	_ "github.com/go-semantic-release/semantic-release/pkg/semrel"
+	semrel "github.com/go-semantic-release/semantic-release/pkg/semrel"
 	proto "github.com/golang/protobuf/proto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -176,6 +176,44 @@ func (x *CreateReleaseConfig) GetSHA() string {
 	return ""
 }
 
+type ProviderInit struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ProviderInit) Reset() {
+	*x = ProviderInit{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pkg_provider_provider_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProviderInit) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProviderInit) ProtoMessage() {}
+
+func (x *ProviderInit) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_provider_provider_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProviderInit.ProtoReflect.Descriptor instead.
+func (*ProviderInit) Descriptor() ([]byte, []int) {
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{2}
+}
+
 type ProviderName struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -185,7 +223,7 @@ type ProviderName struct {
 func (x *ProviderName) Reset() {
 	*x = ProviderName{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_pkg_provider_provider_proto_msgTypes[2]
+		mi := &file_pkg_provider_provider_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -198,7 +236,7 @@ func (x *ProviderName) String() string {
 func (*ProviderName) ProtoMessage() {}
 
 func (x *ProviderName) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_provider_provider_proto_msgTypes[2]
+	mi := &file_pkg_provider_provider_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -211,7 +249,253 @@ func (x *ProviderName) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProviderName.ProtoReflect.Descriptor instead.
 func (*ProviderName) Descriptor() ([]byte, []int) {
-	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{2}
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{3}
+}
+
+type GetInfo struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *GetInfo) Reset() {
+	*x = GetInfo{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pkg_provider_provider_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetInfo) ProtoMessage() {}
+
+func (x *GetInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_provider_provider_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetInfo.ProtoReflect.Descriptor instead.
+func (*GetInfo) Descriptor() ([]byte, []int) {
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{4}
+}
+
+type GetCommits struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *GetCommits) Reset() {
+	*x = GetCommits{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pkg_provider_provider_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetCommits) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCommits) ProtoMessage() {}
+
+func (x *GetCommits) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_provider_provider_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCommits.ProtoReflect.Descriptor instead.
+func (*GetCommits) Descriptor() ([]byte, []int) {
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{5}
+}
+
+type GetReleases struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *GetReleases) Reset() {
+	*x = GetReleases{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pkg_provider_provider_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetReleases) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReleases) ProtoMessage() {}
+
+func (x *GetReleases) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_provider_provider_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReleases.ProtoReflect.Descriptor instead.
+func (*GetReleases) Descriptor() ([]byte, []int) {
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{6}
+}
+
+type CreateRelease struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *CreateRelease) Reset() {
+	*x = CreateRelease{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pkg_provider_provider_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreateRelease) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateRelease) ProtoMessage() {}
+
+func (x *CreateRelease) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_provider_provider_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateRelease.ProtoReflect.Descriptor instead.
+func (*CreateRelease) Descriptor() ([]byte, []int) {
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{7}
+}
+
+type ProviderInit_Request struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Config map[string]string `protobuf:"bytes,1,rep,name=Config,proto3" json:"Config,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+}
+
+func (x *ProviderInit_Request) Reset() {
+	*x = ProviderInit_Request{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pkg_provider_provider_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProviderInit_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProviderInit_Request) ProtoMessage() {}
+
+func (x *ProviderInit_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_provider_provider_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProviderInit_Request.ProtoReflect.Descriptor instead.
+func (*ProviderInit_Request) Descriptor() ([]byte, []int) {
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{2, 0}
+}
+
+func (x *ProviderInit_Request) GetConfig() map[string]string {
+	if x != nil {
+		return x.Config
+	}
+	return nil
+}
+
+type ProviderInit_Response struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Error string `protobuf:"bytes,1,opt,name=Error,proto3" json:"Error,omitempty"`
+}
+
+func (x *ProviderInit_Response) Reset() {
+	*x = ProviderInit_Response{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pkg_provider_provider_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProviderInit_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProviderInit_Response) ProtoMessage() {}
+
+func (x *ProviderInit_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_provider_provider_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProviderInit_Response.ProtoReflect.Descriptor instead.
+func (*ProviderInit_Response) Descriptor() ([]byte, []int) {
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{2, 1}
+}
+
+func (x *ProviderInit_Response) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
 }
 
 type ProviderName_Request struct {
@@ -223,7 +507,7 @@ type ProviderName_Request struct {
 func (x *ProviderName_Request) Reset() {
 	*x = ProviderName_Request{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_pkg_provider_provider_proto_msgTypes[3]
+		mi := &file_pkg_provider_provider_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -236,7 +520,7 @@ func (x *ProviderName_Request) String() string {
 func (*ProviderName_Request) ProtoMessage() {}
 
 func (x *ProviderName_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_provider_provider_proto_msgTypes[3]
+	mi := &file_pkg_provider_provider_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -249,7 +533,7 @@ func (x *ProviderName_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProviderName_Request.ProtoReflect.Descriptor instead.
 func (*ProviderName_Request) Descriptor() ([]byte, []int) {
-	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{2, 0}
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{3, 0}
 }
 
 type ProviderName_Response struct {
@@ -263,7 +547,7 @@ type ProviderName_Response struct {
 func (x *ProviderName_Response) Reset() {
 	*x = ProviderName_Response{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_pkg_provider_provider_proto_msgTypes[4]
+		mi := &file_pkg_provider_provider_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -276,7 +560,7 @@ func (x *ProviderName_Response) String() string {
 func (*ProviderName_Response) ProtoMessage() {}
 
 func (x *ProviderName_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_pkg_provider_provider_proto_msgTypes[4]
+	mi := &file_pkg_provider_provider_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -289,12 +573,403 @@ func (x *ProviderName_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProviderName_Response.ProtoReflect.Descriptor instead.
 func (*ProviderName_Response) Descriptor() ([]byte, []int) {
-	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{2, 1}
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{3, 1}
 }
 
 func (x *ProviderName_Response) GetName() string {
 	if x != nil {
 		return x.Name
+	}
+	return ""
+}
+
+type GetInfo_Request struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *GetInfo_Request) Reset() {
+	*x = GetInfo_Request{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pkg_provider_provider_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetInfo_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetInfo_Request) ProtoMessage() {}
+
+func (x *GetInfo_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_provider_provider_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetInfo_Request.ProtoReflect.Descriptor instead.
+func (*GetInfo_Request) Descriptor() ([]byte, []int) {
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{4, 0}
+}
+
+type GetInfo_Response struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Info  *RepositoryInfo `protobuf:"bytes,1,opt,name=Info,proto3" json:"Info,omitempty"`
+	Error string          `protobuf:"bytes,2,opt,name=Error,proto3" json:"Error,omitempty"`
+}
+
+func (x *GetInfo_Response) Reset() {
+	*x = GetInfo_Response{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pkg_provider_provider_proto_msgTypes[14]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetInfo_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetInfo_Response) ProtoMessage() {}
+
+func (x *GetInfo_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_provider_provider_proto_msgTypes[14]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetInfo_Response.ProtoReflect.Descriptor instead.
+func (*GetInfo_Response) Descriptor() ([]byte, []int) {
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{4, 1}
+}
+
+func (x *GetInfo_Response) GetInfo() *RepositoryInfo {
+	if x != nil {
+		return x.Info
+	}
+	return nil
+}
+
+func (x *GetInfo_Response) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+type GetCommits_Request struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	SHA string `protobuf:"bytes,1,opt,name=SHA,proto3" json:"SHA,omitempty"`
+}
+
+func (x *GetCommits_Request) Reset() {
+	*x = GetCommits_Request{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pkg_provider_provider_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetCommits_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCommits_Request) ProtoMessage() {}
+
+func (x *GetCommits_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_provider_provider_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCommits_Request.ProtoReflect.Descriptor instead.
+func (*GetCommits_Request) Descriptor() ([]byte, []int) {
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{5, 0}
+}
+
+func (x *GetCommits_Request) GetSHA() string {
+	if x != nil {
+		return x.SHA
+	}
+	return ""
+}
+
+type GetCommits_Response struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	RawCommits []*semrel.RawCommit `protobuf:"bytes,1,rep,name=RawCommits,proto3" json:"RawCommits,omitempty"`
+	Error      string              `protobuf:"bytes,2,opt,name=Error,proto3" json:"Error,omitempty"`
+}
+
+func (x *GetCommits_Response) Reset() {
+	*x = GetCommits_Response{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pkg_provider_provider_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetCommits_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCommits_Response) ProtoMessage() {}
+
+func (x *GetCommits_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_provider_provider_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCommits_Response.ProtoReflect.Descriptor instead.
+func (*GetCommits_Response) Descriptor() ([]byte, []int) {
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{5, 1}
+}
+
+func (x *GetCommits_Response) GetRawCommits() []*semrel.RawCommit {
+	if x != nil {
+		return x.RawCommits
+	}
+	return nil
+}
+
+func (x *GetCommits_Response) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+type GetReleases_Request struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Regexp string `protobuf:"bytes,1,opt,name=Regexp,proto3" json:"Regexp,omitempty"`
+}
+
+func (x *GetReleases_Request) Reset() {
+	*x = GetReleases_Request{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pkg_provider_provider_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetReleases_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReleases_Request) ProtoMessage() {}
+
+func (x *GetReleases_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_provider_provider_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReleases_Request.ProtoReflect.Descriptor instead.
+func (*GetReleases_Request) Descriptor() ([]byte, []int) {
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{6, 0}
+}
+
+func (x *GetReleases_Request) GetRegexp() string {
+	if x != nil {
+		return x.Regexp
+	}
+	return ""
+}
+
+type GetReleases_Response struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Releases []*semrel.Release `protobuf:"bytes,1,rep,name=Releases,proto3" json:"Releases,omitempty"`
+	Error    string            `protobuf:"bytes,2,opt,name=Error,proto3" json:"Error,omitempty"`
+}
+
+func (x *GetReleases_Response) Reset() {
+	*x = GetReleases_Response{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pkg_provider_provider_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetReleases_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReleases_Response) ProtoMessage() {}
+
+func (x *GetReleases_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_provider_provider_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReleases_Response.ProtoReflect.Descriptor instead.
+func (*GetReleases_Response) Descriptor() ([]byte, []int) {
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{6, 1}
+}
+
+func (x *GetReleases_Response) GetReleases() []*semrel.Release {
+	if x != nil {
+		return x.Releases
+	}
+	return nil
+}
+
+func (x *GetReleases_Response) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+type CreateRelease_Request struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Config *CreateReleaseConfig `protobuf:"bytes,1,opt,name=Config,proto3" json:"Config,omitempty"`
+}
+
+func (x *CreateRelease_Request) Reset() {
+	*x = CreateRelease_Request{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pkg_provider_provider_proto_msgTypes[19]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreateRelease_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateRelease_Request) ProtoMessage() {}
+
+func (x *CreateRelease_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_provider_provider_proto_msgTypes[19]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateRelease_Request.ProtoReflect.Descriptor instead.
+func (*CreateRelease_Request) Descriptor() ([]byte, []int) {
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{7, 0}
+}
+
+func (x *CreateRelease_Request) GetConfig() *CreateReleaseConfig {
+	if x != nil {
+		return x.Config
+	}
+	return nil
+}
+
+type CreateRelease_Response struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Error string `protobuf:"bytes,1,opt,name=Error,proto3" json:"Error,omitempty"`
+}
+
+func (x *CreateRelease_Response) Reset() {
+	*x = CreateRelease_Response{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pkg_provider_provider_proto_msgTypes[20]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreateRelease_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateRelease_Response) ProtoMessage() {}
+
+func (x *CreateRelease_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_provider_provider_proto_msgTypes[20]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateRelease_Response.ProtoReflect.Descriptor instead.
+func (*CreateRelease_Response) Descriptor() ([]byte, []int) {
+	return file_pkg_provider_provider_proto_rawDescGZIP(), []int{7, 1}
+}
+
+func (x *CreateRelease_Response) GetError() string {
+	if x != nil {
+		return x.Error
 	}
 	return ""
 }
@@ -323,20 +998,76 @@ var file_pkg_provider_provider_proto_rawDesc = []byte{
 	0x72, 0x65, 0x72, 0x65, 0x6c, 0x65, 0x61, 0x73, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x42, 0x72, 0x61,
 	0x6e, 0x63, 0x68, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x42, 0x72, 0x61, 0x6e, 0x63,
 	0x68, 0x12, 0x10, 0x0a, 0x03, 0x53, 0x48, 0x41, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03,
-	0x53, 0x48, 0x41, 0x22, 0x39, 0x0a, 0x0c, 0x50, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x4e,
-	0x61, 0x6d, 0x65, 0x1a, 0x09, 0x0a, 0x07, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1e,
-	0x0a, 0x08, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x4e, 0x61,
-	0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x4e, 0x61, 0x6d, 0x65, 0x32, 0x51,
-	0x0a, 0x18, 0x52, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x6f, 0x72, 0x79, 0x50, 0x72, 0x6f, 0x76,
-	0x69, 0x64, 0x65, 0x72, 0x50, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x12, 0x35, 0x0a, 0x04, 0x4e, 0x61,
-	0x6d, 0x65, 0x12, 0x15, 0x2e, 0x50, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x4e, 0x61, 0x6d,
-	0x65, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x16, 0x2e, 0x50, 0x72, 0x6f, 0x76,
-	0x69, 0x64, 0x65, 0x72, 0x4e, 0x61, 0x6d, 0x65, 0x2e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x42, 0x3e, 0x5a, 0x3c, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f,
-	0x67, 0x6f, 0x2d, 0x73, 0x65, 0x6d, 0x61, 0x6e, 0x74, 0x69, 0x63, 0x2d, 0x72, 0x65, 0x6c, 0x65,
-	0x61, 0x73, 0x65, 0x2f, 0x73, 0x65, 0x6d, 0x61, 0x6e, 0x74, 0x69, 0x63, 0x2d, 0x72, 0x65, 0x6c,
-	0x65, 0x61, 0x73, 0x65, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x70, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65,
-	0x72, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x53, 0x48, 0x41, 0x22, 0xb1, 0x01, 0x0a, 0x0c, 0x50, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72,
+	0x49, 0x6e, 0x69, 0x74, 0x1a, 0x7f, 0x0a, 0x07, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
+	0x39, 0x0a, 0x06, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32,
+	0x21, 0x2e, 0x50, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x49, 0x6e, 0x69, 0x74, 0x2e, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x2e, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x45, 0x6e, 0x74,
+	0x72, 0x79, 0x52, 0x06, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x1a, 0x39, 0x0a, 0x0b, 0x43, 0x6f,
+	0x6e, 0x66, 0x69, 0x67, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76,
+	0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75,
+	0x65, 0x3a, 0x02, 0x38, 0x01, 0x1a, 0x20, 0x0a, 0x08, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x14, 0x0a, 0x05, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x05, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x22, 0x39, 0x0a, 0x0c, 0x50, 0x72, 0x6f, 0x76, 0x69,
+	0x64, 0x65, 0x72, 0x4e, 0x61, 0x6d, 0x65, 0x1a, 0x09, 0x0a, 0x07, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x1e, 0x0a, 0x08, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x12,
+	0x0a, 0x04, 0x4e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x4e, 0x61,
+	0x6d, 0x65, 0x22, 0x5b, 0x0a, 0x07, 0x47, 0x65, 0x74, 0x49, 0x6e, 0x66, 0x6f, 0x1a, 0x09, 0x0a,
+	0x07, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x45, 0x0a, 0x08, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x23, 0x0a, 0x04, 0x49, 0x6e, 0x66, 0x6f, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x0f, 0x2e, 0x52, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x6f, 0x72, 0x79, 0x49,
+	0x6e, 0x66, 0x6f, 0x52, 0x04, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x14, 0x0a, 0x05, 0x45, 0x72, 0x72,
+	0x6f, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x22,
+	0x77, 0x0a, 0x0a, 0x47, 0x65, 0x74, 0x43, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x73, 0x1a, 0x1b, 0x0a,
+	0x07, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x10, 0x0a, 0x03, 0x53, 0x48, 0x41, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x53, 0x48, 0x41, 0x1a, 0x4c, 0x0a, 0x08, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2a, 0x0a, 0x0a, 0x52, 0x61, 0x77, 0x43, 0x6f, 0x6d,
+	0x6d, 0x69, 0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0a, 0x2e, 0x52, 0x61, 0x77,
+	0x43, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x52, 0x0a, 0x52, 0x61, 0x77, 0x43, 0x6f, 0x6d, 0x6d, 0x69,
+	0x74, 0x73, 0x12, 0x14, 0x0a, 0x05, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x05, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x22, 0x78, 0x0a, 0x0b, 0x47, 0x65, 0x74, 0x52,
+	0x65, 0x6c, 0x65, 0x61, 0x73, 0x65, 0x73, 0x1a, 0x21, 0x0a, 0x07, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x52, 0x65, 0x67, 0x65, 0x78, 0x70, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x06, 0x52, 0x65, 0x67, 0x65, 0x78, 0x70, 0x1a, 0x46, 0x0a, 0x08, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x24, 0x0a, 0x08, 0x52, 0x65, 0x6c, 0x65, 0x61, 0x73,
+	0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x08, 0x2e, 0x52, 0x65, 0x6c, 0x65, 0x61,
+	0x73, 0x65, 0x52, 0x08, 0x52, 0x65, 0x6c, 0x65, 0x61, 0x73, 0x65, 0x73, 0x12, 0x14, 0x0a, 0x05,
+	0x45, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x45, 0x72, 0x72,
+	0x6f, 0x72, 0x22, 0x6a, 0x0a, 0x0d, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x6c, 0x65,
+	0x61, 0x73, 0x65, 0x1a, 0x37, 0x0a, 0x07, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x2c,
+	0x0a, 0x06, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x14,
+	0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x6c, 0x65, 0x61, 0x73, 0x65, 0x43, 0x6f,
+	0x6e, 0x66, 0x69, 0x67, 0x52, 0x06, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x1a, 0x20, 0x0a, 0x08,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x45, 0x72, 0x72, 0x6f,
+	0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x32, 0xe5,
+	0x02, 0x0a, 0x0e, 0x50, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x50, 0x6c, 0x75, 0x67, 0x69,
+	0x6e, 0x12, 0x35, 0x0a, 0x04, 0x49, 0x6e, 0x69, 0x74, 0x12, 0x15, 0x2e, 0x50, 0x72, 0x6f, 0x76,
+	0x69, 0x64, 0x65, 0x72, 0x49, 0x6e, 0x69, 0x74, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x1a, 0x16, 0x2e, 0x50, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x49, 0x6e, 0x69, 0x74, 0x2e,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x35, 0x0a, 0x04, 0x4e, 0x61, 0x6d, 0x65,
+	0x12, 0x15, 0x2e, 0x50, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x4e, 0x61, 0x6d, 0x65, 0x2e,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x16, 0x2e, 0x50, 0x72, 0x6f, 0x76, 0x69, 0x64,
+	0x65, 0x72, 0x4e, 0x61, 0x6d, 0x65, 0x2e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
+	0x2e, 0x0a, 0x07, 0x47, 0x65, 0x74, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x10, 0x2e, 0x47, 0x65, 0x74,
+	0x49, 0x6e, 0x66, 0x6f, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x11, 0x2e, 0x47,
+	0x65, 0x74, 0x49, 0x6e, 0x66, 0x6f, 0x2e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
+	0x37, 0x0a, 0x0a, 0x47, 0x65, 0x74, 0x43, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x73, 0x12, 0x13, 0x2e,
+	0x47, 0x65, 0x74, 0x43, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x73, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x14, 0x2e, 0x47, 0x65, 0x74, 0x43, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x73, 0x2e,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3a, 0x0a, 0x0b, 0x47, 0x65, 0x74, 0x52,
+	0x65, 0x6c, 0x65, 0x61, 0x73, 0x65, 0x73, 0x12, 0x14, 0x2e, 0x47, 0x65, 0x74, 0x52, 0x65, 0x6c,
+	0x65, 0x61, 0x73, 0x65, 0x73, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x15, 0x2e,
+	0x47, 0x65, 0x74, 0x52, 0x65, 0x6c, 0x65, 0x61, 0x73, 0x65, 0x73, 0x2e, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x40, 0x0a, 0x0d, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65,
+	0x6c, 0x65, 0x61, 0x73, 0x65, 0x12, 0x16, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65,
+	0x6c, 0x65, 0x61, 0x73, 0x65, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x17, 0x2e,
+	0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x6c, 0x65, 0x61, 0x73, 0x65, 0x2e, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x3e, 0x5a, 0x3c, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62,
+	0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x67, 0x6f, 0x2d, 0x73, 0x65, 0x6d, 0x61, 0x6e, 0x74, 0x69, 0x63,
+	0x2d, 0x72, 0x65, 0x6c, 0x65, 0x61, 0x73, 0x65, 0x2f, 0x73, 0x65, 0x6d, 0x61, 0x6e, 0x74, 0x69,
+	0x63, 0x2d, 0x72, 0x65, 0x6c, 0x65, 0x61, 0x73, 0x65, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x70, 0x72,
+	0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -351,22 +1082,55 @@ func file_pkg_provider_provider_proto_rawDescGZIP() []byte {
 	return file_pkg_provider_provider_proto_rawDescData
 }
 
-var file_pkg_provider_provider_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_pkg_provider_provider_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_pkg_provider_provider_proto_goTypes = []interface{}{
-	(*RepositoryInfo)(nil),        // 0: RepositoryInfo
-	(*CreateReleaseConfig)(nil),   // 1: CreateReleaseConfig
-	(*ProviderName)(nil),          // 2: ProviderName
-	(*ProviderName_Request)(nil),  // 3: ProviderName.Request
-	(*ProviderName_Response)(nil), // 4: ProviderName.Response
+	(*RepositoryInfo)(nil),         // 0: RepositoryInfo
+	(*CreateReleaseConfig)(nil),    // 1: CreateReleaseConfig
+	(*ProviderInit)(nil),           // 2: ProviderInit
+	(*ProviderName)(nil),           // 3: ProviderName
+	(*GetInfo)(nil),                // 4: GetInfo
+	(*GetCommits)(nil),             // 5: GetCommits
+	(*GetReleases)(nil),            // 6: GetReleases
+	(*CreateRelease)(nil),          // 7: CreateRelease
+	(*ProviderInit_Request)(nil),   // 8: ProviderInit.Request
+	(*ProviderInit_Response)(nil),  // 9: ProviderInit.Response
+	nil,                            // 10: ProviderInit.Request.ConfigEntry
+	(*ProviderName_Request)(nil),   // 11: ProviderName.Request
+	(*ProviderName_Response)(nil),  // 12: ProviderName.Response
+	(*GetInfo_Request)(nil),        // 13: GetInfo.Request
+	(*GetInfo_Response)(nil),       // 14: GetInfo.Response
+	(*GetCommits_Request)(nil),     // 15: GetCommits.Request
+	(*GetCommits_Response)(nil),    // 16: GetCommits.Response
+	(*GetReleases_Request)(nil),    // 17: GetReleases.Request
+	(*GetReleases_Response)(nil),   // 18: GetReleases.Response
+	(*CreateRelease_Request)(nil),  // 19: CreateRelease.Request
+	(*CreateRelease_Response)(nil), // 20: CreateRelease.Response
+	(*semrel.RawCommit)(nil),       // 21: RawCommit
+	(*semrel.Release)(nil),         // 22: Release
 }
 var file_pkg_provider_provider_proto_depIdxs = []int32{
-	3, // 0: RepositoryProviderPlugin.Name:input_type -> ProviderName.Request
-	4, // 1: RepositoryProviderPlugin.Name:output_type -> ProviderName.Response
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	10, // 0: ProviderInit.Request.Config:type_name -> ProviderInit.Request.ConfigEntry
+	0,  // 1: GetInfo.Response.Info:type_name -> RepositoryInfo
+	21, // 2: GetCommits.Response.RawCommits:type_name -> RawCommit
+	22, // 3: GetReleases.Response.Releases:type_name -> Release
+	1,  // 4: CreateRelease.Request.Config:type_name -> CreateReleaseConfig
+	8,  // 5: ProviderPlugin.Init:input_type -> ProviderInit.Request
+	11, // 6: ProviderPlugin.Name:input_type -> ProviderName.Request
+	13, // 7: ProviderPlugin.GetInfo:input_type -> GetInfo.Request
+	15, // 8: ProviderPlugin.GetCommits:input_type -> GetCommits.Request
+	17, // 9: ProviderPlugin.GetReleases:input_type -> GetReleases.Request
+	19, // 10: ProviderPlugin.CreateRelease:input_type -> CreateRelease.Request
+	9,  // 11: ProviderPlugin.Init:output_type -> ProviderInit.Response
+	12, // 12: ProviderPlugin.Name:output_type -> ProviderName.Response
+	14, // 13: ProviderPlugin.GetInfo:output_type -> GetInfo.Response
+	16, // 14: ProviderPlugin.GetCommits:output_type -> GetCommits.Response
+	18, // 15: ProviderPlugin.GetReleases:output_type -> GetReleases.Response
+	20, // 16: ProviderPlugin.CreateRelease:output_type -> CreateRelease.Response
+	11, // [11:17] is the sub-list for method output_type
+	5,  // [5:11] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_pkg_provider_provider_proto_init() }
@@ -400,7 +1164,7 @@ func file_pkg_provider_provider_proto_init() {
 			}
 		}
 		file_pkg_provider_provider_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ProviderName); i {
+			switch v := v.(*ProviderInit); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -412,7 +1176,7 @@ func file_pkg_provider_provider_proto_init() {
 			}
 		}
 		file_pkg_provider_provider_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ProviderName_Request); i {
+			switch v := v.(*ProviderName); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -424,7 +1188,187 @@ func file_pkg_provider_provider_proto_init() {
 			}
 		}
 		file_pkg_provider_provider_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetInfo); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pkg_provider_provider_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetCommits); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pkg_provider_provider_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetReleases); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pkg_provider_provider_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CreateRelease); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pkg_provider_provider_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProviderInit_Request); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pkg_provider_provider_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProviderInit_Response); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pkg_provider_provider_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProviderName_Request); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pkg_provider_provider_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ProviderName_Response); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pkg_provider_provider_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetInfo_Request); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pkg_provider_provider_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetInfo_Response); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pkg_provider_provider_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetCommits_Request); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pkg_provider_provider_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetCommits_Response); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pkg_provider_provider_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetReleases_Request); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pkg_provider_provider_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetReleases_Response); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pkg_provider_provider_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CreateRelease_Request); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pkg_provider_provider_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CreateRelease_Response); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -442,7 +1386,7 @@ func file_pkg_provider_provider_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_pkg_provider_provider_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

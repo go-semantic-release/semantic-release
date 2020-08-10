@@ -191,6 +191,6 @@ func TestGithubGetReleases(t *testing.T) {
 func TestGithubCreateRelease(t *testing.T) {
 	repo, ts := getNewGithubTestRepo(t)
 	defer ts.Close()
-	err := repo.CreateRelease(&provider.RepositoryRelease{NewVersion: "2.0.0", SHA: "deadbeef"})
+	err := repo.CreateRelease(&provider.CreateReleaseConfig{NewVersion: "2.0.0", SHA: "deadbeef"})
 	require.NoError(t, err)
 }
