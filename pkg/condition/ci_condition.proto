@@ -4,31 +4,31 @@ option go_package = "github.com/go-semantic-release/semantic-release/pkg/conditi
 message CIName {
   message Request {}
   message Response {
-    string Value = 1;
+    string value = 1;
   }
 }
 
 message RunCondition {
   message Request {
-    map<string, string> Value = 1;
+    map<string, string> value = 1;
 
   }
   message Response {
-    string Error = 1;
+    string error = 1;
   }
 }
 
 message GetCurrentBranch {
   message Request {}
   message Response {
-    string Value = 1;
+    string value = 1;
   }
 }
 
 message GetCurrentSHA {
   message Request {}
   message Response {
-    string Value = 1;
+    string value = 1;
   }
 }
 
