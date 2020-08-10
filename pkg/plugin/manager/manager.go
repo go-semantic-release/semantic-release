@@ -60,7 +60,13 @@ func (m *PluginManager) GetCommitAnalyzer() (analyzer.CommitAnalyzer, error) {
 }
 
 func (m *PluginManager) GetChangelogGenerator() (generator.ChangelogGenerator, error) {
-	return &generator.DefaultChangelogGenerator{}, nil
+	cg, err := plugin.StartChangelogGeneratorPlugin(buildin.GetPluginOpts(generator.ChangelogGeneratorPluginName))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return cg, nil
 }
 
 func (m *PluginManager) GetUpdater() (updater.Updater, error) {

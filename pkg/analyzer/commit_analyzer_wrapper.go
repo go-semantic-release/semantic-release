@@ -13,9 +13,9 @@ type CommitAnalyzerServer struct {
 	UnimplementedCommitAnalyzerPluginServer
 }
 
-func (c *CommitAnalyzerServer) Analyze(ctx context.Context, in *AnalyzeCommits_Request) (*AnalyzeCommits_Response, error) {
+func (c *CommitAnalyzerServer) Analyze(ctx context.Context, request *AnalyzeCommits_Request) (*AnalyzeCommits_Response, error) {
 	return &AnalyzeCommits_Response{
-		Commits: c.Impl.Analyze(in.RawCommits),
+		Commits: c.Impl.Analyze(request.RawCommits),
 	}, nil
 }
 

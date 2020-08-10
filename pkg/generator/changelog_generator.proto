@@ -1,0 +1,23 @@
+syntax = "proto3";
+option go_package = "github.com/go-semantic-release/semantic-release/pkg/generator";
+
+import "pkg/semrel/structs.proto";
+
+message ChangelogGeneratorConfig {
+  repeated Commit Commits = 1;
+  Release LatestRelease  = 2;
+  string NewVersion = 3;
+}
+
+message GenerateChangelog {
+  message Request {
+    ChangelogGeneratorConfig Config = 1;
+  }
+  message Response {
+    string Changelog = 1;
+  }
+}
+
+service ChangelogGeneratorPlugin {
+  rpc Generate(GenerateChangelog.Request) returns (GenerateChangelog.Response);
+}

@@ -4,10 +4,9 @@ import (
 	"os/exec"
 	"sync"
 
-	"github.com/go-semantic-release/semantic-release/pkg/condition"
-
 	"github.com/go-semantic-release/semantic-release/pkg/analyzer"
-
+	"github.com/go-semantic-release/semantic-release/pkg/condition"
+	"github.com/go-semantic-release/semantic-release/pkg/generator"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 )
@@ -73,4 +72,12 @@ func StartCIConditionPlugin(opts *PluginOpts) (condition.CICondition, error) {
 		return nil, err
 	}
 	return raw.(condition.CICondition), nil
+}
+
+func StartChangelogGeneratorPlugin(opts *PluginOpts) (generator.ChangelogGenerator, error) {
+	raw, err := startPlugin(opts)
+	if err != nil {
+		return nil, err
+	}
+	return raw.(generator.ChangelogGenerator), nil
 }
