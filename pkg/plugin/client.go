@@ -8,6 +8,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/pkg/generator"
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
+	"github.com/go-semantic-release/semantic-release/pkg/updater"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 )
@@ -89,4 +90,12 @@ func StartProviderPlugin(opts *PluginOpts) (provider.Provider, error) {
 		return nil, err
 	}
 	return raw.(provider.Provider), nil
+}
+
+func StartFilesUpdaterPlugin(opts *PluginOpts) (updater.FilesUpdater, error) {
+	raw, err := startPlugin(opts)
+	if err != nil {
+		return nil, err
+	}
+	return raw.(updater.FilesUpdater), nil
 }

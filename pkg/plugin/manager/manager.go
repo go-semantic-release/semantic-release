@@ -11,7 +11,6 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/plugin/buildin"
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/pkg/updater"
-	"github.com/go-semantic-release/semantic-release/pkg/updater/npm"
 )
 
 type PluginManager struct {
@@ -55,29 +54,28 @@ func (m *PluginManager) GetProvider() (provider.Provider, error) {
 
 func (m *PluginManager) GetCommitAnalyzer() (analyzer.CommitAnalyzer, error) {
 	ca, err := plugin.StartCommitAnalyzerPlugin(buildin.GetPluginOpts(analyzer.CommitAnalyzerPluginName))
-
 	if err != nil {
 		return nil, err
 	}
-
 	return ca, nil
 }
 
 func (m *PluginManager) GetChangelogGenerator() (generator.ChangelogGenerator, error) {
 	cg, err := plugin.StartChangelogGeneratorPlugin(buildin.GetPluginOpts(generator.ChangelogGeneratorPluginName))
-
 	if err != nil {
 		return nil, err
 	}
-
 	return cg, nil
 }
 
 func (m *PluginManager) GetUpdater() (updater.Updater, error) {
+	npmUpdater, err := plugin.StartFilesUpdaterPlugin(buildin.GetPluginOpts(updater.FilesUpdaterPluginName, "npm"))
+	if err != nil {
+		return nil, err
+	}
+
 	updater := &updater.ChainedUpdater{
-		Updaters: []updater.FilesUpdater{
-			&npm.Updater{},
-		},
+		Updaters: []updater.FilesUpdater{npmUpdater},
 	}
 	return updater, nil
 }
