@@ -17,7 +17,7 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CommitAnalyzerPluginClient interface {
-	Analyze(ctx context.Context, in *CommitAnalyzerRequest, opts ...grpc.CallOption) (*CommitAnalyzerResponse, error)
+	Analyze(ctx context.Context, in *AnalyzeCommits_Request, opts ...grpc.CallOption) (*AnalyzeCommits_Response, error)
 }
 
 type commitAnalyzerPluginClient struct {
@@ -28,8 +28,8 @@ func NewCommitAnalyzerPluginClient(cc grpc.ClientConnInterface) CommitAnalyzerPl
 	return &commitAnalyzerPluginClient{cc}
 }
 
-func (c *commitAnalyzerPluginClient) Analyze(ctx context.Context, in *CommitAnalyzerRequest, opts ...grpc.CallOption) (*CommitAnalyzerResponse, error) {
-	out := new(CommitAnalyzerResponse)
+func (c *commitAnalyzerPluginClient) Analyze(ctx context.Context, in *AnalyzeCommits_Request, opts ...grpc.CallOption) (*AnalyzeCommits_Response, error) {
+	out := new(AnalyzeCommits_Response)
 	err := c.cc.Invoke(ctx, "/CommitAnalyzerPlugin/Analyze", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func (c *commitAnalyzerPluginClient) Analyze(ctx context.Context, in *CommitAnal
 // All implementations must embed UnimplementedCommitAnalyzerPluginServer
 // for forward compatibility
 type CommitAnalyzerPluginServer interface {
-	Analyze(context.Context, *CommitAnalyzerRequest) (*CommitAnalyzerResponse, error)
+	Analyze(context.Context, *AnalyzeCommits_Request) (*AnalyzeCommits_Response, error)
 	mustEmbedUnimplementedCommitAnalyzerPluginServer()
 }
 
@@ -49,7 +49,7 @@ type CommitAnalyzerPluginServer interface {
 type UnimplementedCommitAnalyzerPluginServer struct {
 }
 
-func (*UnimplementedCommitAnalyzerPluginServer) Analyze(context.Context, *CommitAnalyzerRequest) (*CommitAnalyzerResponse, error) {
+func (*UnimplementedCommitAnalyzerPluginServer) Analyze(context.Context, *AnalyzeCommits_Request) (*AnalyzeCommits_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Analyze not implemented")
 }
 func (*UnimplementedCommitAnalyzerPluginServer) mustEmbedUnimplementedCommitAnalyzerPluginServer() {}
@@ -59,7 +59,7 @@ func RegisterCommitAnalyzerPluginServer(s *grpc.Server, srv CommitAnalyzerPlugin
 }
 
 func _CommitAnalyzerPlugin_Analyze_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CommitAnalyzerRequest)
+	in := new(AnalyzeCommits_Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func _CommitAnalyzerPlugin_Analyze_Handler(srv interface{}, ctx context.Context,
 		FullMethod: "/CommitAnalyzerPlugin/Analyze",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CommitAnalyzerPluginServer).Analyze(ctx, req.(*CommitAnalyzerRequest))
+		return srv.(CommitAnalyzerPluginServer).Analyze(ctx, req.(*AnalyzeCommits_Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
