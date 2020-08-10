@@ -4,17 +4,17 @@ option go_package = "github.com/go-semantic-release/semantic-release/pkg/generat
 import "pkg/semrel/structs.proto";
 
 message ChangelogGeneratorConfig {
-  repeated Commit Commits = 1;
-  Release LatestRelease  = 2;
-  string NewVersion = 3;
+  repeated Commit commits = 1;
+  Release latest_release  = 2;
+  string new_version = 3;
 }
 
 message GenerateChangelog {
   message Request {
-    ChangelogGeneratorConfig Config = 1;
+    ChangelogGeneratorConfig config = 1;
   }
   message Response {
-    string Changelog = 1;
+    string changelog = 1;
   }
 }
 

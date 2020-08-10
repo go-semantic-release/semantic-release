@@ -4,17 +4,17 @@ option go_package = "github.com/go-semantic-release/semantic-release/pkg/updater
 message FilesUpdaterForFiles {
   message Request {}
   message Response {
-    string Files = 1;
+    string files = 1;
   }
 }
 
 message FilesUpdaterApply {
   message Request {
-    string File = 1;
-    string NewVersion = 2;
+    string file = 1;
+    string new_version = 2;
   }
   message Response {
-    string Error = 1;
+    string error = 1;
   }
 }
 

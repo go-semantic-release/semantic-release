@@ -4,41 +4,41 @@ option go_package = "github.com/go-semantic-release/semantic-release/pkg/provide
 import "pkg/semrel/structs.proto";
 
 message RepositoryInfo {
-  string Owner = 1;
-  string Repo = 2;
-  string DefaultBranch = 3;
-  bool Private = 4;
+  string owner = 1;
+  string repo = 2;
+  string default_branch = 3;
+  bool private = 4;
 }
 
 message CreateReleaseConfig {
-  string Changelog = 1;
-  string NewVersion = 2;
-  bool Prerelease = 3;
-  string Branch = 4;
+  string changelog = 1;
+  string new_version = 2;
+  bool prerelease = 3;
+  string branch = 4;
   string SHA = 5;
 }
 
 message ProviderInit {
   message Request {
-    map<string, string> Config = 1;
+    map<string, string> config = 1;
   }
   message Response {
-    string Error = 1;
+    string error = 1;
   }
 }
 
 message ProviderName {
   message Request {}
   message Response {
-    string Name = 1;
+    string name = 1;
   }
 }
 
 message GetInfo {
   message Request {}
   message Response {
-    RepositoryInfo Info = 1;
-    string Error = 2;
+    RepositoryInfo info = 1;
+    string error = 2;
   }
 }
 
@@ -47,27 +47,27 @@ message GetCommits {
     string SHA = 1;
   }
   message Response {
-    repeated RawCommit RawCommits = 1;
-    string Error = 2;
+    repeated RawCommit raw_commits = 1;
+    string error = 2;
   }
 }
 
 message GetReleases {
   message Request {
-    string Regexp = 1;
+    string regexp = 1;
   }
   message Response {
-    repeated Release Releases = 1;
-    string Error = 2;
+    repeated Release releases = 1;
+    string error = 2;
   }
 }
 
 message CreateRelease {
   message Request {
-    CreateReleaseConfig Config = 1;
+    CreateReleaseConfig config = 1;
   }
   message Response {
-    string Error = 1;
+    string error = 1;
   }
 }
 

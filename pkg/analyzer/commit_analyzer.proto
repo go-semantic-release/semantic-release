@@ -5,10 +5,10 @@ import "pkg/semrel/structs.proto";
 
 message AnalyzeCommits {
   message Request {
-    repeated RawCommit RawCommits = 1;
+    repeated RawCommit raw_commits = 1;
   }
   message Response {
-    repeated Commit Commits = 1;
+    repeated Commit commits = 1;
   }
 }
 

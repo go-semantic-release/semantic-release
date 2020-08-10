@@ -3,25 +3,25 @@ option go_package = "github.com/go-semantic-release/semantic-release/pkg/semrel"
 
 message RawCommit {
   string SHA = 1;
-  string RawMessage = 2;
+  string raw_message = 2;
 }
 
 message Change {
-  bool Major = 1;
-  bool Minor = 2;
-  bool Patch = 3;
+  bool major = 1;
+  bool minor = 2;
+  bool patch = 3;
 }
 
 message Commit {
   string SHA = 1;
-  repeated string Raw = 2;
-  string Type = 3;
-  string Scope = 4;
-  string Message = 5;
-  Change Change = 6;
+  repeated string raw = 2;
+  string type = 3;
+  string scope = 4;
+  string message = 5;
+  Change change = 6;
 }
 
 message Release {
   string SHA = 1;
-  string Version = 2;
+  string version = 2;
 }
