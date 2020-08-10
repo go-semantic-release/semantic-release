@@ -17,7 +17,7 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CIConditionPluginClient interface {
-	Name(ctx context.Context, in *Name_Request, opts ...grpc.CallOption) (*Name_Response, error)
+	Name(ctx context.Context, in *CIName_Request, opts ...grpc.CallOption) (*CIName_Response, error)
 	RunCondition(ctx context.Context, in *RunCondition_Request, opts ...grpc.CallOption) (*RunCondition_Response, error)
 	GetCurrentBranch(ctx context.Context, in *GetCurrentBranch_Request, opts ...grpc.CallOption) (*GetCurrentBranch_Response, error)
 	GetCurrentSHA(ctx context.Context, in *GetCurrentSHA_Request, opts ...grpc.CallOption) (*GetCurrentSHA_Response, error)
@@ -31,8 +31,8 @@ func NewCIConditionPluginClient(cc grpc.ClientConnInterface) CIConditionPluginCl
 	return &cIConditionPluginClient{cc}
 }
 
-func (c *cIConditionPluginClient) Name(ctx context.Context, in *Name_Request, opts ...grpc.CallOption) (*Name_Response, error) {
-	out := new(Name_Response)
+func (c *cIConditionPluginClient) Name(ctx context.Context, in *CIName_Request, opts ...grpc.CallOption) (*CIName_Response, error) {
+	out := new(CIName_Response)
 	err := c.cc.Invoke(ctx, "/CIConditionPlugin/Name", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func (c *cIConditionPluginClient) GetCurrentSHA(ctx context.Context, in *GetCurr
 // All implementations must embed UnimplementedCIConditionPluginServer
 // for forward compatibility
 type CIConditionPluginServer interface {
-	Name(context.Context, *Name_Request) (*Name_Response, error)
+	Name(context.Context, *CIName_Request) (*CIName_Response, error)
 	RunCondition(context.Context, *RunCondition_Request) (*RunCondition_Response, error)
 	GetCurrentBranch(context.Context, *GetCurrentBranch_Request) (*GetCurrentBranch_Response, error)
 	GetCurrentSHA(context.Context, *GetCurrentSHA_Request) (*GetCurrentSHA_Response, error)
@@ -82,7 +82,7 @@ type CIConditionPluginServer interface {
 type UnimplementedCIConditionPluginServer struct {
 }
 
-func (*UnimplementedCIConditionPluginServer) Name(context.Context, *Name_Request) (*Name_Response, error) {
+func (*UnimplementedCIConditionPluginServer) Name(context.Context, *CIName_Request) (*CIName_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
 }
 func (*UnimplementedCIConditionPluginServer) RunCondition(context.Context, *RunCondition_Request) (*RunCondition_Response, error) {
@@ -101,7 +101,7 @@ func RegisterCIConditionPluginServer(s *grpc.Server, srv CIConditionPluginServer
 }
 
 func _CIConditionPlugin_Name_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Name_Request)
+	in := new(CIName_Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func _CIConditionPlugin_Name_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/CIConditionPlugin/Name",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CIConditionPluginServer).Name(ctx, req.(*Name_Request))
+		return srv.(CIConditionPluginServer).Name(ctx, req.(*CIName_Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }

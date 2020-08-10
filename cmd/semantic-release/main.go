@@ -67,10 +67,10 @@ func cliHandler(c *cli.Context) error {
 	exitIfError(err)
 	logger.Printf("detected CI: %s\n", ci.Name())
 
-	repo, err := pluginManager.GetProvider()
+	prov, err := pluginManager.GetProvider()
 	exitIfError(err)
 
-	err = repo.Init(map[string]string{
+	err = prov.Init(map[string]string{
 		"gitlabBaseUrl":        conf.GitLabBaseURL,
 		"token":                conf.Token,
 		"gitlabBranch":         ci.GetCurrentBranch(),
@@ -79,12 +79,12 @@ func cliHandler(c *cli.Context) error {
 		"slug":                 conf.Slug,
 	})
 
-	logger.Printf("releasing on: %s\n", repo.Provider())
+	logger.Printf("releasing on: %s\n", prov.Name())
 
 	exitIfError(err)
 
 	logger.Println("getting default branch...")
-	repoInfo, err := repo.GetInfo()
+	repoInfo, err := prov.GetInfo()
 	exitIfError(err)
 	logger.Println("found default branch: " + repoInfo.DefaultBranch)
 	if repoInfo.Private {
@@ -126,7 +126,7 @@ func cliHandler(c *cli.Context) error {
 		logger.Printf("getting latest release matching %s...", match)
 		matchRegex = "^" + match
 	}
-	releases, err := repo.GetReleases(matchRegex)
+	releases, err := prov.GetReleases(matchRegex)
 	exitIfError(err)
 	release, err := semrel.GetLatestReleaseFromReleases(releases, conf.BetaRelease.MaintainedVersion)
 	exitIfError(err)
@@ -137,7 +137,7 @@ func cliHandler(c *cli.Context) error {
 	}
 
 	logger.Println("getting commits...")
-	rawCommits, err := repo.GetCommits(currentSha)
+	rawCommits, err := prov.GetCommits(currentSha)
 	exitIfError(err)
 
 	commitAnalyzer, err := pluginManager.GetCommitAnalyzer()
@@ -173,14 +173,14 @@ func cliHandler(c *cli.Context) error {
 	}
 
 	logger.Println("creating release...")
-	newRelease := &provider.RepositoryRelease{
+	newRelease := &provider.CreateReleaseConfig{
 		Changelog:  changelogRes,
 		NewVersion: newVer,
 		Prerelease: conf.Prerelease,
 		Branch:     currentBranch,
 		SHA:        currentSha,
 	}
-	exitIfError(repo.CreateRelease(newRelease))
+	exitIfError(prov.CreateRelease(newRelease))
 
 	if conf.Ghr {
 		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repoInfo.Owner, repoInfo.Repo, newVer)), 0644))

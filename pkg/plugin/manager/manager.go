@@ -42,7 +42,7 @@ func (m *PluginManager) GetCICondition() (condition.CICondition, error) {
 	return cic, nil
 }
 
-func (m *PluginManager) GetProvider() (provider.Repository, error) {
+func (m *PluginManager) GetProvider() (provider.Provider, error) {
 	if m.config.GitLab {
 		return &gitlab.GitLabRepository{}, nil
 	}

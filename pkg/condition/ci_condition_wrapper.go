@@ -12,8 +12,8 @@ type CIConditionServer struct {
 	UnimplementedCIConditionPluginServer
 }
 
-func (c *CIConditionServer) Name(ctx context.Context, request *Name_Request) (*Name_Response, error) {
-	return &Name_Response{Value: c.Impl.Name()}, nil
+func (c *CIConditionServer) Name(ctx context.Context, request *CIName_Request) (*CIName_Response, error) {
+	return &CIName_Response{Value: c.Impl.Name()}, nil
 }
 
 func (c *CIConditionServer) RunCondition(ctx context.Context, request *RunCondition_Request) (*RunCondition_Response, error) {
@@ -38,7 +38,7 @@ type CIConditionClient struct {
 }
 
 func (c *CIConditionClient) Name() string {
-	name, err := c.Impl.Name(context.Background(), &Name_Request{})
+	name, err := c.Impl.Name(context.Background(), &CIName_Request{})
 	if err != nil {
 		panic(err)
 	}

@@ -1,14 +1,15 @@
-package generator
+package plugin
 
 import (
 	"strings"
 	"testing"
 
+	"github.com/go-semantic-release/semantic-release/pkg/generator"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 )
 
 func TestDefaultGenerator(t *testing.T) {
-	changelogConfig := &ChangelogGeneratorConfig{}
+	changelogConfig := &generator.ChangelogGeneratorConfig{}
 	changelogConfig.Commits = []*semrel.Commit{
 		{},
 		{SHA: "123456789", Type: "feat", Scope: "app", Message: "commit message"},

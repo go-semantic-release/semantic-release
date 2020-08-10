@@ -140,7 +140,7 @@ func (repo *GitLabRepository) GetReleases(rawRe string) ([]*semrel.Release, erro
 	return allReleases, nil
 }
 
-func (repo *GitLabRepository) CreateRelease(release *provider.RepositoryRelease) error {
+func (repo *GitLabRepository) CreateRelease(release *provider.CreateReleaseConfig) error {
 	tag := fmt.Sprintf("v%s", release.NewVersion)
 
 	// Gitlab does not have any notion of pre-releases
@@ -154,6 +154,6 @@ func (repo *GitLabRepository) CreateRelease(release *provider.RepositoryRelease)
 	return err
 }
 
-func (repo *GitLabRepository) Provider() string {
+func (repo *GitLabRepository) Name() string {
 	return "GitLab"
 }

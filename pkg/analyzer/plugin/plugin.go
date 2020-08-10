@@ -9,7 +9,7 @@ import (
 func Main(c *cli.Context) error {
 	plugin.Serve(&plugin.ServeOpts{
 		CommitAnalyzer: func() analyzer.CommitAnalyzer {
-			return &analyzer.DefaultCommitAnalyzer{}
+			return &DefaultCommitAnalyzer{}
 		},
 	})
 	return nil
