@@ -10,6 +10,6 @@ import (
 func TestGitlabValid(t *testing.T) {
 	gl := GitLab{}
 	os.Setenv("CI_COMMIT_BRANCH", "")
-	err := gl.RunCondition(map[string]interface{}{"defaultBranch": ""})
+	err := gl.RunCondition(map[string]string{"defaultBranch": ""})
 	assert.EqualError(t, err, "This test run is not running on a branch build.")
 }

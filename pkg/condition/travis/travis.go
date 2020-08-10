@@ -28,10 +28,10 @@ func (ci *TravisCI) GetCurrentSHA() string {
 	return os.Getenv("TRAVIS_COMMIT")
 }
 
-func (ci *TravisCI) RunCondition(config map[string]interface{}) error {
-	token := config["token"].(string)
-	defaultBranch := config["defaultBranch"].(string)
-	private := config["private"].(bool)
+func (ci *TravisCI) RunCondition(config map[string]string) error {
+	token := config["token"]
+	defaultBranch := config["defaultBranch"]
+	private := config["private"] == "true"
 	logger := log.New(os.Stderr, "[condition-travis]: ", 0)
 	if os.Getenv("TRAVIS") != "true" {
 		return errors.New("semantic-release didn’t run on Travis CI and therefore a new version won’t be published.")

@@ -24,8 +24,8 @@ func (gl *GitLab) IsBranchRef() bool {
 	return gl.GetCurrentBranch() != ""
 }
 
-func (gl *GitLab) RunCondition(config map[string]interface{}) error {
-	defaultBranch := config["defaultBranch"].(string)
+func (gl *GitLab) RunCondition(config map[string]string) error {
+	defaultBranch := config["defaultBranch"]
 	if !gl.IsBranchRef() {
 		return fmt.Errorf("This test run is not running on a branch build.")
 	}

@@ -10,6 +10,6 @@ import (
 func TestGithubValid(t *testing.T) {
 	gha := GitHubActions{}
 	os.Setenv("GITHUB_REF", "")
-	err := gha.RunCondition(map[string]interface{}{"defaultBranch": ""})
+	err := gha.RunCondition(map[string]string{"defaultBranch": ""})
 	assert.EqualError(t, err, "This test run is not running on a branch build.")
 }

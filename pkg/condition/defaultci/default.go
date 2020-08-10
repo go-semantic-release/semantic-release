@@ -20,7 +20,7 @@ func (d DefaultCI) Name() string {
 	return "none"
 }
 
-func (d DefaultCI) RunCondition(map[string]interface{}) error {
+func (d DefaultCI) RunCondition(map[string]string) error {
 	return nil
 }
 
