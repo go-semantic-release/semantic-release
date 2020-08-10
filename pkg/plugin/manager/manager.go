@@ -5,10 +5,6 @@ import (
 
 	"github.com/go-semantic-release/semantic-release/pkg/analyzer"
 	"github.com/go-semantic-release/semantic-release/pkg/condition"
-	"github.com/go-semantic-release/semantic-release/pkg/condition/defaultci"
-	githubCI "github.com/go-semantic-release/semantic-release/pkg/condition/github"
-	gitlabCI "github.com/go-semantic-release/semantic-release/pkg/condition/gitlab"
-	"github.com/go-semantic-release/semantic-release/pkg/condition/travis"
 	"github.com/go-semantic-release/semantic-release/pkg/config"
 	"github.com/go-semantic-release/semantic-release/pkg/generator"
 	"github.com/go-semantic-release/semantic-release/pkg/plugin"
@@ -29,16 +25,21 @@ func New(config *config.Config) (*PluginManager, error) {
 }
 
 func (m *PluginManager) GetCICondition() (condition.CICondition, error) {
+	ciType := "default"
 	if os.Getenv("GITHUB_ACTIONS") == "true" {
-		return &githubCI.GitHubActions{}, nil
+		ciType = "github"
 	}
 	if os.Getenv("TRAVIS") == "true" {
-		return &travis.TravisCI{}, nil
+		ciType = "travis"
 	}
 	if os.Getenv("GITLAB_CI") == "true" {
-		return &gitlabCI.GitLab{}, nil
+		ciType = "gitlab"
 	}
-	return &defaultci.DefaultCI{}, nil
+	cic, err := plugin.StartCIConditionPlugin(buildin.GetPluginOpts(condition.CIConditionPluginName, ciType))
+	if err != nil {
+		return nil, err
+	}
+	return cic, nil
 }
 
 func (m *PluginManager) GetProvider() (provider.Repository, error) {

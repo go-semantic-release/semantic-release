@@ -6,7 +6,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func DefaultMain(c *cli.Context) error {
+func Main(c *cli.Context) error {
 	plugin.Serve(&plugin.ServeOpts{
 		CommitAnalyzer: func() analyzer.CommitAnalyzer {
 			return &analyzer.DefaultCommitAnalyzer{}
