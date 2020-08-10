@@ -5,6 +5,10 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+
+	"github.com/go-semantic-release/semantic-release/pkg/plugin"
+	"github.com/go-semantic-release/semantic-release/pkg/updater"
+	"github.com/urfave/cli/v2"
 )
 
 const npmrc = "//registry.npmjs.org/:_authToken=${NPM_TOKEN}\n"
@@ -64,4 +68,13 @@ func (u *Updater) Apply(file, newVersion string) error {
 	}
 
 	return err
+}
+
+func Main(c *cli.Context) error {
+	plugin.Serve(&plugin.ServeOpts{
+		FilesUpdater: func() updater.FilesUpdater {
+			return &Updater{}
+		},
+	})
+	return nil
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/pkg/generator"
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
+	"github.com/go-semantic-release/semantic-release/pkg/updater"
 	"github.com/hashicorp/go-plugin"
 )
 
@@ -17,12 +18,14 @@ type CommitAnalyzerFunc func() analyzer.CommitAnalyzer
 type CIConditionFunc func() condition.CICondition
 type ChangelogGeneratorFunc func() generator.ChangelogGenerator
 type ProviderFunc func() provider.Provider
+type FilesUpdaterFunc func() updater.FilesUpdater
 
 type ServeOpts struct {
 	CommitAnalyzer     CommitAnalyzerFunc
 	CICondition        CIConditionFunc
 	ChangelogGenerator ChangelogGeneratorFunc
 	Provider           ProviderFunc
+	FilesUpdater       FilesUpdaterFunc
 }
 
 func Serve(opts *ServeOpts) {
@@ -53,6 +56,13 @@ func Serve(opts *ServeOpts) {
 		pluginSet[provider.PluginName] = &GRPCWrapper{
 			Type: provider.PluginName,
 			Impl: opts.Provider(),
+		}
+	}
+
+	if opts.FilesUpdater != nil {
+		pluginSet[updater.FilesUpdaterPluginName] = &GRPCWrapper{
+			Type: updater.FilesUpdaterPluginName,
+			Impl: opts.FilesUpdater(),
 		}
 	}
 

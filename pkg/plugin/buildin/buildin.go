@@ -18,6 +18,8 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/pkg/provider/github"
 	"github.com/go-semantic-release/semantic-release/pkg/provider/gitlab"
+	"github.com/go-semantic-release/semantic-release/pkg/updater"
+	"github.com/go-semantic-release/semantic-release/pkg/updater/npm"
 	"github.com/urfave/cli/v2"
 )
 
@@ -68,6 +70,12 @@ func GetPluginCommands() []*cli.Command {
 		{
 			Name:     provider.PluginName + "_gitlab",
 			Action:   gitlab.Main,
+			Hidden:   true,
+			HideHelp: true,
+		},
+		{
+			Name:     updater.FilesUpdaterPluginName + "_npm",
+			Action:   npm.Main,
 			Hidden:   true,
 			HideHelp: true,
 		},

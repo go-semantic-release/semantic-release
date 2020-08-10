@@ -1,0 +1,24 @@
+syntax = "proto3";
+option go_package = "github.com/go-semantic-release/semantic-release/pkg/updater";
+
+message FilesUpdaterForFiles {
+  message Request {}
+  message Response {
+    string Files = 1;
+  }
+}
+
+message FilesUpdaterApply {
+  message Request {
+    string File = 1;
+    string NewVersion = 2;
+  }
+  message Response {
+    string Error = 1;
+  }
+}
+
+service FilesUpdaterPlugin {
+  rpc ForFiles(FilesUpdaterForFiles.Request) returns (FilesUpdaterForFiles.Response);
+  rpc Apply(FilesUpdaterApply.Request) returns (FilesUpdaterApply.Response);
+}
