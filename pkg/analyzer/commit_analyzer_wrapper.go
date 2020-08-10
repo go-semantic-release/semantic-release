@@ -13,8 +13,8 @@ type CommitAnalyzerServer struct {
 	UnimplementedCommitAnalyzerPluginServer
 }
 
-func (c *CommitAnalyzerServer) Analyze(ctx context.Context, in *CommitAnalyzerRequest) (*CommitAnalyzerResponse, error) {
-	return &CommitAnalyzerResponse{
+func (c *CommitAnalyzerServer) Analyze(ctx context.Context, in *AnalyzeCommits_Request) (*AnalyzeCommits_Response, error) {
+	return &AnalyzeCommits_Response{
 		Commits: c.Impl.Analyze(in.RawCommits),
 	}, nil
 }
@@ -24,7 +24,7 @@ type CommitAnalyzerClient struct {
 }
 
 func (c *CommitAnalyzerClient) Analyze(commits []*semrel.RawCommit) []*semrel.Commit {
-	res, err := c.Impl.Analyze(context.Background(), &CommitAnalyzerRequest{RawCommits: commits})
+	res, err := c.Impl.Analyze(context.Background(), &AnalyzeCommits_Request{RawCommits: commits})
 	if err != nil {
 		panic(err)
 	}
