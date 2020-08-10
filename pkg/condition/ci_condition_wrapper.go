@@ -50,10 +50,10 @@ func (c *CIConditionClient) RunCondition(m map[string]string) error {
 	if err != nil {
 		return err
 	}
-	if res.Error == "" {
-		return nil
+	if res.Error != "" {
+		return errors.New(res.Error)
 	}
-	return errors.New(res.Error)
+	return nil
 }
 
 func (c *CIConditionClient) GetCurrentBranch() string {

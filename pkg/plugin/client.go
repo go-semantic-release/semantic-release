@@ -7,6 +7,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/analyzer"
 	"github.com/go-semantic-release/semantic-release/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/pkg/generator"
+	"github.com/go-semantic-release/semantic-release/pkg/provider"
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 )
@@ -80,4 +81,12 @@ func StartChangelogGeneratorPlugin(opts *PluginOpts) (generator.ChangelogGenerat
 		return nil, err
 	}
 	return raw.(generator.ChangelogGenerator), nil
+}
+
+func StartProviderPlugin(opts *PluginOpts) (provider.Provider, error) {
+	raw, err := startPlugin(opts)
+	if err != nil {
+		return nil, err
+	}
+	return raw.(provider.Provider), nil
 }
