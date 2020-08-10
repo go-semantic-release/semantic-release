@@ -4,6 +4,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/analyzer"
 	"github.com/go-semantic-release/semantic-release/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/pkg/generator"
+	"github.com/go-semantic-release/semantic-release/pkg/provider"
 	"github.com/hashicorp/go-plugin"
 )
 
@@ -15,11 +16,13 @@ var Handshake = plugin.HandshakeConfig{
 type CommitAnalyzerFunc func() analyzer.CommitAnalyzer
 type CIConditionFunc func() condition.CICondition
 type ChangelogGeneratorFunc func() generator.ChangelogGenerator
+type ProviderFunc func() provider.Provider
 
 type ServeOpts struct {
 	CommitAnalyzer     CommitAnalyzerFunc
 	CICondition        CIConditionFunc
 	ChangelogGenerator ChangelogGeneratorFunc
+	Provider           ProviderFunc
 }
 
 func Serve(opts *ServeOpts) {
@@ -43,6 +46,13 @@ func Serve(opts *ServeOpts) {
 		pluginSet[generator.ChangelogGeneratorPluginName] = &GRPCWrapper{
 			Type: generator.ChangelogGeneratorPluginName,
 			Impl: opts.ChangelogGenerator(),
+		}
+	}
+
+	if opts.Provider != nil {
+		pluginSet[provider.PluginName] = &GRPCWrapper{
+			Type: provider.PluginName,
+			Impl: opts.Provider(),
 		}
 	}
 

@@ -5,8 +5,10 @@ import (
 	"regexp"
 
 	"github.com/Masterminds/semver"
+	"github.com/go-semantic-release/semantic-release/pkg/plugin"
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
+	"github.com/urfave/cli/v2"
 	"github.com/xanzy/go-gitlab"
 )
 
@@ -156,4 +158,13 @@ func (repo *GitLabRepository) CreateRelease(release *provider.CreateReleaseConfi
 
 func (repo *GitLabRepository) Name() string {
 	return "GitLab"
+}
+
+func Main(c *cli.Context) error {
+	plugin.Serve(&plugin.ServeOpts{
+		Provider: func() provider.Provider {
+			return &GitLabRepository{}
+		},
+	})
+	return nil
 }

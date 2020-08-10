@@ -4,11 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"github.com/go-semantic-release/semantic-release/pkg/generator"
-
-	"github.com/go-semantic-release/semantic-release/pkg/condition"
-
 	"github.com/go-semantic-release/semantic-release/pkg/analyzer"
+	"github.com/go-semantic-release/semantic-release/pkg/condition"
+	"github.com/go-semantic-release/semantic-release/pkg/generator"
+	"github.com/go-semantic-release/semantic-release/pkg/provider"
 	"github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
 )
@@ -33,6 +32,10 @@ func (p *GRPCWrapper) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) erro
 		generator.RegisterChangelogGeneratorPluginServer(s, &generator.ChangelogGeneratorServer{
 			Impl: p.Impl.(generator.ChangelogGenerator),
 		})
+	case provider.PluginName:
+		provider.RegisterProviderPluginServer(s, &provider.Server{
+			Impl: p.Impl.(provider.Provider),
+		})
 	}
 	return nil
 }
@@ -50,6 +53,10 @@ func (p *GRPCWrapper) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker,
 	case generator.ChangelogGeneratorPluginName:
 		return &generator.ChangelogGeneratorClient{
 			Impl: generator.NewChangelogGeneratorPluginClient(c),
+		}, nil
+	case provider.PluginName:
+		return &provider.Client{
+			Impl: provider.NewProviderPluginClient(c),
 		}, nil
 	}
 	return nil, errors.New("unknown plugin type")

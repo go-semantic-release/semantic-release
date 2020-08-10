@@ -15,6 +15,9 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/generator"
 	cgPlugin "github.com/go-semantic-release/semantic-release/pkg/generator/plugin"
 	"github.com/go-semantic-release/semantic-release/pkg/plugin"
+	"github.com/go-semantic-release/semantic-release/pkg/provider"
+	"github.com/go-semantic-release/semantic-release/pkg/provider/github"
+	"github.com/go-semantic-release/semantic-release/pkg/provider/gitlab"
 	"github.com/urfave/cli/v2"
 )
 
@@ -53,6 +56,18 @@ func GetPluginCommands() []*cli.Command {
 		{
 			Name:     generator.ChangelogGeneratorPluginName,
 			Action:   cgPlugin.Main,
+			Hidden:   true,
+			HideHelp: true,
+		},
+		{
+			Name:     provider.PluginName + "_github",
+			Action:   github.Main,
+			Hidden:   true,
+			HideHelp: true,
+		},
+		{
+			Name:     provider.PluginName + "_gitlab",
+			Action:   gitlab.Main,
 			Hidden:   true,
 			HideHelp: true,
 		},

@@ -10,8 +10,6 @@ import (
 	"github.com/go-semantic-release/semantic-release/pkg/plugin"
 	"github.com/go-semantic-release/semantic-release/pkg/plugin/buildin"
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
-	"github.com/go-semantic-release/semantic-release/pkg/provider/github"
-	"github.com/go-semantic-release/semantic-release/pkg/provider/gitlab"
 	"github.com/go-semantic-release/semantic-release/pkg/updater"
 	"github.com/go-semantic-release/semantic-release/pkg/updater/npm"
 )
@@ -43,10 +41,16 @@ func (m *PluginManager) GetCICondition() (condition.CICondition, error) {
 }
 
 func (m *PluginManager) GetProvider() (provider.Provider, error) {
+	providerType := "github"
 	if m.config.GitLab {
-		return &gitlab.GitLabRepository{}, nil
+		providerType = "gitlab"
 	}
-	return &github.GitHubRepository{}, nil
+
+	provider, err := plugin.StartProviderPlugin(buildin.GetPluginOpts(provider.PluginName, providerType))
+	if err != nil {
+		return nil, err
+	}
+	return provider, nil
 }
 
 func (m *PluginManager) GetCommitAnalyzer() (analyzer.CommitAnalyzer, error) {

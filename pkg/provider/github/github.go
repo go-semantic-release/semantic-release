@@ -8,9 +8,11 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver"
+	"github.com/go-semantic-release/semantic-release/pkg/plugin"
 	"github.com/go-semantic-release/semantic-release/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 	"github.com/google/go-github/v30/github"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/oauth2"
 )
 
@@ -140,4 +142,13 @@ func (repo *GitHubRepository) CreateRelease(release *provider.CreateReleaseConfi
 
 func (repo *GitHubRepository) Name() string {
 	return "GitHub"
+}
+
+func Main(c *cli.Context) error {
+	plugin.Serve(&plugin.ServeOpts{
+		Provider: func() provider.Provider {
+			return &GitHubRepository{}
+		},
+	})
+	return nil
 }
