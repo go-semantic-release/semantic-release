@@ -12,6 +12,8 @@ import (
 	githubCI "github.com/go-semantic-release/semantic-release/pkg/condition/github"
 	gitlabCI "github.com/go-semantic-release/semantic-release/pkg/condition/gitlab"
 	"github.com/go-semantic-release/semantic-release/pkg/condition/travis"
+	"github.com/go-semantic-release/semantic-release/pkg/generator"
+	cgPlugin "github.com/go-semantic-release/semantic-release/pkg/generator/plugin"
 	"github.com/go-semantic-release/semantic-release/pkg/plugin"
 	"github.com/urfave/cli/v2"
 )
@@ -45,6 +47,12 @@ func GetPluginCommands() []*cli.Command {
 		{
 			Name:     condition.CIConditionPluginName + "_travis",
 			Action:   travis.Main,
+			Hidden:   true,
+			HideHelp: true,
+		},
+		{
+			Name:     generator.ChangelogGeneratorPluginName,
+			Action:   cgPlugin.Main,
 			Hidden:   true,
 			HideHelp: true,
 		},
