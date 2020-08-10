@@ -1,4 +1,4 @@
-package generator
+package plugin
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-semantic-release/semantic-release/pkg/generator"
 	"github.com/go-semantic-release/semantic-release/pkg/semrel"
 )
 
@@ -51,7 +52,7 @@ func getSortedKeys(m *map[string]string) []string {
 	return keys
 }
 
-func (*DefaultChangelogGenerator) Generate(changelogConfig *ChangelogGeneratorConfig) string {
+func (*DefaultChangelogGenerator) Generate(changelogConfig *generator.ChangelogGeneratorConfig) string {
 	ret := fmt.Sprintf("## %s (%s)\n\n", changelogConfig.NewVersion, time.Now().UTC().Format("2006-01-02"))
 	typeScopeMap := make(map[string]string)
 	for _, commit := range changelogConfig.Commits {

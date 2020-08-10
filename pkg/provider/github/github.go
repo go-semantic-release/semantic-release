@@ -111,7 +111,7 @@ func (repo *GitHubRepository) GetReleases(rawRe string) ([]*semrel.Release, erro
 	return allReleases, nil
 }
 
-func (repo *GitHubRepository) CreateRelease(release *provider.RepositoryRelease) error {
+func (repo *GitHubRepository) CreateRelease(release *provider.CreateReleaseConfig) error {
 	tag := fmt.Sprintf("v%s", release.NewVersion)
 	isPrerelease := release.Prerelease || semver.MustParse(release.NewVersion).Prerelease() != ""
 
@@ -138,6 +138,6 @@ func (repo *GitHubRepository) CreateRelease(release *provider.RepositoryRelease)
 	return err
 }
 
-func (repo *GitHubRepository) Provider() string {
+func (repo *GitHubRepository) Name() string {
 	return "GitHub"
 }
