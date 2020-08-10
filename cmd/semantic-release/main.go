@@ -111,10 +111,10 @@ func cliHandler(c *cli.Context) error {
 
 	if !conf.Noci {
 		logger.Println("running CI condition...")
-		config := map[string]interface{}{
+		config := map[string]string{
 			"token":         conf.Token,
 			"defaultBranch": repoInfo.DefaultBranch,
-			"private":       repoInfo.Private || conf.TravisCom,
+			"private":       fmt.Sprintf("%t", repoInfo.Private || conf.TravisCom),
 		}
 		exitIfError(ci.RunCondition(config), 66)
 	}
