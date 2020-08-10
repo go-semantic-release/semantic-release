@@ -19,6 +19,8 @@ var runningClientsMx sync.Mutex
 var runningClients = make([]*plugin.Client, 0)
 
 func KillAllPlugins() {
+	runningClientsMx.Lock()
+	defer runningClientsMx.Unlock()
 	for _, c := range runningClients {
 		c.Kill()
 	}
