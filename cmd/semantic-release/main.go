@@ -58,8 +58,10 @@ func main() {
 
 func cliHandler(c *cli.Context) error {
 
-	logger := log.New(os.Stderr, "[semantic-release]: ", 0)
+	logger := log.New(os.Stderr, "[go-semantic-release]: ", 0)
 	exitIfError := errorHandler(logger)
+
+	logger.Printf("version: %s\n", SRVERSION)
 
 	conf, err := config.NewConfig(c)
 	exitIfError(err)
