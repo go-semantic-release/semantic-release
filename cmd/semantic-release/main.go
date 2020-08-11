@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/config"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/buildin"

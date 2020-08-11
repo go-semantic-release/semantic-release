@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/semrel"
-	"github.com/google/go-github/v30/github"
+	"github.com/google/go-github/v32/github"
 	"github.com/stretchr/testify/require"
 )
 
@@ -94,7 +94,7 @@ func githubHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(GITHUB_COMMITS)
 		return
 	}
-	if r.Method == "GET" && r.URL.Path == "/repos/owner/test-repo/git/refs/tags" {
+	if r.Method == "GET" && r.URL.Path == "/repos/owner/test-repo/git/matching-refs/tags" {
 		json.NewEncoder(w).Encode(GITHUB_TAGS)
 		return
 	}
