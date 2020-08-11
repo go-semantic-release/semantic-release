@@ -21,10 +21,15 @@ import (
 // SRVERSION is the semantic-release version (added at compile time)
 var SRVERSION string
 
+var exitHandler func()
+
 func errorHandler(logger *log.Logger) func(error, ...int) {
 	return func(err error, exitCode ...int) {
 		if err != nil {
 			logger.Println(err)
+			if exitHandler != nil {
+				exitHandler()
+			}
 			if len(exitCode) == 1 {
 				os.Exit(exitCode[0])
 				return
@@ -61,7 +66,9 @@ func cliHandler(c *cli.Context) error {
 
 	pluginManager, err := manager.New(conf)
 	exitIfError(err)
-	defer pluginManager.Stop()
+	exitHandler = func() {
+		pluginManager.Stop()
+	}
 
 	ci, err := pluginManager.GetCICondition()
 	exitIfError(err)
