@@ -41,8 +41,9 @@ func (p *GRPCWrapper) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) erro
 		updater.RegisterFilesUpdaterPluginServer(s, &updater.FilesUpdaterServer{
 			Impl: p.Impl.(updater.FilesUpdater),
 		})
+	default:
+		return errors.New("unknown plugin type")
 	}
-
 	return nil
 }
 
