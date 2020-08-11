@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/go-semantic-release/semantic-release/pkg/semrel"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/semrel"
 	"github.com/stretchr/testify/require"
 )
 

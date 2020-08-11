@@ -9,12 +9,12 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver"
-	"github.com/go-semantic-release/semantic-release/pkg/config"
-	"github.com/go-semantic-release/semantic-release/pkg/generator"
-	"github.com/go-semantic-release/semantic-release/pkg/plugin/buildin"
-	"github.com/go-semantic-release/semantic-release/pkg/plugin/manager"
-	"github.com/go-semantic-release/semantic-release/pkg/provider"
-	"github.com/go-semantic-release/semantic-release/pkg/semrel"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/config"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/buildin"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/manager"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/semrel"
 	"github.com/urfave/cli/v2"
 )
 

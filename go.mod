@@ -1,4 +1,4 @@
-module github.com/go-semantic-release/semantic-release
+module github.com/go-semantic-release/semantic-release/v2
 
 go 1.14
 

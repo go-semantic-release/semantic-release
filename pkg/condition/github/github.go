@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/go-semantic-release/semantic-release/pkg/condition"
-	"github.com/go-semantic-release/semantic-release/pkg/plugin"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/condition"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
 	"github.com/urfave/cli/v2"
 )
 

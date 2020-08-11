@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/go-semantic-release/semantic-release/pkg/provider"
-	"github.com/go-semantic-release/semantic-release/pkg/semrel"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/semrel"
 	"github.com/google/go-github/v30/github"
 	"github.com/stretchr/testify/require"
 )

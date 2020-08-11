@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/go-semantic-release/semantic-release/pkg/semrel"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/semrel"
 )
 
 const PluginName = "provider"

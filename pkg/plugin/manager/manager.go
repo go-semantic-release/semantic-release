@@ -3,14 +3,14 @@ package manager
 import (
 	"os"
 
-	"github.com/go-semantic-release/semantic-release/pkg/analyzer"
-	"github.com/go-semantic-release/semantic-release/pkg/condition"
-	"github.com/go-semantic-release/semantic-release/pkg/config"
-	"github.com/go-semantic-release/semantic-release/pkg/generator"
-	"github.com/go-semantic-release/semantic-release/pkg/plugin"
-	"github.com/go-semantic-release/semantic-release/pkg/plugin/buildin"
-	"github.com/go-semantic-release/semantic-release/pkg/provider"
-	"github.com/go-semantic-release/semantic-release/pkg/updater"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/analyzer"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/condition"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/config"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/buildin"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/updater"
 )
 
 type PluginManager struct {

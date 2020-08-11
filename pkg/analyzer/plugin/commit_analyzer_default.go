@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/go-semantic-release/semantic-release/pkg/semrel"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/semrel"
 )
 
 var commitPattern = regexp.MustCompile(`^(\w*)(?:\((.*)\))?\: (.*)$`)

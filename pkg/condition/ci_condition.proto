@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/go-semantic-release/semantic-release/pkg/condition";
+option go_package = "github.com/go-semantic-release/semantic-release/v2/pkg/condition";
 
 message CIName {
   message Request {}

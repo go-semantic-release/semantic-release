@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-semantic-release/semantic-release/pkg/generator"
-	"github.com/go-semantic-release/semantic-release/pkg/semrel"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/semrel"
 )
 
 type DefaultChangelogGenerator struct{}

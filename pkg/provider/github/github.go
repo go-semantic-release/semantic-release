@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver"
-	"github.com/go-semantic-release/semantic-release/pkg/plugin"
-	"github.com/go-semantic-release/semantic-release/pkg/provider"
-	"github.com/go-semantic-release/semantic-release/pkg/semrel"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/semrel"
 	"github.com/google/go-github/v30/github"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/oauth2"

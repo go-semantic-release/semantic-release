@@ -6,8 +6,8 @@ import (
 	"os"
 	"path"
 
-	"github.com/go-semantic-release/semantic-release/pkg/plugin"
-	"github.com/go-semantic-release/semantic-release/pkg/updater"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/updater"
 	"github.com/urfave/cli/v2"
 )
 

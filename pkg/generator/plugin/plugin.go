@@ -1,8 +1,8 @@
 package plugin
 
 import (
-	"github.com/go-semantic-release/semantic-release/pkg/generator"
-	"github.com/go-semantic-release/semantic-release/pkg/plugin"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
 	"github.com/urfave/cli/v2"
 )
 
