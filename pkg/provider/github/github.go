@@ -52,7 +52,7 @@ func (repo *GitHubRepository) GetInfo() (*provider.RepositoryInfo, error) {
 		return nil, err
 	}
 	return &provider.RepositoryInfo{
-		Owner:         r.GetOwner().GetName(),
+		Owner:         r.GetOwner().GetLogin(),
 		Repo:          r.GetName(),
 		DefaultBranch: r.GetDefaultBranch(),
 		Private:       r.GetPrivate(),

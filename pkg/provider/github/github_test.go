@@ -54,12 +54,12 @@ var (
 	GITHUB_REPO_PRIVATE  = true
 	GITHUB_DEFAULTBRANCH = "master"
 	GITHUB_REPO_NAME     = "test-repo"
-	GITHUB_OWNER_NAME    = "owner"
+	GITHUB_OWNER_LOGIN   = "owner"
 	GITHUB_REPO          = github.Repository{
 		DefaultBranch: &GITHUB_DEFAULTBRANCH,
 		Private:       &GITHUB_REPO_PRIVATE,
 		Owner: &github.User{
-			Name: &GITHUB_OWNER_NAME,
+			Login: &GITHUB_OWNER_LOGIN,
 		},
 		Name: &GITHUB_REPO_NAME,
 	}
@@ -141,7 +141,7 @@ func TestGithubGetInfo(t *testing.T) {
 	repoInfo, err := repo.GetInfo()
 	require.NoError(t, err)
 	require.Equal(t, GITHUB_DEFAULTBRANCH, repoInfo.DefaultBranch)
-	require.Equal(t, GITHUB_OWNER_NAME, repoInfo.Owner)
+	require.Equal(t, GITHUB_OWNER_LOGIN, repoInfo.Owner)
 	require.Equal(t, GITHUB_REPO_NAME, repoInfo.Repo)
 	require.True(t, repoInfo.Private)
 }
