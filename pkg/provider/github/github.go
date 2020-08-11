@@ -7,11 +7,11 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/semrel"
-	"github.com/google/go-github/v30/github"
+	"github.com/google/go-github/v32/github"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/oauth2"
 )
@@ -81,9 +81,9 @@ func (repo *GitHubRepository) GetCommits(sha string) ([]*semrel.RawCommit, error
 func (repo *GitHubRepository) GetReleases(rawRe string) ([]*semrel.Release, error) {
 	re := regexp.MustCompile(rawRe)
 	allReleases := make([]*semrel.Release, 0)
-	opts := &github.ReferenceListOptions{Type: "tags", ListOptions: github.ListOptions{PerPage: 100}}
+	opts := &github.ReferenceListOptions{Ref: "tags", ListOptions: github.ListOptions{PerPage: 100}}
 	for {
-		refs, resp, err := repo.client.Git.ListRefs(context.Background(), repo.owner, repo.repo, opts)
+		refs, resp, err := repo.client.Git.ListMatchingRefs(context.Background(), repo.owner, repo.repo, opts)
 		if resp != nil && resp.StatusCode == 404 {
 			return allReleases, nil
 		}
