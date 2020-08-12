@@ -1,6 +1,5 @@
 # :package::rocket: semantic-release
 [![CI](https://github.com/go-semantic-release/semantic-release/workflows/CI/badge.svg?branch=master)](https://github.com/go-semantic-release/semantic-release/actions?query=workflow%3ACI+branch%3Amaster)
-[![Build Status](https://travis-ci.org/go-semantic-release/semantic-release.svg?branch=master)](https://travis-ci.org/go-semantic-release/semantic-release)
 [![pipeline status](https://gitlab.com/go-semantic-release/semantic-release/badges/master/pipeline.svg)](https://gitlab.com/go-semantic-release/semantic-release/pipelines)
 [![Go Report Card](https://goreportcard.com/badge/github.com/go-semantic-release/semantic-release)](https://goreportcard.com/report/github.com/go-semantic-release/semantic-release)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/go-semantic-release/semantic-release/v2)](https://pkg.go.dev/github.com/go-semantic-release/semantic-release/v2)
