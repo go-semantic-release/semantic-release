@@ -11,7 +11,6 @@ require (
 	github.com/golang/protobuf v1.4.2
 	github.com/hashicorp/go-hclog v0.14.1
 	github.com/hashicorp/go-plugin v1.3.0
-	github.com/shuheiktgw/go-travis v0.2.4
 	github.com/stretchr/testify v1.6.1
 	github.com/urfave/cli/v2 v2.2.0
 	google.golang.org/grpc v1.31.0

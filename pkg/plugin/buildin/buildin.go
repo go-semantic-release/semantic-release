@@ -14,7 +14,6 @@ import (
 	"github.com/go-semantic-release/semantic-release/v2/pkg/condition/defaultci"
 	githubCI "github.com/go-semantic-release/semantic-release/v2/pkg/condition/github"
 	gitlabCI "github.com/go-semantic-release/semantic-release/v2/pkg/condition/gitlab"
-	"github.com/go-semantic-release/semantic-release/v2/pkg/condition/travis"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
@@ -53,12 +52,6 @@ func GetPluginCommands() []*cli.Command {
 		{
 			Name:     condition.CIConditionPluginName + "_gitlab",
 			Action:   gitlabCI.Main,
-			Hidden:   true,
-			HideHelp: true,
-		},
-		{
-			Name:     condition.CIConditionPluginName + "_travis",
-			Action:   travis.Main,
 			Hidden:   true,
 			HideHelp: true,
 		},

@@ -26,9 +26,6 @@ func (m *PluginManager) GetCICondition() (condition.CICondition, error) {
 	if os.Getenv("GITHUB_ACTIONS") == "true" {
 		ciType = "github"
 	}
-	if os.Getenv("TRAVIS") == "true" {
-		ciType = "travis"
-	}
 	if os.Getenv("GITLAB_CI") == "true" {
 		ciType = "gitlab"
 	}
