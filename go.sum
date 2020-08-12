@@ -17,8 +17,14 @@ github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/fatih/color v1.7.0 h1:DkWD4oS2D8LGGgTQ6IvwJJXSL5Vp2ffcQg58nFV38Ys=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
+github.com/go-semantic-release/changelog-generator-default v1.0.0 h1:ECzGSl/eiSZUGP1nH+GXobBhjDsL7s7etCrbnvtXQQo=
+github.com/go-semantic-release/changelog-generator-default v1.0.0/go.mod h1:ohiIkjB+y8CdShomyVWnSzbH7o51bujni+hVc27yDEs=
 github.com/go-semantic-release/commit-analyzer-cz v1.0.1 h1:tB3T93NO8cLxtu8FVJp/qRg3B8o+4IgUEbwE9OuzS3s=
 github.com/go-semantic-release/commit-analyzer-cz v1.0.1/go.mod h1:H30LymC5l0bI1tj7wxHD5fvvINcu0vhC6akfhr4yHVQ=
+github.com/go-semantic-release/provider-github v1.0.0 h1:b2823Onruqzi7NdRkPkFRC+BiWn4XNNce1A3VjZo2ZA=
+github.com/go-semantic-release/provider-github v1.0.0/go.mod h1:9vCDagOqx0kXyHOAI93Tdl/9GVeOyCKVHWcIp1RJwNI=
+github.com/go-semantic-release/provider-gitlab v1.0.0 h1:mk7ebwrctkYeuGo8U90X6x8Xb2raCl7/zFadwOO94R0=
+github.com/go-semantic-release/provider-gitlab v1.0.0/go.mod h1:sHrVeyN4d9HVJs1ejwW7P1m7aV74D0oDhk2PP07syBA=
 github.com/go-semantic-release/semantic-release/v2 v2.1.0/go.mod h1:VSiaMm0rYu2A2OOmmgaXFFVHVAyrQQDMlpLQO0lEZ4k=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/mock v1.1.1/go.mod h1:oTYuIxOrZwtPieC+H1uAHpcLFnEyAGVDL/k47Jfbm0A=

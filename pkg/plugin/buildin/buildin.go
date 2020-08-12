@@ -5,19 +5,19 @@ import (
 	"os/exec"
 	"strings"
 
+	defaultGenerator "github.com/go-semantic-release/changelog-generator-default/pkg/generator"
+	defaultAnalyzer "github.com/go-semantic-release/commit-analyzer-cz/pkg/analyzer"
+	providerGithub "github.com/go-semantic-release/provider-github/pkg/provider"
+	providerGitlab "github.com/go-semantic-release/provider-gitlab/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/analyzer"
-	caPlugin "github.com/go-semantic-release/semantic-release/v2/pkg/analyzer/plugin"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/condition/defaultci"
 	githubCI "github.com/go-semantic-release/semantic-release/v2/pkg/condition/github"
 	gitlabCI "github.com/go-semantic-release/semantic-release/v2/pkg/condition/gitlab"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/condition/travis"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
-	cgPlugin "github.com/go-semantic-release/semantic-release/v2/pkg/generator/plugin"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
-	"github.com/go-semantic-release/semantic-release/v2/pkg/provider/github"
-	"github.com/go-semantic-release/semantic-release/v2/pkg/provider/gitlab"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/updater"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/updater/npm"
 	"github.com/urfave/cli/v2"
@@ -26,8 +26,15 @@ import (
 func GetPluginCommands() []*cli.Command {
 	return []*cli.Command{
 		{
-			Name:     analyzer.CommitAnalyzerPluginName,
-			Action:   caPlugin.Main,
+			Name: analyzer.CommitAnalyzerPluginName,
+			Action: func(c *cli.Context) error {
+				plugin.Serve(&plugin.ServeOpts{
+					CommitAnalyzer: func() analyzer.CommitAnalyzer {
+						return &defaultAnalyzer.DefaultCommitAnalyzer{}
+					},
+				})
+				return nil
+			},
 			Hidden:   true,
 			HideHelp: true,
 		},
@@ -56,20 +63,41 @@ func GetPluginCommands() []*cli.Command {
 			HideHelp: true,
 		},
 		{
-			Name:     generator.ChangelogGeneratorPluginName,
-			Action:   cgPlugin.Main,
+			Name: generator.ChangelogGeneratorPluginName,
+			Action: func(c *cli.Context) error {
+				plugin.Serve(&plugin.ServeOpts{
+					ChangelogGenerator: func() generator.ChangelogGenerator {
+						return &defaultGenerator.DefaultChangelogGenerator{}
+					},
+				})
+				return nil
+			},
 			Hidden:   true,
 			HideHelp: true,
 		},
 		{
-			Name:     provider.PluginName + "_github",
-			Action:   github.Main,
+			Name: provider.PluginName + "_github",
+			Action: func(c *cli.Context) error {
+				plugin.Serve(&plugin.ServeOpts{
+					Provider: func() provider.Provider {
+						return &providerGithub.GitHubRepository{}
+					},
+				})
+				return nil
+			},
 			Hidden:   true,
 			HideHelp: true,
 		},
 		{
-			Name:     provider.PluginName + "_gitlab",
-			Action:   gitlab.Main,
+			Name: provider.PluginName + "_gitlab",
+			Action: func(c *cli.Context) error {
+				plugin.Serve(&plugin.ServeOpts{
+					Provider: func() provider.Provider {
+						return &providerGitlab.GitLabRepository{}
+					},
+				})
+				return nil
+			},
 			Hidden:   true,
 			HideHelp: true,
 		},
