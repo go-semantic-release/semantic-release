@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/Masterminds/semver/v3 v3.1.0
+	github.com/go-semantic-release/commit-analyzer-cz v1.0.1
 	github.com/golang/protobuf v1.4.2
 	github.com/google/go-github/v32 v32.1.0
 	github.com/hashicorp/go-hclog v0.14.1
