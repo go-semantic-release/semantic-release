@@ -21,6 +21,14 @@ github.com/go-semantic-release/changelog-generator-default v1.0.0 h1:ECzGSl/eiSZ
 github.com/go-semantic-release/changelog-generator-default v1.0.0/go.mod h1:ohiIkjB+y8CdShomyVWnSzbH7o51bujni+hVc27yDEs=
 github.com/go-semantic-release/commit-analyzer-cz v1.0.1 h1:tB3T93NO8cLxtu8FVJp/qRg3B8o+4IgUEbwE9OuzS3s=
 github.com/go-semantic-release/commit-analyzer-cz v1.0.1/go.mod h1:H30LymC5l0bI1tj7wxHD5fvvINcu0vhC6akfhr4yHVQ=
+github.com/go-semantic-release/condition-default v1.0.0 h1:fqBeH6Vhxye1Ox2qSs4Af1kHUe6gRwkWzd6uDOopJbg=
+github.com/go-semantic-release/condition-default v1.0.0/go.mod h1:FDiP/H4k8flsSZ6y8/BEAXZ7pr/e9Z9sbVBV6XlXGs8=
+github.com/go-semantic-release/condition-github v1.0.1 h1:xE47xFckOjOXzQzsusJVeGtZzKhEQD9CmKVyFJncTfE=
+github.com/go-semantic-release/condition-github v1.0.1/go.mod h1:5LwGLxvGChlLhNmtT+p2SAhDQQ43cUAfO8FZobD0d/o=
+github.com/go-semantic-release/condition-gitlab v1.0.1 h1:dg7YxwV8wvAzaXpBNhRheg8WzWi9tvghTg3irfi1Nd0=
+github.com/go-semantic-release/condition-gitlab v1.0.1/go.mod h1:/5eOZU9YhqTja5VwgX91hzx97Xn3lSVP2RrKJuYUZpU=
+github.com/go-semantic-release/files-updater-npm v1.0.0 h1:rW5St9lC1YfJ8oHB2qvWsufaE6re1XCK1GgbIPrr/k8=
+github.com/go-semantic-release/files-updater-npm v1.0.0/go.mod h1:MWirt5ni103snq5b2raddrrWpuZy8/bF0xHe4Rluq3M=
 github.com/go-semantic-release/provider-github v1.0.0 h1:b2823Onruqzi7NdRkPkFRC+BiWn4XNNce1A3VjZo2ZA=
 github.com/go-semantic-release/provider-github v1.0.0/go.mod h1:9vCDagOqx0kXyHOAI93Tdl/9GVeOyCKVHWcIp1RJwNI=
 github.com/go-semantic-release/provider-gitlab v1.0.0 h1:mk7ebwrctkYeuGo8U90X6x8Xb2raCl7/zFadwOO94R0=
