@@ -7,18 +7,18 @@ import (
 
 	defaultGenerator "github.com/go-semantic-release/changelog-generator-default/pkg/generator"
 	defaultAnalyzer "github.com/go-semantic-release/commit-analyzer-cz/pkg/analyzer"
+	defaultCI "github.com/go-semantic-release/condition-default/pkg/condition"
+	githubCI "github.com/go-semantic-release/condition-github/pkg/condition"
+	gitlabCI "github.com/go-semantic-release/condition-gitlab/pkg/condition"
+	npmUpdater "github.com/go-semantic-release/files-updater-npm/pkg/updater"
 	providerGithub "github.com/go-semantic-release/provider-github/pkg/provider"
 	providerGitlab "github.com/go-semantic-release/provider-gitlab/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/analyzer"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/condition"
-	"github.com/go-semantic-release/semantic-release/v2/pkg/condition/defaultci"
-	githubCI "github.com/go-semantic-release/semantic-release/v2/pkg/condition/github"
-	gitlabCI "github.com/go-semantic-release/semantic-release/v2/pkg/condition/gitlab"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/updater"
-	"github.com/go-semantic-release/semantic-release/v2/pkg/updater/npm"
 	"github.com/urfave/cli/v2"
 )
 
@@ -38,20 +38,41 @@ func GetPluginCommands() []*cli.Command {
 			HideHelp: true,
 		},
 		{
-			Name:     condition.CIConditionPluginName + "_default",
-			Action:   defaultci.Main,
+			Name: condition.CIConditionPluginName + "_default",
+			Action: func(c *cli.Context) error {
+				plugin.Serve(&plugin.ServeOpts{
+					CICondition: func() condition.CICondition {
+						return &defaultCI.DefaultCI{}
+					},
+				})
+				return nil
+			},
 			Hidden:   true,
 			HideHelp: true,
 		},
 		{
-			Name:     condition.CIConditionPluginName + "_github",
-			Action:   githubCI.Main,
+			Name: condition.CIConditionPluginName + "_github",
+			Action: func(c *cli.Context) error {
+				plugin.Serve(&plugin.ServeOpts{
+					CICondition: func() condition.CICondition {
+						return &githubCI.GitHubActions{}
+					},
+				})
+				return nil
+			},
 			Hidden:   true,
 			HideHelp: true,
 		},
 		{
-			Name:     condition.CIConditionPluginName + "_gitlab",
-			Action:   gitlabCI.Main,
+			Name: condition.CIConditionPluginName + "_gitlab",
+			Action: func(c *cli.Context) error {
+				plugin.Serve(&plugin.ServeOpts{
+					CICondition: func() condition.CICondition {
+						return &gitlabCI.GitLab{}
+					},
+				})
+				return nil
+			},
 			Hidden:   true,
 			HideHelp: true,
 		},
@@ -95,8 +116,15 @@ func GetPluginCommands() []*cli.Command {
 			HideHelp: true,
 		},
 		{
-			Name:     updater.FilesUpdaterPluginName + "_npm",
-			Action:   npm.Main,
+			Name: updater.FilesUpdaterPluginName + "_npm",
+			Action: func(c *cli.Context) error {
+				plugin.Serve(&plugin.ServeOpts{
+					FilesUpdater: func() updater.FilesUpdater {
+						return &npmUpdater.Updater{}
+					},
+				})
+				return nil
+			},
 			Hidden:   true,
 			HideHelp: true,
 		},
