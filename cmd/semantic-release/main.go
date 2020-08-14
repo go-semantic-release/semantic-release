@@ -57,7 +57,6 @@ func main() {
 }
 
 func cliHandler(c *cli.Context) error {
-
 	logger := log.New(os.Stderr, "[go-semantic-release]: ", 0)
 	exitIfError := errorHandler(logger)
 
@@ -106,12 +105,12 @@ func cliHandler(c *cli.Context) error {
 	}
 	logger.Println("found current branch: " + currentBranch)
 
-	if conf.BetaRelease.MaintainedVersion != "" && currentBranch == repoInfo.DefaultBranch {
+	if conf.MaintainedVersion != "" && currentBranch == repoInfo.DefaultBranch {
 		exitIfError(fmt.Errorf("maintained version not allowed on default branch"))
 	}
 
-	if conf.BetaRelease.MaintainedVersion != "" {
-		logger.Println("found maintained version: " + conf.BetaRelease.MaintainedVersion)
+	if conf.MaintainedVersion != "" {
+		logger.Println("found maintained version: " + conf.MaintainedVersion)
 		repoInfo.DefaultBranch = "*"
 	}
 
@@ -123,7 +122,7 @@ func cliHandler(c *cli.Context) error {
 		config := map[string]string{
 			"token":         conf.Token,
 			"defaultBranch": repoInfo.DefaultBranch,
-			"private":       fmt.Sprintf("%t", repoInfo.Private || conf.TravisCom),
+			"private":       fmt.Sprintf("%t", repoInfo.Private),
 		}
 		exitIfError(ci.RunCondition(config), 66)
 	}
@@ -137,11 +136,11 @@ func cliHandler(c *cli.Context) error {
 	}
 	releases, err := prov.GetReleases(matchRegex)
 	exitIfError(err)
-	release, err := semrel.GetLatestReleaseFromReleases(releases, conf.BetaRelease.MaintainedVersion)
+	release, err := semrel.GetLatestReleaseFromReleases(releases, conf.MaintainedVersion)
 	exitIfError(err)
 	logger.Println("found version: " + release.Version)
 
-	if strings.Contains(conf.BetaRelease.MaintainedVersion, "-") && semver.MustParse(release.Version).Prerelease() == "" {
+	if strings.Contains(conf.MaintainedVersion, "-") && semver.MustParse(release.Version).Prerelease() == "" {
 		exitIfError(fmt.Errorf("no pre-release for this version possible"))
 	}
 
