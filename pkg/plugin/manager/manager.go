@@ -51,7 +51,7 @@ func (m *PluginManager) GetChangelogGenerator() (generator.ChangelogGenerator, e
 	return cg, nil
 }
 
-func (m *PluginManager) GetUpdater() (updater.Updater, error) {
+func (m *PluginManager) GetChainedUpdater() (*updater.ChainedUpdater, error) {
 	updaters := make([]updater.FilesUpdater, 0)
 	for _, pl := range m.config.FilesUpdaterPlugins {
 		upd, err := plugin.StartFilesUpdaterPlugin(buildin.GetPluginOpts(updater.FilesUpdaterPluginName, pl))

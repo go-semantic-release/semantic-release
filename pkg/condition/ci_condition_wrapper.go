@@ -17,7 +17,7 @@ func (c *CIConditionServer) Name(ctx context.Context, request *CIName_Request) (
 }
 
 func (c *CIConditionServer) Version(ctx context.Context, request *CIVersion_Request) (*CIVersion_Response, error) {
-	return &CIVersion_Response{Version: c.Impl.Name()}, nil
+	return &CIVersion_Response{Version: c.Impl.Version()}, nil
 }
 
 func (c *CIConditionServer) RunCondition(ctx context.Context, request *RunCondition_Request) (*RunCondition_Response, error) {

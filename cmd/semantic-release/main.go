@@ -77,18 +77,16 @@ func cliHandler(cmd *cobra.Command, args []string) {
 
 	ci, err := pluginManager.GetCICondition()
 	exitIfError(err)
-	logger.Printf("detected CI: %s\n", ci.Name())
+	logger.Printf("ci-condition plugin: %s@%s\n", ci.Name(), ci.Version())
 
 	prov, err := pluginManager.GetProvider()
 	exitIfError(err)
+	logger.Printf("provider plugin: %s@%s\n", prov.Name(), prov.Version())
 
 	if conf.ProviderOpts["token"] == "" {
 		conf.ProviderOpts["token"] = conf.Token
 	}
 	err = prov.Init(conf.ProviderOpts)
-
-	logger.Printf("releasing on: %s\n", prov.Name())
-
 	exitIfError(err)
 
 	logger.Println("getting default branch...")
@@ -124,6 +122,9 @@ func cliHandler(cmd *cobra.Command, args []string) {
 			"defaultBranch": repoInfo.DefaultBranch,
 			"private":       fmt.Sprintf("%t", repoInfo.Private),
 		}
+		for k, v := range conf.CIConditionOpts {
+			config[k] = v
+		}
 		exitIfError(ci.RunCondition(config), 66)
 	}
 
@@ -150,6 +151,9 @@ func cliHandler(cmd *cobra.Command, args []string) {
 
 	commitAnalyzer, err := pluginManager.GetCommitAnalyzer()
 	exitIfError(err)
+	logger.Printf("commit-analyzer plugin: %s@%s\n", commitAnalyzer.Name(), commitAnalyzer.Version())
+	exitIfError(commitAnalyzer.Init(conf.ChangelogGeneratorOpts))
+
 	commits := commitAnalyzer.Analyze(rawCommits)
 
 	logger.Println("calculating new version...")
@@ -171,6 +175,9 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	logger.Println("generating changelog...")
 	changelogGenerator, err := pluginManager.GetChangelogGenerator()
 	exitIfError(err)
+	logger.Printf("changelog-generator plugin: %s@%s\n", changelogGenerator.Name(), changelogGenerator.Version())
+	exitIfError(changelogGenerator.Init(conf.ChangelogGeneratorOpts))
+
 	changelogRes := changelogGenerator.Generate(&generator.ChangelogGeneratorConfig{
 		Commits:       commits,
 		LatestRelease: release,
@@ -199,8 +206,11 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	}
 
 	if len(conf.UpdateFiles) > 0 {
-		updater, err := pluginManager.GetUpdater()
+		updater, err := pluginManager.GetChainedUpdater()
 		exitIfError(err)
+		logger.Printf("files-updater plugins: %s\n", strings.Join(updater.GetNameVersionPairs(), ", "))
+		exitIfError(updater.Init(conf.FilesUpdaterOpts))
+
 		for _, f := range conf.UpdateFiles {
 			exitIfError(updater.Apply(f, newVer))
 		}
