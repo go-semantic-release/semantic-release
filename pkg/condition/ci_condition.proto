@@ -4,7 +4,14 @@ option go_package = "github.com/go-semantic-release/semantic-release/v2/pkg/cond
 message CIName {
   message Request {}
   message Response {
-    string value = 1;
+    string name = 1;
+  }
+}
+
+message CIVersion {
+  message Request {}
+  message Response {
+    string version = 1;
   }
 }
 
@@ -34,6 +41,7 @@ message GetCurrentSHA {
 
 service CIConditionPlugin {
   rpc Name(CIName.Request) returns (CIName.Response);
+  rpc Version(CIVersion.Request) returns (CIVersion.Response);
   rpc RunCondition(RunCondition.Request) returns (RunCondition.Response);
   rpc GetCurrentBranch(GetCurrentBranch.Request) returns (GetCurrentBranch.Response);
   rpc GetCurrentSHA(GetCurrentSHA.Request) returns (GetCurrentSHA.Response);

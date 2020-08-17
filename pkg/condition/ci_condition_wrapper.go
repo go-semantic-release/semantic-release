@@ -13,7 +13,11 @@ type CIConditionServer struct {
 }
 
 func (c *CIConditionServer) Name(ctx context.Context, request *CIName_Request) (*CIName_Response, error) {
-	return &CIName_Response{Value: c.Impl.Name()}, nil
+	return &CIName_Response{Name: c.Impl.Name()}, nil
+}
+
+func (c *CIConditionServer) Version(ctx context.Context, request *CIVersion_Request) (*CIVersion_Response, error) {
+	return &CIVersion_Response{Version: c.Impl.Name()}, nil
 }
 
 func (c *CIConditionServer) RunCondition(ctx context.Context, request *RunCondition_Request) (*RunCondition_Response, error) {
@@ -38,11 +42,19 @@ type CIConditionClient struct {
 }
 
 func (c *CIConditionClient) Name() string {
-	name, err := c.Impl.Name(context.Background(), &CIName_Request{})
+	res, err := c.Impl.Name(context.Background(), &CIName_Request{})
 	if err != nil {
 		panic(err)
 	}
-	return name.Value
+	return res.Name
+}
+
+func (c *CIConditionClient) Version() string {
+	res, err := c.Impl.Version(context.Background(), &CIVersion_Request{})
+	if err != nil {
+		panic(err)
+	}
+	return res.Version
 }
 
 func (c *CIConditionClient) RunCondition(m map[string]string) error {

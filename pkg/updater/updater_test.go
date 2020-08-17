@@ -11,6 +11,18 @@ type testFileUpdater struct {
 	nVer string
 }
 
+func (tfu *testFileUpdater) Init(map[string]string) error {
+	return nil
+}
+
+func (tfu *testFileUpdater) Name() string {
+	return "test"
+}
+
+func (tfu *testFileUpdater) Version() string {
+	return "1.0.0"
+}
+
 func (tfu *testFileUpdater) ForFiles() string {
 	return "package\\.json"
 }

@@ -6,6 +6,9 @@ import (
 )
 
 type Updater interface {
+	Init(map[string]string) error
+	Name() string
+	Version() string
 	Apply(file, newVersion string) error
 }
 

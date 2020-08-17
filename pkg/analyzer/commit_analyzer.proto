@@ -3,6 +3,29 @@ option go_package = "github.com/go-semantic-release/semantic-release/v2/pkg/anal
 
 import "pkg/semrel/structs.proto";
 
+message CommitAnalyzerInit {
+  message Request {
+    map<string, string> config = 1;
+  }
+  message Response {
+    string error = 1;
+  }
+}
+
+message CommitAnalyzerName {
+  message Request {}
+  message Response {
+    string name = 1;
+  }
+}
+
+message CommitAnalyzerVersion {
+  message Request {}
+  message Response {
+    string version = 1;
+  }
+}
+
 message AnalyzeCommits {
   message Request {
     repeated RawCommit raw_commits = 1;
@@ -12,6 +35,10 @@ message AnalyzeCommits {
   }
 }
 
+
 service CommitAnalyzerPlugin {
+  rpc Init(CommitAnalyzerInit.Request) returns (CommitAnalyzerInit.Response);
+  rpc Name(CommitAnalyzerName.Request) returns (CommitAnalyzerName.Response);
+  rpc Version(CommitAnalyzerVersion.Request) returns (CommitAnalyzerVersion.Response);
   rpc Analyze(AnalyzeCommits.Request) returns (AnalyzeCommits.Response);
 }

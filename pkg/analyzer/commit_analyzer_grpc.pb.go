@@ -17,6 +17,9 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CommitAnalyzerPluginClient interface {
+	Init(ctx context.Context, in *CommitAnalyzerInit_Request, opts ...grpc.CallOption) (*CommitAnalyzerInit_Response, error)
+	Name(ctx context.Context, in *CommitAnalyzerName_Request, opts ...grpc.CallOption) (*CommitAnalyzerName_Response, error)
+	Version(ctx context.Context, in *CommitAnalyzerVersion_Request, opts ...grpc.CallOption) (*CommitAnalyzerVersion_Response, error)
 	Analyze(ctx context.Context, in *AnalyzeCommits_Request, opts ...grpc.CallOption) (*AnalyzeCommits_Response, error)
 }
 
@@ -26,6 +29,33 @@ type commitAnalyzerPluginClient struct {
 
 func NewCommitAnalyzerPluginClient(cc grpc.ClientConnInterface) CommitAnalyzerPluginClient {
 	return &commitAnalyzerPluginClient{cc}
+}
+
+func (c *commitAnalyzerPluginClient) Init(ctx context.Context, in *CommitAnalyzerInit_Request, opts ...grpc.CallOption) (*CommitAnalyzerInit_Response, error) {
+	out := new(CommitAnalyzerInit_Response)
+	err := c.cc.Invoke(ctx, "/CommitAnalyzerPlugin/Init", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commitAnalyzerPluginClient) Name(ctx context.Context, in *CommitAnalyzerName_Request, opts ...grpc.CallOption) (*CommitAnalyzerName_Response, error) {
+	out := new(CommitAnalyzerName_Response)
+	err := c.cc.Invoke(ctx, "/CommitAnalyzerPlugin/Name", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commitAnalyzerPluginClient) Version(ctx context.Context, in *CommitAnalyzerVersion_Request, opts ...grpc.CallOption) (*CommitAnalyzerVersion_Response, error) {
+	out := new(CommitAnalyzerVersion_Response)
+	err := c.cc.Invoke(ctx, "/CommitAnalyzerPlugin/Version", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *commitAnalyzerPluginClient) Analyze(ctx context.Context, in *AnalyzeCommits_Request, opts ...grpc.CallOption) (*AnalyzeCommits_Response, error) {
@@ -41,6 +71,9 @@ func (c *commitAnalyzerPluginClient) Analyze(ctx context.Context, in *AnalyzeCom
 // All implementations must embed UnimplementedCommitAnalyzerPluginServer
 // for forward compatibility
 type CommitAnalyzerPluginServer interface {
+	Init(context.Context, *CommitAnalyzerInit_Request) (*CommitAnalyzerInit_Response, error)
+	Name(context.Context, *CommitAnalyzerName_Request) (*CommitAnalyzerName_Response, error)
+	Version(context.Context, *CommitAnalyzerVersion_Request) (*CommitAnalyzerVersion_Response, error)
 	Analyze(context.Context, *AnalyzeCommits_Request) (*AnalyzeCommits_Response, error)
 	mustEmbedUnimplementedCommitAnalyzerPluginServer()
 }
@@ -49,6 +82,15 @@ type CommitAnalyzerPluginServer interface {
 type UnimplementedCommitAnalyzerPluginServer struct {
 }
 
+func (*UnimplementedCommitAnalyzerPluginServer) Init(context.Context, *CommitAnalyzerInit_Request) (*CommitAnalyzerInit_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Init not implemented")
+}
+func (*UnimplementedCommitAnalyzerPluginServer) Name(context.Context, *CommitAnalyzerName_Request) (*CommitAnalyzerName_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
+}
+func (*UnimplementedCommitAnalyzerPluginServer) Version(context.Context, *CommitAnalyzerVersion_Request) (*CommitAnalyzerVersion_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Version not implemented")
+}
 func (*UnimplementedCommitAnalyzerPluginServer) Analyze(context.Context, *AnalyzeCommits_Request) (*AnalyzeCommits_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Analyze not implemented")
 }
@@ -56,6 +98,60 @@ func (*UnimplementedCommitAnalyzerPluginServer) mustEmbedUnimplementedCommitAnal
 
 func RegisterCommitAnalyzerPluginServer(s *grpc.Server, srv CommitAnalyzerPluginServer) {
 	s.RegisterService(&_CommitAnalyzerPlugin_serviceDesc, srv)
+}
+
+func _CommitAnalyzerPlugin_Init_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CommitAnalyzerInit_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommitAnalyzerPluginServer).Init(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/CommitAnalyzerPlugin/Init",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommitAnalyzerPluginServer).Init(ctx, req.(*CommitAnalyzerInit_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CommitAnalyzerPlugin_Name_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CommitAnalyzerName_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommitAnalyzerPluginServer).Name(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/CommitAnalyzerPlugin/Name",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommitAnalyzerPluginServer).Name(ctx, req.(*CommitAnalyzerName_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CommitAnalyzerPlugin_Version_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CommitAnalyzerVersion_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommitAnalyzerPluginServer).Version(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/CommitAnalyzerPlugin/Version",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommitAnalyzerPluginServer).Version(ctx, req.(*CommitAnalyzerVersion_Request))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _CommitAnalyzerPlugin_Analyze_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -80,6 +176,18 @@ var _CommitAnalyzerPlugin_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "CommitAnalyzerPlugin",
 	HandlerType: (*CommitAnalyzerPluginServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Init",
+			Handler:    _CommitAnalyzerPlugin_Init_Handler,
+		},
+		{
+			MethodName: "Name",
+			Handler:    _CommitAnalyzerPlugin_Name_Handler,
+		},
+		{
+			MethodName: "Version",
+			Handler:    _CommitAnalyzerPlugin_Version_Handler,
+		},
 		{
 			MethodName: "Analyze",
 			Handler:    _CommitAnalyzerPlugin_Analyze_Handler,

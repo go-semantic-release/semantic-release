@@ -5,5 +5,8 @@ import (
 )
 
 type CommitAnalyzer interface {
+	Init(map[string]string) error
+	Name() string
+	Version() string
 	Analyze([]*semrel.RawCommit) []*semrel.Commit
 }
