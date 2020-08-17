@@ -72,10 +72,10 @@ github.com/go-semantic-release/condition-gitlab v1.0.1 h1:dg7YxwV8wvAzaXpBNhRheg
 github.com/go-semantic-release/condition-gitlab v1.0.1/go.mod h1:/5eOZU9YhqTja5VwgX91hzx97Xn3lSVP2RrKJuYUZpU=
 github.com/go-semantic-release/files-updater-npm v1.0.0 h1:rW5St9lC1YfJ8oHB2qvWsufaE6re1XCK1GgbIPrr/k8=
 github.com/go-semantic-release/files-updater-npm v1.0.0/go.mod h1:MWirt5ni103snq5b2raddrrWpuZy8/bF0xHe4Rluq3M=
-github.com/go-semantic-release/provider-github v1.1.0 h1:6w2CduYA7QstPIjpm/eqvzdrIPlCTIPpooSjgx0NgMM=
-github.com/go-semantic-release/provider-github v1.1.0/go.mod h1:9vCDagOqx0kXyHOAI93Tdl/9GVeOyCKVHWcIp1RJwNI=
-github.com/go-semantic-release/provider-gitlab v1.1.0 h1:HH+1pCHtPxleZ+5UxyUsDY/mVdrmEOt5Aq/cIhFoYG8=
-github.com/go-semantic-release/provider-gitlab v1.1.0/go.mod h1:sHrVeyN4d9HVJs1ejwW7P1m7aV74D0oDhk2PP07syBA=
+github.com/go-semantic-release/provider-github v1.1.1 h1:YrVAVcGazqBcYggR/V3TKL5tS8hqlMChRshkJU6p7Sc=
+github.com/go-semantic-release/provider-github v1.1.1/go.mod h1:9vCDagOqx0kXyHOAI93Tdl/9GVeOyCKVHWcIp1RJwNI=
+github.com/go-semantic-release/provider-gitlab v1.1.1 h1:t04xvGuz4mdfLN2vG438pw+Xo0eVaEFSkANtgIQekNM=
+github.com/go-semantic-release/provider-gitlab v1.1.1/go.mod h1:sHrVeyN4d9HVJs1ejwW7P1m7aV74D0oDhk2PP07syBA=
 github.com/go-semantic-release/semantic-release/v2 v2.1.0/go.mod h1:VSiaMm0rYu2A2OOmmgaXFFVHVAyrQQDMlpLQO0lEZ4k=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
