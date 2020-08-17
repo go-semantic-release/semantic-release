@@ -12,6 +12,15 @@ type FilesUpdaterServer struct {
 	UnimplementedFilesUpdaterPluginServer
 }
 
+func (f *FilesUpdaterServer) Init(ctx context.Context, request *FilesUpdaterInit_Request) (*FilesUpdaterInit_Response, error) {
+	err := f.Impl.Init(request.Config)
+	res := &FilesUpdaterInit_Response{}
+	if err != nil {
+		res.Error = err.Error()
+	}
+	return res, nil
+}
+
 func (f *FilesUpdaterServer) Name(ctx context.Context, request *FilesUpdaterName_Request) (*FilesUpdaterName_Response, error) {
 	return &FilesUpdaterName_Response{Name: f.Impl.Name()}, nil
 }
@@ -35,6 +44,19 @@ func (f *FilesUpdaterServer) Apply(ctx context.Context, request *FilesUpdaterApp
 
 type FilesUpdaterClient struct {
 	Impl FilesUpdaterPluginClient
+}
+
+func (f *FilesUpdaterClient) Init(m map[string]string) error {
+	res, err := f.Impl.Init(context.Background(), &FilesUpdaterInit_Request{
+		Config: m,
+	})
+	if err != nil {
+		return err
+	}
+	if res.Error != "" {
+		return errors.New(res.Error)
+	}
+	return nil
 }
 
 func (f *FilesUpdaterClient) Name() string {

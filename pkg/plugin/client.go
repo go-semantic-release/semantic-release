@@ -49,7 +49,7 @@ func startPlugin(opts *PluginOpts) (interface{}, error) {
 	rpcClient, err := client.Client()
 	if err != nil {
 		client.Kill()
-		panic(err)
+		return nil, err
 	}
 	raw, err := rpcClient.Dispense(opts.Type)
 	if err != nil {
