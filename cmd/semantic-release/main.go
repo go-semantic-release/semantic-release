@@ -15,7 +15,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/manager"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/semrel"
-	"github.com/urfave/cli/v2"
+	"github.com/spf13/cobra"
 )
 
 // SRVERSION is the semantic-release version (added at compile time)
@@ -40,29 +40,33 @@ func errorHandler(logger *log.Logger) func(error, ...int) {
 }
 
 func main() {
-	app := &cli.App{
-		Name:     "semantic-release",
-		Usage:    "automates the package release workflow including: determining the next version number and generating the change log",
-		Version:  SRVERSION,
-		Commands: buildin.GetPluginCommands(),
-		Flags:    config.CliFlags,
-		Action:   cliHandler,
+	cmd := &cobra.Command{
+		Use:     "semantic-release",
+		Short:   "semantic-release - fully automated package/module/image publishing",
+		Run:     cliHandler,
+		Version: SRVERSION,
 	}
-
-	err := app.Run(os.Args)
+	buildin.RegisterPluginCommands(cmd)
+	err := config.InitConfig(cmd)
+	if err != nil {
+		fmt.Printf("\nConfig error: %s\n", err.Error())
+		os.Exit(1)
+		return
+	}
+	err = cmd.Execute()
 	if err != nil {
 		fmt.Printf("\n%s\n", err.Error())
 		os.Exit(1)
 	}
 }
 
-func cliHandler(c *cli.Context) error {
+func cliHandler(cmd *cobra.Command, args []string) {
 	logger := log.New(os.Stderr, "[go-semantic-release]: ", 0)
 	exitIfError := errorHandler(logger)
 
 	logger.Printf("version: %s\n", SRVERSION)
 
-	conf, err := config.NewConfig(c)
+	conf, err := config.NewConfig(cmd)
 	exitIfError(err)
 
 	pluginManager, err := manager.New(conf)
@@ -78,14 +82,10 @@ func cliHandler(c *cli.Context) error {
 	prov, err := pluginManager.GetProvider()
 	exitIfError(err)
 
-	err = prov.Init(map[string]string{
-		"gitlabBaseUrl":        conf.GitLabBaseURL,
-		"token":                conf.Token,
-		"gitlabBranch":         ci.GetCurrentBranch(),
-		"gitlabProjectID":      conf.GitLabProjectID,
-		"githubEnterpriseHost": conf.GheHost,
-		"slug":                 conf.Slug,
-	})
+	if conf.ProviderOpts["token"] == "" {
+		conf.ProviderOpts["token"] = conf.Token
+	}
+	err = prov.Init(conf.ProviderOpts)
 
 	logger.Printf("releasing on: %s\n", prov.Name())
 
@@ -117,7 +117,7 @@ func cliHandler(c *cli.Context) error {
 	currentSha := ci.GetCurrentSHA()
 	logger.Println("found current sha: " + currentSha)
 
-	if !conf.Noci {
+	if !conf.NoCI {
 		logger.Println("running CI condition...")
 		config := map[string]string{
 			"token":         conf.Token,
@@ -194,16 +194,17 @@ func cliHandler(c *cli.Context) error {
 		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repoInfo.Owner, repoInfo.Repo, newVer)), 0644))
 	}
 
-	if conf.Vf {
+	if conf.VersionFile {
 		exitIfError(ioutil.WriteFile(".version", []byte(newVer), 0644))
 	}
 
-	if conf.Update != "" {
+	if len(conf.UpdateFiles) > 0 {
 		updater, err := pluginManager.GetUpdater()
 		exitIfError(err)
-		exitIfError(updater.Apply(conf.Update, newVer))
+		for _, f := range conf.UpdateFiles {
+			exitIfError(updater.Apply(f, newVer))
+		}
 	}
 
 	logger.Println("done.")
-	return nil
 }
