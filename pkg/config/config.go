@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -10,10 +11,18 @@ import (
 // Config is a complete set of app configuration
 type Config struct {
 	Token                           string
-	UpdateFiles                     []string
 	ProviderPlugin                  string
 	ProviderOpts                    map[string]string
+	CommitAnalyzerPlugin            string
+	CommitAnalyzerOpts              map[string]string
+	CIConditionPlugin               string
+	CIConditionOpts                 map[string]string
+	ChangelogGeneratorPlugin        string
+	ChangelogGeneratorOpts          map[string]string
 	Changelog                       string
+	FilesUpdaterPlugins             []string
+	FilesUpdaterOpts                map[string]string
+	UpdateFiles                     []string
 	Match                           string
 	VersionFile                     bool
 	Prerelease                      bool
@@ -25,7 +34,7 @@ type Config struct {
 	MaintainedVersion               string
 }
 
-func MustGetString(cmd *cobra.Command, name string) string {
+func mustGetString(cmd *cobra.Command, name string) string {
 	res, err := cmd.Flags().GetString(name)
 	if err != nil {
 		panic(err)
@@ -33,7 +42,7 @@ func MustGetString(cmd *cobra.Command, name string) string {
 	return res
 }
 
-func MustGetStringArray(cmd *cobra.Command, name string) []string {
+func mustGetStringArray(cmd *cobra.Command, name string) []string {
 	res, err := cmd.Flags().GetStringArray(name)
 	if err != nil {
 		panic(err)
@@ -41,7 +50,7 @@ func MustGetStringArray(cmd *cobra.Command, name string) []string {
 	return res
 }
 
-func MustGetBool(cmd *cobra.Command, name string) bool {
+func mustGetBool(cmd *cobra.Command, name string) bool {
 	res, err := cmd.Flags().GetBool(name)
 	if err != nil {
 		panic(err)
@@ -49,51 +58,102 @@ func MustGetBool(cmd *cobra.Command, name string) bool {
 	return res
 }
 
-// NewConfig returns a new Config instance
-func NewConfig(cmd *cobra.Command) (*Config, error) {
-	provOpts := make(map[string]string)
-	for k, v := range viper.GetStringMapString("plugins.provider.options") {
-		provOpts[k] = v
+func mergeOpts(v map[string]string, c []string) map[string]string {
+	opts := make(map[string]string)
+	for k, v := range v {
+		opts[k] = v
 	}
-	for _, opt := range MustGetStringArray(cmd, "provider-opt") {
+	for _, opt := range c {
 		sOpt := strings.SplitN(opt, "=", 2)
 		if len(sOpt) < 2 {
 			continue
 		}
-		provOpts[strings.ToLower(sOpt[0])] = sOpt[1]
+		opts[strings.ToLower(sOpt[0])] = sOpt[1]
 	}
+	return opts
+}
+
+func NewConfig(cmd *cobra.Command) (*Config, error) {
+	provOpts := mergeOpts(
+		viper.GetStringMapString("plugins.provider.options"),
+		mustGetStringArray(cmd, "provider-opt"))
+	caOpts := mergeOpts(
+		viper.GetStringMapString("plugins.commit-analyzer.options"),
+		mustGetStringArray(cmd, "commit-analyzer-opt"))
+	ciOpts := mergeOpts(
+		viper.GetStringMapString("plugins.ci-condition.options"),
+		mustGetStringArray(cmd, "ci-condition-opt"))
+	cgOpts := mergeOpts(
+		viper.GetStringMapString("plugins.changelog-generator.options"),
+		mustGetStringArray(cmd, "changelog-generator-opt"))
+	fuOpts := mergeOpts(
+		viper.GetStringMapString("plugins.files-updater.options"),
+		mustGetStringArray(cmd, "files-updater-opt"))
 
 	conf := &Config{
-		Token:                           MustGetString(cmd, "token"),
-		UpdateFiles:                     MustGetStringArray(cmd, "update"),
+		Token:                           mustGetString(cmd, "token"),
 		ProviderPlugin:                  viper.GetString("plugins.provider.name"),
 		ProviderOpts:                    provOpts,
-		Changelog:                       MustGetString(cmd, "changelog"),
-		Match:                           MustGetString(cmd, "match"),
-		VersionFile:                     MustGetBool(cmd, "version-file"),
-		Prerelease:                      MustGetBool(cmd, "prerelease"),
-		Ghr:                             MustGetBool(cmd, "ghr"),
-		NoCI:                            MustGetBool(cmd, "no-ci"),
-		Dry:                             MustGetBool(cmd, "dry"),
-		AllowInitialDevelopmentVersions: MustGetBool(cmd, "allow-initial-development-versions"),
-		AllowNoChanges:                  MustGetBool(cmd, "allow-no-changes"),
+		CommitAnalyzerPlugin:            viper.GetString("plugins.commit-analyzer.name"),
+		CommitAnalyzerOpts:              caOpts,
+		CIConditionPlugin:               viper.GetString("plugins.ci-condition.name"),
+		CIConditionOpts:                 ciOpts,
+		ChangelogGeneratorPlugin:        viper.GetString("plugins.changelog-generator.name"),
+		ChangelogGeneratorOpts:          cgOpts,
+		Changelog:                       mustGetString(cmd, "changelog"),
+		FilesUpdaterPlugins:             viper.GetStringSlice("plugins.files-updater.names"),
+		FilesUpdaterOpts:                fuOpts,
+		UpdateFiles:                     mustGetStringArray(cmd, "update"),
+		Match:                           mustGetString(cmd, "match"),
+		VersionFile:                     mustGetBool(cmd, "version-file"),
+		Prerelease:                      mustGetBool(cmd, "prerelease"),
+		Ghr:                             mustGetBool(cmd, "ghr"),
+		NoCI:                            mustGetBool(cmd, "no-ci"),
+		Dry:                             mustGetBool(cmd, "dry"),
+		AllowInitialDevelopmentVersions: mustGetBool(cmd, "allow-initial-development-versions"),
+		AllowNoChanges:                  mustGetBool(cmd, "allow-no-changes"),
 		MaintainedVersion:               viper.GetString("maintainedVersion"),
 	}
 
 	return conf, nil
 }
-func Must(err error) {
+func must(err error) {
 	if err != nil {
 		panic(err)
 	}
 }
 
+func detectCI() string {
+	if os.Getenv("GITHUB_ACTIONS") == "true" {
+		return "github"
+	}
+	if os.Getenv("GITLAB_CI") == "true" {
+		return "gitlab"
+	}
+	return "default"
+}
+
+func defaultProvider() string {
+	if os.Getenv("GITLAB_CI") == "true" {
+		return "gitlab"
+	}
+	return "github"
+}
+
 func InitConfig(cmd *cobra.Command) error {
 	cmd.Flags().StringP("token", "t", "", "provider token")
-	cmd.Flags().StringArrayP("update", "u", []string{}, "updates the version of a certain files")
-	cmd.Flags().StringP("provider", "p", "github", "provider token")
+	cmd.Flags().String("provider", defaultProvider(), "provider plugin name")
 	cmd.Flags().StringArray("provider-opt", []string{}, "options that are passed to the provider plugin")
+	cmd.Flags().String("commit-analyzer", "default", "commit-analyzer plugin name")
+	cmd.Flags().StringArray("commit-analyzer-opt", []string{}, "options that are passed to the commit-analyzer plugin")
+	cmd.Flags().String("ci-condition", detectCI(), "ci-condition plugin name")
+	cmd.Flags().StringArray("ci-condition-opt", []string{}, "options that are passed to the ci-condition plugin")
+	cmd.Flags().String("changelog-generator", "default", "changelog-generator plugin name")
+	cmd.Flags().StringArray("changelog-generator-opt", []string{}, "options that are passed to the changelog-generator plugin")
 	cmd.Flags().String("changelog", "", "creates a changelog file")
+	cmd.Flags().StringArray("files-updater", []string{"npm"}, "files-updater plugin names")
+	cmd.Flags().StringArray("files-updater-opt", []string{}, "options that are passed to the files-updater plugins")
+	cmd.Flags().StringArrayP("update", "u", []string{}, "updates the version of a certain files")
 	cmd.Flags().String("match", "", "only consider tags matching the given glob(7) pattern, excluding the \"refs/tags/\" prefix.")
 	cmd.Flags().String("maintained-version", "", "set the maintained version as base for new releases")
 	cmd.Flags().BoolP("version-file", "f", false, "create a .version file with the new version")
@@ -104,16 +164,20 @@ func InitConfig(cmd *cobra.Command) error {
 	cmd.Flags().Bool("allow-initial-development-versions", false, "semantic-release will start your initial development release at 0.1.0")
 	cmd.Flags().Bool("allow-no-changes", false, "exit with code 0 if no changes are found, useful if semantic-release is automatically run")
 	cmd.Flags().SortFlags = true
-	Must(viper.BindPFlag("maintainedVersion", cmd.Flags().Lookup("maintained-version")))
+
 	viper.AddConfigPath(".")
 	viper.SetConfigName(".semrelrc")
 	viper.SetConfigType("json")
-	viper.SetDefault("plugins.commit-analyzer.name", "default")
-	viper.SetDefault("plugins.ci-condition.name", "default")
-	viper.SetDefault("plugins.changelog-generator.name", "default")
-	Must(viper.BindEnv("maintainedVersion", "MAINTAINED_VERSION"))
-	Must(viper.BindPFlag("plugins.provider.name", cmd.Flags().Lookup("provider")))
-	viper.SetDefault("plugins.files-updater.name", "default")
+
+	must(viper.BindPFlag("maintainedVersion", cmd.Flags().Lookup("maintained-version")))
+	must(viper.BindEnv("maintainedVersion", "MAINTAINED_VERSION"))
+
+	must(viper.BindPFlag("plugins.provider.name", cmd.Flags().Lookup("provider")))
+	must(viper.BindPFlag("plugins.commit-analyzer.name", cmd.Flags().Lookup("commit-analyzer")))
+	must(viper.BindPFlag("plugins.ci-condition.name", cmd.Flags().Lookup("ci-condition")))
+	must(viper.BindPFlag("plugins.changelog-generator.name", cmd.Flags().Lookup("changelog-generator")))
+	must(viper.BindPFlag("plugins.files-updater.names", cmd.Flags().Lookup("files-updater")))
+
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
 			return err
