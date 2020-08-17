@@ -46,7 +46,7 @@ jobs:
       - name: Run
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./semantic-release -dry || exit 0
+        run: ./semantic-release --dry || exit 0
         shell: bash
 
   release:
