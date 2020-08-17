@@ -1,9 +1,6 @@
 package manager
 
 import (
-	"os"
-	"strings"
-
 	"github.com/go-semantic-release/semantic-release/v2/pkg/analyzer"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/config"
@@ -23,14 +20,7 @@ func New(config *config.Config) (*PluginManager, error) {
 }
 
 func (m *PluginManager) GetCICondition() (condition.CICondition, error) {
-	ciType := "default"
-	if os.Getenv("GITHUB_ACTIONS") == "true" {
-		ciType = "github"
-	}
-	if os.Getenv("GITLAB_CI") == "true" {
-		ciType = "gitlab"
-	}
-	cic, err := plugin.StartCIConditionPlugin(buildin.GetPluginOpts(condition.CIConditionPluginName, ciType))
+	cic, err := plugin.StartCIConditionPlugin(buildin.GetPluginOpts(condition.CIConditionPluginName, m.config.CIConditionPlugin))
 	if err != nil {
 		return nil, err
 	}
@@ -38,12 +28,7 @@ func (m *PluginManager) GetCICondition() (condition.CICondition, error) {
 }
 
 func (m *PluginManager) GetProvider() (provider.Provider, error) {
-	providerType := "github"
-	if strings.ToLower(m.config.ProviderPlugin) == "gitlab" || os.Getenv("GITLAB_CI") == "true" {
-		providerType = "gitlab"
-	}
-
-	provider, err := plugin.StartProviderPlugin(buildin.GetPluginOpts(provider.PluginName, providerType))
+	provider, err := plugin.StartProviderPlugin(buildin.GetPluginOpts(provider.PluginName, m.config.ProviderPlugin))
 	if err != nil {
 		return nil, err
 	}
@@ -67,13 +52,17 @@ func (m *PluginManager) GetChangelogGenerator() (generator.ChangelogGenerator, e
 }
 
 func (m *PluginManager) GetUpdater() (updater.Updater, error) {
-	npmUpdater, err := plugin.StartFilesUpdaterPlugin(buildin.GetPluginOpts(updater.FilesUpdaterPluginName, "npm"))
-	if err != nil {
-		return nil, err
+	updaters := make([]updater.FilesUpdater, 0)
+	for _, pl := range m.config.FilesUpdaterPlugins {
+		upd, err := plugin.StartFilesUpdaterPlugin(buildin.GetPluginOpts(updater.FilesUpdaterPluginName, pl))
+		if err != nil {
+			return nil, err
+		}
+		updaters = append(updaters, upd)
 	}
 
 	updater := &updater.ChainedUpdater{
-		Updaters: []updater.FilesUpdater{npmUpdater},
+		Updaters: updaters,
 	}
 	return updater, nil
 }
