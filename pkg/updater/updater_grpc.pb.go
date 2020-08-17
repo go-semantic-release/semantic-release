@@ -17,6 +17,9 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FilesUpdaterPluginClient interface {
+	Init(ctx context.Context, in *FilesUpdaterInit_Request, opts ...grpc.CallOption) (*FilesUpdaterInit_Response, error)
+	Name(ctx context.Context, in *FilesUpdaterName_Request, opts ...grpc.CallOption) (*FilesUpdaterName_Response, error)
+	Version(ctx context.Context, in *FilesUpdaterVersion_Request, opts ...grpc.CallOption) (*FilesUpdaterVersion_Response, error)
 	ForFiles(ctx context.Context, in *FilesUpdaterForFiles_Request, opts ...grpc.CallOption) (*FilesUpdaterForFiles_Response, error)
 	Apply(ctx context.Context, in *FilesUpdaterApply_Request, opts ...grpc.CallOption) (*FilesUpdaterApply_Response, error)
 }
@@ -27,6 +30,33 @@ type filesUpdaterPluginClient struct {
 
 func NewFilesUpdaterPluginClient(cc grpc.ClientConnInterface) FilesUpdaterPluginClient {
 	return &filesUpdaterPluginClient{cc}
+}
+
+func (c *filesUpdaterPluginClient) Init(ctx context.Context, in *FilesUpdaterInit_Request, opts ...grpc.CallOption) (*FilesUpdaterInit_Response, error) {
+	out := new(FilesUpdaterInit_Response)
+	err := c.cc.Invoke(ctx, "/FilesUpdaterPlugin/Init", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *filesUpdaterPluginClient) Name(ctx context.Context, in *FilesUpdaterName_Request, opts ...grpc.CallOption) (*FilesUpdaterName_Response, error) {
+	out := new(FilesUpdaterName_Response)
+	err := c.cc.Invoke(ctx, "/FilesUpdaterPlugin/Name", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *filesUpdaterPluginClient) Version(ctx context.Context, in *FilesUpdaterVersion_Request, opts ...grpc.CallOption) (*FilesUpdaterVersion_Response, error) {
+	out := new(FilesUpdaterVersion_Response)
+	err := c.cc.Invoke(ctx, "/FilesUpdaterPlugin/Version", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *filesUpdaterPluginClient) ForFiles(ctx context.Context, in *FilesUpdaterForFiles_Request, opts ...grpc.CallOption) (*FilesUpdaterForFiles_Response, error) {
@@ -51,6 +81,9 @@ func (c *filesUpdaterPluginClient) Apply(ctx context.Context, in *FilesUpdaterAp
 // All implementations must embed UnimplementedFilesUpdaterPluginServer
 // for forward compatibility
 type FilesUpdaterPluginServer interface {
+	Init(context.Context, *FilesUpdaterInit_Request) (*FilesUpdaterInit_Response, error)
+	Name(context.Context, *FilesUpdaterName_Request) (*FilesUpdaterName_Response, error)
+	Version(context.Context, *FilesUpdaterVersion_Request) (*FilesUpdaterVersion_Response, error)
 	ForFiles(context.Context, *FilesUpdaterForFiles_Request) (*FilesUpdaterForFiles_Response, error)
 	Apply(context.Context, *FilesUpdaterApply_Request) (*FilesUpdaterApply_Response, error)
 	mustEmbedUnimplementedFilesUpdaterPluginServer()
@@ -60,6 +93,15 @@ type FilesUpdaterPluginServer interface {
 type UnimplementedFilesUpdaterPluginServer struct {
 }
 
+func (*UnimplementedFilesUpdaterPluginServer) Init(context.Context, *FilesUpdaterInit_Request) (*FilesUpdaterInit_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Init not implemented")
+}
+func (*UnimplementedFilesUpdaterPluginServer) Name(context.Context, *FilesUpdaterName_Request) (*FilesUpdaterName_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
+}
+func (*UnimplementedFilesUpdaterPluginServer) Version(context.Context, *FilesUpdaterVersion_Request) (*FilesUpdaterVersion_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Version not implemented")
+}
 func (*UnimplementedFilesUpdaterPluginServer) ForFiles(context.Context, *FilesUpdaterForFiles_Request) (*FilesUpdaterForFiles_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ForFiles not implemented")
 }
@@ -70,6 +112,60 @@ func (*UnimplementedFilesUpdaterPluginServer) mustEmbedUnimplementedFilesUpdater
 
 func RegisterFilesUpdaterPluginServer(s *grpc.Server, srv FilesUpdaterPluginServer) {
 	s.RegisterService(&_FilesUpdaterPlugin_serviceDesc, srv)
+}
+
+func _FilesUpdaterPlugin_Init_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FilesUpdaterInit_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FilesUpdaterPluginServer).Init(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/FilesUpdaterPlugin/Init",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FilesUpdaterPluginServer).Init(ctx, req.(*FilesUpdaterInit_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FilesUpdaterPlugin_Name_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FilesUpdaterName_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FilesUpdaterPluginServer).Name(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/FilesUpdaterPlugin/Name",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FilesUpdaterPluginServer).Name(ctx, req.(*FilesUpdaterName_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FilesUpdaterPlugin_Version_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FilesUpdaterVersion_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FilesUpdaterPluginServer).Version(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/FilesUpdaterPlugin/Version",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FilesUpdaterPluginServer).Version(ctx, req.(*FilesUpdaterVersion_Request))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _FilesUpdaterPlugin_ForFiles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -112,6 +208,18 @@ var _FilesUpdaterPlugin_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "FilesUpdaterPlugin",
 	HandlerType: (*FilesUpdaterPluginServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Init",
+			Handler:    _FilesUpdaterPlugin_Init_Handler,
+		},
+		{
+			MethodName: "Name",
+			Handler:    _FilesUpdaterPlugin_Name_Handler,
+		},
+		{
+			MethodName: "Version",
+			Handler:    _FilesUpdaterPlugin_Version_Handler,
+		},
 		{
 			MethodName: "ForFiles",
 			Handler:    _FilesUpdaterPlugin_ForFiles_Handler,

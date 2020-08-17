@@ -17,6 +17,9 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ChangelogGeneratorPluginClient interface {
+	Init(ctx context.Context, in *ChangelogGeneratorInit_Request, opts ...grpc.CallOption) (*ChangelogGeneratorInit_Response, error)
+	Name(ctx context.Context, in *ChangelogGeneratorName_Request, opts ...grpc.CallOption) (*ChangelogGeneratorName_Response, error)
+	Version(ctx context.Context, in *ChangelogGeneratorVersion_Request, opts ...grpc.CallOption) (*ChangelogGeneratorVersion_Response, error)
 	Generate(ctx context.Context, in *GenerateChangelog_Request, opts ...grpc.CallOption) (*GenerateChangelog_Response, error)
 }
 
@@ -26,6 +29,33 @@ type changelogGeneratorPluginClient struct {
 
 func NewChangelogGeneratorPluginClient(cc grpc.ClientConnInterface) ChangelogGeneratorPluginClient {
 	return &changelogGeneratorPluginClient{cc}
+}
+
+func (c *changelogGeneratorPluginClient) Init(ctx context.Context, in *ChangelogGeneratorInit_Request, opts ...grpc.CallOption) (*ChangelogGeneratorInit_Response, error) {
+	out := new(ChangelogGeneratorInit_Response)
+	err := c.cc.Invoke(ctx, "/ChangelogGeneratorPlugin/Init", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *changelogGeneratorPluginClient) Name(ctx context.Context, in *ChangelogGeneratorName_Request, opts ...grpc.CallOption) (*ChangelogGeneratorName_Response, error) {
+	out := new(ChangelogGeneratorName_Response)
+	err := c.cc.Invoke(ctx, "/ChangelogGeneratorPlugin/Name", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *changelogGeneratorPluginClient) Version(ctx context.Context, in *ChangelogGeneratorVersion_Request, opts ...grpc.CallOption) (*ChangelogGeneratorVersion_Response, error) {
+	out := new(ChangelogGeneratorVersion_Response)
+	err := c.cc.Invoke(ctx, "/ChangelogGeneratorPlugin/Version", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *changelogGeneratorPluginClient) Generate(ctx context.Context, in *GenerateChangelog_Request, opts ...grpc.CallOption) (*GenerateChangelog_Response, error) {
@@ -41,6 +71,9 @@ func (c *changelogGeneratorPluginClient) Generate(ctx context.Context, in *Gener
 // All implementations must embed UnimplementedChangelogGeneratorPluginServer
 // for forward compatibility
 type ChangelogGeneratorPluginServer interface {
+	Init(context.Context, *ChangelogGeneratorInit_Request) (*ChangelogGeneratorInit_Response, error)
+	Name(context.Context, *ChangelogGeneratorName_Request) (*ChangelogGeneratorName_Response, error)
+	Version(context.Context, *ChangelogGeneratorVersion_Request) (*ChangelogGeneratorVersion_Response, error)
 	Generate(context.Context, *GenerateChangelog_Request) (*GenerateChangelog_Response, error)
 	mustEmbedUnimplementedChangelogGeneratorPluginServer()
 }
@@ -49,6 +82,15 @@ type ChangelogGeneratorPluginServer interface {
 type UnimplementedChangelogGeneratorPluginServer struct {
 }
 
+func (*UnimplementedChangelogGeneratorPluginServer) Init(context.Context, *ChangelogGeneratorInit_Request) (*ChangelogGeneratorInit_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Init not implemented")
+}
+func (*UnimplementedChangelogGeneratorPluginServer) Name(context.Context, *ChangelogGeneratorName_Request) (*ChangelogGeneratorName_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
+}
+func (*UnimplementedChangelogGeneratorPluginServer) Version(context.Context, *ChangelogGeneratorVersion_Request) (*ChangelogGeneratorVersion_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Version not implemented")
+}
 func (*UnimplementedChangelogGeneratorPluginServer) Generate(context.Context, *GenerateChangelog_Request) (*GenerateChangelog_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Generate not implemented")
 }
@@ -57,6 +99,60 @@ func (*UnimplementedChangelogGeneratorPluginServer) mustEmbedUnimplementedChange
 
 func RegisterChangelogGeneratorPluginServer(s *grpc.Server, srv ChangelogGeneratorPluginServer) {
 	s.RegisterService(&_ChangelogGeneratorPlugin_serviceDesc, srv)
+}
+
+func _ChangelogGeneratorPlugin_Init_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangelogGeneratorInit_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChangelogGeneratorPluginServer).Init(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ChangelogGeneratorPlugin/Init",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChangelogGeneratorPluginServer).Init(ctx, req.(*ChangelogGeneratorInit_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ChangelogGeneratorPlugin_Name_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangelogGeneratorName_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChangelogGeneratorPluginServer).Name(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ChangelogGeneratorPlugin/Name",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChangelogGeneratorPluginServer).Name(ctx, req.(*ChangelogGeneratorName_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ChangelogGeneratorPlugin_Version_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangelogGeneratorVersion_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChangelogGeneratorPluginServer).Version(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ChangelogGeneratorPlugin/Version",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChangelogGeneratorPluginServer).Version(ctx, req.(*ChangelogGeneratorVersion_Request))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _ChangelogGeneratorPlugin_Generate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -81,6 +177,18 @@ var _ChangelogGeneratorPlugin_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "ChangelogGeneratorPlugin",
 	HandlerType: (*ChangelogGeneratorPluginServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Init",
+			Handler:    _ChangelogGeneratorPlugin_Init_Handler,
+		},
+		{
+			MethodName: "Name",
+			Handler:    _ChangelogGeneratorPlugin_Name_Handler,
+		},
+		{
+			MethodName: "Version",
+			Handler:    _ChangelogGeneratorPlugin_Version_Handler,
+		},
 		{
 			MethodName: "Generate",
 			Handler:    _ChangelogGeneratorPlugin_Generate_Handler,

@@ -3,6 +3,29 @@ option go_package = "github.com/go-semantic-release/semantic-release/v2/pkg/gene
 
 import "pkg/semrel/structs.proto";
 
+message ChangelogGeneratorInit {
+  message Request {
+    map<string, string> config = 1;
+  }
+  message Response {
+    string error = 1;
+  }
+}
+
+message ChangelogGeneratorName {
+  message Request {}
+  message Response {
+    string name = 1;
+  }
+}
+
+message ChangelogGeneratorVersion {
+  message Request {}
+  message Response {
+    string version = 1;
+  }
+}
+
 message ChangelogGeneratorConfig {
   repeated Commit commits = 1;
   Release latest_release  = 2;
@@ -19,5 +42,8 @@ message GenerateChangelog {
 }
 
 service ChangelogGeneratorPlugin {
+  rpc Init(ChangelogGeneratorInit.Request) returns (ChangelogGeneratorInit.Response);
+  rpc Name(ChangelogGeneratorName.Request) returns (ChangelogGeneratorName.Response);
+  rpc Version(ChangelogGeneratorVersion.Request) returns (ChangelogGeneratorVersion.Response);
   rpc Generate(GenerateChangelog.Request) returns (GenerateChangelog.Response);
 }

@@ -19,6 +19,7 @@ const _ = grpc.SupportPackageIsVersion6
 type ProviderPluginClient interface {
 	Init(ctx context.Context, in *ProviderInit_Request, opts ...grpc.CallOption) (*ProviderInit_Response, error)
 	Name(ctx context.Context, in *ProviderName_Request, opts ...grpc.CallOption) (*ProviderName_Response, error)
+	Version(ctx context.Context, in *ProviderVersion_Request, opts ...grpc.CallOption) (*ProviderVersion_Response, error)
 	GetInfo(ctx context.Context, in *GetInfo_Request, opts ...grpc.CallOption) (*GetInfo_Response, error)
 	GetCommits(ctx context.Context, in *GetCommits_Request, opts ...grpc.CallOption) (*GetCommits_Response, error)
 	GetReleases(ctx context.Context, in *GetReleases_Request, opts ...grpc.CallOption) (*GetReleases_Response, error)
@@ -45,6 +46,15 @@ func (c *providerPluginClient) Init(ctx context.Context, in *ProviderInit_Reques
 func (c *providerPluginClient) Name(ctx context.Context, in *ProviderName_Request, opts ...grpc.CallOption) (*ProviderName_Response, error) {
 	out := new(ProviderName_Response)
 	err := c.cc.Invoke(ctx, "/ProviderPlugin/Name", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *providerPluginClient) Version(ctx context.Context, in *ProviderVersion_Request, opts ...grpc.CallOption) (*ProviderVersion_Response, error) {
+	out := new(ProviderVersion_Response)
+	err := c.cc.Invoke(ctx, "/ProviderPlugin/Version", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,6 +103,7 @@ func (c *providerPluginClient) CreateRelease(ctx context.Context, in *CreateRele
 type ProviderPluginServer interface {
 	Init(context.Context, *ProviderInit_Request) (*ProviderInit_Response, error)
 	Name(context.Context, *ProviderName_Request) (*ProviderName_Response, error)
+	Version(context.Context, *ProviderVersion_Request) (*ProviderVersion_Response, error)
 	GetInfo(context.Context, *GetInfo_Request) (*GetInfo_Response, error)
 	GetCommits(context.Context, *GetCommits_Request) (*GetCommits_Response, error)
 	GetReleases(context.Context, *GetReleases_Request) (*GetReleases_Response, error)
@@ -109,6 +120,9 @@ func (*UnimplementedProviderPluginServer) Init(context.Context, *ProviderInit_Re
 }
 func (*UnimplementedProviderPluginServer) Name(context.Context, *ProviderName_Request) (*ProviderName_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
+}
+func (*UnimplementedProviderPluginServer) Version(context.Context, *ProviderVersion_Request) (*ProviderVersion_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Version not implemented")
 }
 func (*UnimplementedProviderPluginServer) GetInfo(context.Context, *GetInfo_Request) (*GetInfo_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetInfo not implemented")
@@ -160,6 +174,24 @@ func _ProviderPlugin_Name_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ProviderPluginServer).Name(ctx, req.(*ProviderName_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProviderPlugin_Version_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProviderVersion_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProviderPluginServer).Version(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ProviderPlugin/Version",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProviderPluginServer).Version(ctx, req.(*ProviderVersion_Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -247,6 +279,10 @@ var _ProviderPlugin_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Name",
 			Handler:    _ProviderPlugin_Name_Handler,
+		},
+		{
+			MethodName: "Version",
+			Handler:    _ProviderPlugin_Version_Handler,
 		},
 		{
 			MethodName: "GetInfo",

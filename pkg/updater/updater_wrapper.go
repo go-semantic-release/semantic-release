@@ -12,6 +12,14 @@ type FilesUpdaterServer struct {
 	UnimplementedFilesUpdaterPluginServer
 }
 
+func (f *FilesUpdaterServer) Name(ctx context.Context, request *FilesUpdaterName_Request) (*FilesUpdaterName_Response, error) {
+	return &FilesUpdaterName_Response{Name: f.Impl.Name()}, nil
+}
+
+func (f *FilesUpdaterServer) Version(ctx context.Context, request *FilesUpdaterVersion_Request) (*FilesUpdaterVersion_Response, error) {
+	return &FilesUpdaterVersion_Response{Version: f.Impl.Version()}, nil
+}
+
 func (f *FilesUpdaterServer) ForFiles(ctx context.Context, request *FilesUpdaterForFiles_Request) (*FilesUpdaterForFiles_Response, error) {
 	return &FilesUpdaterForFiles_Response{Files: f.Impl.ForFiles()}, nil
 }
@@ -27,6 +35,22 @@ func (f *FilesUpdaterServer) Apply(ctx context.Context, request *FilesUpdaterApp
 
 type FilesUpdaterClient struct {
 	Impl FilesUpdaterPluginClient
+}
+
+func (f *FilesUpdaterClient) Name() string {
+	res, err := f.Impl.Name(context.Background(), &FilesUpdaterName_Request{})
+	if err != nil {
+		panic(err)
+	}
+	return res.Name
+}
+
+func (f *FilesUpdaterClient) Version() string {
+	res, err := f.Impl.Version(context.Background(), &FilesUpdaterVersion_Request{})
+	if err != nil {
+		panic(err)
+	}
+	return res.Version
 }
 
 func (f *FilesUpdaterClient) ForFiles() string {

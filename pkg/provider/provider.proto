@@ -34,6 +34,13 @@ message ProviderName {
   }
 }
 
+message ProviderVersion {
+  message Request {}
+  message Response {
+    string version = 1;
+  }
+}
+
 message GetInfo {
   message Request {}
   message Response {
@@ -74,6 +81,7 @@ message CreateRelease {
 service ProviderPlugin {
   rpc Init(ProviderInit.Request) returns (ProviderInit.Response);
   rpc Name(ProviderName.Request) returns (ProviderName.Response);
+  rpc Version(ProviderVersion.Request) returns (ProviderVersion.Response);
   rpc GetInfo(GetInfo.Request) returns (GetInfo.Response);
   rpc GetCommits(GetCommits.Request) returns (GetCommits.Response);
   rpc GetReleases(GetReleases.Request) returns (GetReleases.Response);

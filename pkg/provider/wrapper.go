@@ -27,6 +27,10 @@ func (s *Server) Name(ctx context.Context, request *ProviderName_Request) (*Prov
 	return &ProviderName_Response{Name: s.Impl.Name()}, nil
 }
 
+func (s *Server) Version(ctx context.Context, request *ProviderVersion_Request) (*ProviderVersion_Response, error) {
+	return &ProviderVersion_Response{Version: s.Impl.Version()}, nil
+}
+
 func (s *Server) GetInfo(ctx context.Context, request *GetInfo_Request) (*GetInfo_Response, error) {
 	info, err := s.Impl.GetInfo()
 	if err != nil {
@@ -133,4 +137,12 @@ func (c *Client) Name() string {
 		panic(err)
 	}
 	return res.Name
+}
+
+func (c *Client) Version() string {
+	res, err := c.Impl.Version(context.Background(), &ProviderVersion_Request{})
+	if err != nil {
+		panic(err)
+	}
+	return res.Version
 }
