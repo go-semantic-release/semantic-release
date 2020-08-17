@@ -92,7 +92,7 @@ func InitConfig(cmd *cobra.Command) error {
 	cmd.Flags().StringP("token", "t", "", "provider token")
 	cmd.Flags().StringArrayP("update", "u", []string{}, "updates the version of a certain files")
 	cmd.Flags().StringP("provider", "p", "github", "provider token")
-	cmd.Flags().StringArrayP("provider-opt", "o", []string{}, "options that are passed to the provider plugin")
+	cmd.Flags().StringArray("provider-opt", []string{}, "options that are passed to the provider plugin")
 	cmd.Flags().String("changelog", "", "creates a changelog file")
 	cmd.Flags().String("match", "", "only consider tags matching the given glob(7) pattern, excluding the \"refs/tags/\" prefix.")
 	cmd.Flags().String("maintained-version", "", "set the maintained version as base for new releases")
