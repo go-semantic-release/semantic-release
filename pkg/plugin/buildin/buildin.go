@@ -19,116 +19,100 @@ import (
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/updater"
-	"github.com/urfave/cli/v2"
+	"github.com/spf13/cobra"
 )
 
-func GetPluginCommands() []*cli.Command {
-	return []*cli.Command{
+func RegisterPluginCommands(cmd *cobra.Command) {
+	cmd.AddCommand([]*cobra.Command{
 		{
-			Name: analyzer.CommitAnalyzerPluginName,
-			Action: func(c *cli.Context) error {
+			Use: analyzer.CommitAnalyzerPluginName,
+			Run: func(cmd *cobra.Command, args []string) {
 				plugin.Serve(&plugin.ServeOpts{
 					CommitAnalyzer: func() analyzer.CommitAnalyzer {
 						return &defaultAnalyzer.DefaultCommitAnalyzer{}
 					},
 				})
-				return nil
 			},
-			Hidden:   true,
-			HideHelp: true,
+			Hidden: true,
 		},
 		{
-			Name: condition.CIConditionPluginName + "_default",
-			Action: func(c *cli.Context) error {
+			Use: condition.CIConditionPluginName + "_default",
+			Run: func(cmd *cobra.Command, args []string) {
 				plugin.Serve(&plugin.ServeOpts{
 					CICondition: func() condition.CICondition {
 						return &defaultCI.DefaultCI{}
 					},
 				})
-				return nil
 			},
-			Hidden:   true,
-			HideHelp: true,
+			Hidden: true,
 		},
 		{
-			Name: condition.CIConditionPluginName + "_github",
-			Action: func(c *cli.Context) error {
+			Use: condition.CIConditionPluginName + "_github",
+			Run: func(cmd *cobra.Command, args []string) {
 				plugin.Serve(&plugin.ServeOpts{
 					CICondition: func() condition.CICondition {
 						return &githubCI.GitHubActions{}
 					},
 				})
-				return nil
 			},
-			Hidden:   true,
-			HideHelp: true,
+			Hidden: true,
 		},
 		{
-			Name: condition.CIConditionPluginName + "_gitlab",
-			Action: func(c *cli.Context) error {
+			Use: condition.CIConditionPluginName + "_gitlab",
+			Run: func(cmd *cobra.Command, args []string) {
 				plugin.Serve(&plugin.ServeOpts{
 					CICondition: func() condition.CICondition {
 						return &gitlabCI.GitLab{}
 					},
 				})
-				return nil
 			},
-			Hidden:   true,
-			HideHelp: true,
+			Hidden: true,
 		},
 		{
-			Name: generator.ChangelogGeneratorPluginName,
-			Action: func(c *cli.Context) error {
+			Use: generator.ChangelogGeneratorPluginName,
+			Run: func(cmd *cobra.Command, args []string) {
 				plugin.Serve(&plugin.ServeOpts{
 					ChangelogGenerator: func() generator.ChangelogGenerator {
 						return &defaultGenerator.DefaultChangelogGenerator{}
 					},
 				})
-				return nil
 			},
-			Hidden:   true,
-			HideHelp: true,
+			Hidden: true,
 		},
 		{
-			Name: provider.PluginName + "_github",
-			Action: func(c *cli.Context) error {
+			Use: provider.PluginName + "_github",
+			Run: func(cmd *cobra.Command, args []string) {
 				plugin.Serve(&plugin.ServeOpts{
 					Provider: func() provider.Provider {
 						return &providerGithub.GitHubRepository{}
 					},
 				})
-				return nil
 			},
-			Hidden:   true,
-			HideHelp: true,
+			Hidden: true,
 		},
 		{
-			Name: provider.PluginName + "_gitlab",
-			Action: func(c *cli.Context) error {
+			Use: provider.PluginName + "_gitlab",
+			Run: func(cmd *cobra.Command, args []string) {
 				plugin.Serve(&plugin.ServeOpts{
 					Provider: func() provider.Provider {
 						return &providerGitlab.GitLabRepository{}
 					},
 				})
-				return nil
 			},
-			Hidden:   true,
-			HideHelp: true,
+			Hidden: true,
 		},
 		{
-			Name: updater.FilesUpdaterPluginName + "_npm",
-			Action: func(c *cli.Context) error {
+			Use: updater.FilesUpdaterPluginName + "_npm",
+			Run: func(cmd *cobra.Command, args []string) {
 				plugin.Serve(&plugin.ServeOpts{
 					FilesUpdater: func() updater.FilesUpdater {
 						return &npmUpdater.Updater{}
 					},
 				})
-				return nil
 			},
-			Hidden:   true,
-			HideHelp: true,
+			Hidden: true,
 		},
-	}
+	}...)
 }
 
 func GetPluginOpts(t string, suffixNames ...string) *plugin.PluginOpts {

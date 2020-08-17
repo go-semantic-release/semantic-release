@@ -2,6 +2,7 @@ package manager
 
 import (
 	"os"
+	"strings"
 
 	"github.com/go-semantic-release/semantic-release/v2/pkg/analyzer"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/condition"
@@ -38,7 +39,7 @@ func (m *PluginManager) GetCICondition() (condition.CICondition, error) {
 
 func (m *PluginManager) GetProvider() (provider.Provider, error) {
 	providerType := "github"
-	if m.config.GitLab {
+	if strings.ToLower(m.config.ProviderPlugin) == "gitlab" || os.Getenv("GITLAB_CI") == "true" {
 		providerType = "gitlab"
 	}
 
