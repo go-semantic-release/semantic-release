@@ -18,103 +18,9 @@ import (
 	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
-	"github.com/go-semantic-release/semantic-release/v2/pkg/semrel"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/updater"
 	"github.com/spf13/cobra"
 )
-
-type tempCommitAnalyzerInterface interface {
-	Analyze(commits []*semrel.RawCommit) []*semrel.Commit
-}
-
-type tempCommitAnalyzerWrapper struct {
-	tempCommitAnalyzerInterface
-}
-
-func (*tempCommitAnalyzerWrapper) Init(m map[string]string) error {
-	return nil
-}
-
-func (*tempCommitAnalyzerWrapper) Name() string {
-	return "default"
-}
-
-func (*tempCommitAnalyzerWrapper) Version() string {
-	return "dev"
-}
-
-type tempCIInterface interface {
-	Name() string
-	RunCondition(m map[string]string) error
-	GetCurrentBranch() string
-	GetCurrentSHA() string
-}
-
-type tempCIWrapper struct {
-	tempCIInterface
-}
-
-func (*tempCIWrapper) Version() string {
-	return "dev"
-}
-
-type tempChangelogGeneratorInterface interface {
-	Generate(config *generator.ChangelogGeneratorConfig) string
-}
-
-type tempChangelogGeneratorWrapper struct {
-	tempChangelogGeneratorInterface
-}
-
-func (*tempChangelogGeneratorWrapper) Init(m map[string]string) error {
-	return nil
-}
-
-func (*tempChangelogGeneratorWrapper) Name() string {
-	return "default"
-}
-
-func (*tempChangelogGeneratorWrapper) Version() string {
-	return "dev"
-}
-
-type tempProviderInterface interface {
-	Init(map[string]string) error
-	Name() string
-	GetInfo() (*provider.RepositoryInfo, error)
-	GetCommits(sha string) ([]*semrel.RawCommit, error)
-	GetReleases(re string) ([]*semrel.Release, error)
-	CreateRelease(*provider.CreateReleaseConfig) error
-}
-
-type tempProviderWrapper struct {
-	tempProviderInterface
-}
-
-func (*tempProviderWrapper) Version() string {
-	return "dev"
-}
-
-type tempFilesUpdaterInterface interface {
-	ForFiles() string
-	Apply(file, newVersion string) error
-}
-
-type tempFilesUpdaterWrapper struct {
-	tempFilesUpdaterInterface
-}
-
-func (*tempFilesUpdaterWrapper) Init(m map[string]string) error {
-	return nil
-}
-
-func (*tempFilesUpdaterWrapper) Name() string {
-	return "default"
-}
-
-func (*tempFilesUpdaterWrapper) Version() string {
-	return "dev"
-}
 
 func RegisterPluginCommands(cmd *cobra.Command) {
 	cmd.AddCommand([]*cobra.Command{
@@ -123,7 +29,7 @@ func RegisterPluginCommands(cmd *cobra.Command) {
 			Run: func(cmd *cobra.Command, args []string) {
 				plugin.Serve(&plugin.ServeOpts{
 					CommitAnalyzer: func() analyzer.CommitAnalyzer {
-						return &tempCommitAnalyzerWrapper{&defaultAnalyzer.DefaultCommitAnalyzer{}}
+						return &defaultAnalyzer.DefaultCommitAnalyzer{}
 					},
 				})
 			},
@@ -134,7 +40,7 @@ func RegisterPluginCommands(cmd *cobra.Command) {
 			Run: func(cmd *cobra.Command, args []string) {
 				plugin.Serve(&plugin.ServeOpts{
 					CICondition: func() condition.CICondition {
-						return &tempCIWrapper{&defaultCI.DefaultCI{}}
+						return &defaultCI.DefaultCI{}
 					},
 				})
 			},
@@ -145,7 +51,7 @@ func RegisterPluginCommands(cmd *cobra.Command) {
 			Run: func(cmd *cobra.Command, args []string) {
 				plugin.Serve(&plugin.ServeOpts{
 					CICondition: func() condition.CICondition {
-						return &tempCIWrapper{&githubCI.GitHubActions{}}
+						return &githubCI.GitHubActions{}
 					},
 				})
 			},
@@ -156,7 +62,7 @@ func RegisterPluginCommands(cmd *cobra.Command) {
 			Run: func(cmd *cobra.Command, args []string) {
 				plugin.Serve(&plugin.ServeOpts{
 					CICondition: func() condition.CICondition {
-						return &tempCIWrapper{&gitlabCI.GitLab{}}
+						return &gitlabCI.GitLab{}
 					},
 				})
 			},
@@ -167,7 +73,7 @@ func RegisterPluginCommands(cmd *cobra.Command) {
 			Run: func(cmd *cobra.Command, args []string) {
 				plugin.Serve(&plugin.ServeOpts{
 					ChangelogGenerator: func() generator.ChangelogGenerator {
-						return &tempChangelogGeneratorWrapper{&defaultGenerator.DefaultChangelogGenerator{}}
+						return &defaultGenerator.DefaultChangelogGenerator{}
 					},
 				})
 			},
@@ -178,7 +84,7 @@ func RegisterPluginCommands(cmd *cobra.Command) {
 			Run: func(cmd *cobra.Command, args []string) {
 				plugin.Serve(&plugin.ServeOpts{
 					Provider: func() provider.Provider {
-						return &tempProviderWrapper{&providerGithub.GitHubRepository{}}
+						return &providerGithub.GitHubRepository{}
 					},
 				})
 			},
@@ -189,7 +95,7 @@ func RegisterPluginCommands(cmd *cobra.Command) {
 			Run: func(cmd *cobra.Command, args []string) {
 				plugin.Serve(&plugin.ServeOpts{
 					Provider: func() provider.Provider {
-						return &tempProviderWrapper{&providerGitlab.GitLabRepository{}}
+						return &providerGitlab.GitLabRepository{}
 					},
 				})
 			},
@@ -200,7 +106,7 @@ func RegisterPluginCommands(cmd *cobra.Command) {
 			Run: func(cmd *cobra.Command, args []string) {
 				plugin.Serve(&plugin.ServeOpts{
 					FilesUpdater: func() updater.FilesUpdater {
-						return &tempFilesUpdaterWrapper{&npmUpdater.Updater{}}
+						return &npmUpdater.Updater{}
 					},
 				})
 			},
