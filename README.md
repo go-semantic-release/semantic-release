@@ -46,7 +46,7 @@ You can enforce semantic commit messages using [a git hook](https://github.com/h
 ## Installation
 
 
-### Option 1: Use the go-semantic-release GitHub Action ([go-semantic-release/action](https://github.com/go-semantic-release/action)
+### Option 1: Use the go-semantic-release GitHub Action ([go-semantic-release/action](https://github.com/go-semantic-release/action))
 
 ### Option 2: Install `semantic-release` manually
 
