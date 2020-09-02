@@ -27,6 +27,7 @@ import (
 )
 
 const PluginDir = ".semrel"
+const PluginAPI = "https://plugins.go-semantic-release.xyz/api/v1"
 
 var osArchDir = runtime.GOOS + "_" + runtime.GOARCH
 
@@ -73,14 +74,17 @@ type apiPlugin struct {
 }
 
 func getPluginInfo(name string) (*apiPlugin, error) {
-	res, err := http.Get(fmt.Sprintf("https://plugins.go-semantic-release.xyz/api/v1/plugins/%s.json", name))
+	res, err := http.Get(fmt.Sprintf("%s/plugins/%s.json", PluginAPI, name))
 	if err != nil {
 		return nil, err
+	}
+	defer res.Body.Close()
+	if res.StatusCode == 404 {
+		return nil, fmt.Errorf("plugin not found: %s", name)
 	}
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		return nil, errors.New("invalid response")
 	}
-	defer res.Body.Close()
 	var plugin *apiPlugin
 	if err := json.NewDecoder(res.Body).Decode(&plugin); err != nil {
 		return nil, err
