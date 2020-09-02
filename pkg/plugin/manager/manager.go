@@ -6,7 +6,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/v2/pkg/config"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
-	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/buildin"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/updater"
 )
@@ -20,7 +20,12 @@ func New(config *config.Config) (*PluginManager, error) {
 }
 
 func (m *PluginManager) GetCICondition() (condition.CICondition, error) {
-	cic, err := plugin.StartCIConditionPlugin(buildin.GetPluginOpts(condition.CIConditionPluginName, m.config.CIConditionPlugin))
+	opts, err := discovery.FindPlugin(condition.CIConditionPluginName, m.config.CIConditionPlugin)
+	if err != nil {
+		return nil, err
+	}
+
+	cic, err := plugin.StartCIConditionPlugin(opts)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +33,12 @@ func (m *PluginManager) GetCICondition() (condition.CICondition, error) {
 }
 
 func (m *PluginManager) GetProvider() (provider.Provider, error) {
-	provider, err := plugin.StartProviderPlugin(buildin.GetPluginOpts(provider.PluginName, m.config.ProviderPlugin))
+	opts, err := discovery.FindPlugin(provider.PluginName, m.config.ProviderPlugin)
+	if err != nil {
+		return nil, err
+	}
+
+	provider, err := plugin.StartProviderPlugin(opts)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +46,12 @@ func (m *PluginManager) GetProvider() (provider.Provider, error) {
 }
 
 func (m *PluginManager) GetCommitAnalyzer() (analyzer.CommitAnalyzer, error) {
-	ca, err := plugin.StartCommitAnalyzerPlugin(buildin.GetPluginOpts(analyzer.CommitAnalyzerPluginName))
+	opts, err := discovery.FindPlugin(analyzer.CommitAnalyzerPluginName, m.config.CommitAnalyzerPlugin)
+	if err != nil {
+		return nil, err
+	}
+
+	ca, err := plugin.StartCommitAnalyzerPlugin(opts)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +59,12 @@ func (m *PluginManager) GetCommitAnalyzer() (analyzer.CommitAnalyzer, error) {
 }
 
 func (m *PluginManager) GetChangelogGenerator() (generator.ChangelogGenerator, error) {
-	cg, err := plugin.StartChangelogGeneratorPlugin(buildin.GetPluginOpts(generator.ChangelogGeneratorPluginName))
+	opts, err := discovery.FindPlugin(generator.ChangelogGeneratorPluginName, m.config.ChangelogGeneratorPlugin)
+	if err != nil {
+		return nil, err
+	}
+
+	cg, err := plugin.StartChangelogGeneratorPlugin(opts)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +74,12 @@ func (m *PluginManager) GetChangelogGenerator() (generator.ChangelogGenerator, e
 func (m *PluginManager) GetChainedUpdater() (*updater.ChainedUpdater, error) {
 	updaters := make([]updater.FilesUpdater, 0)
 	for _, pl := range m.config.FilesUpdaterPlugins {
-		upd, err := plugin.StartFilesUpdaterPlugin(buildin.GetPluginOpts(updater.FilesUpdaterPluginName, pl))
+		opts, err := discovery.FindPlugin(updater.FilesUpdaterPluginName, pl)
+		if err != nil {
+			return nil, err
+		}
+
+		upd, err := plugin.StartFilesUpdaterPlugin(opts)
 		if err != nil {
 			return nil, err
 		}
