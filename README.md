@@ -10,7 +10,7 @@ A more lightweight and standalone version of [semantic-release](https://github.c
 
 ## 🚨 Upgrade to semantic-release v2 🚨
 
-`semantic-release` v2 is now available. If you run into any problems, please create a GitHub issue. You can always downgrade to v1 with:
+`semantic-release` v2 is now available. If you run into any problems, please create a [GitHub issue](https://github.com/go-semantic-release/semantic-release/issues/new). You can always downgrade to v1 with:
 
 ```
 curl -SL https://get-release.xyz/semantic-release/linux/amd64/1.22.1 -o ./semantic-release && chmod +x ./semantic-release
