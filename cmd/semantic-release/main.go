@@ -11,7 +11,6 @@ import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/config"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
-	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/buildin"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/manager"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/semrel"
@@ -46,7 +45,7 @@ func main() {
 		Run:     cliHandler,
 		Version: SRVERSION,
 	}
-	buildin.RegisterPluginCommands(cmd)
+
 	err := config.InitConfig(cmd)
 	if err != nil {
 		fmt.Printf("\nConfig error: %s\n", err.Error())
