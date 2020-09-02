@@ -8,6 +8,31 @@
 
 A more lightweight and standalone version of [semantic-release](https://github.com/semantic-release/semantic-release).
 
+## 🚨 Upgrade to semantic-release v2 🚨
+
+`semantic-release` v2 is now available. If you run into any problems, please create a GitHub issue. You can always downgrade to v1 with:
+
+```
+curl -SL https://get-release.xyz/semantic-release/linux/amd64/1.22.1 -o ./semantic-release && chmod +x ./semantic-release
+```
+
+### Breaking changes
+
+* It is now necessary to use **double dashes** for CLI flags (e.g. `--dry`)
+* **Travis CI** support has been **removed**
+* Some CLI flags have changed:
+
+|             v1             |                        v2                        |
+|:--------------------------:|:------------------------------------------------:|
+| `-vf`                      | `-f`                                             |
+| `--noci`                   | `--no-ci`                                        |
+| `--ghe-host <host>`        | `--provider-opt "github_enterprise_host=<host>"` |
+| `--travis-com`             | _removed_                                        |
+| `--gitlab`                 | `--provider gitlab`                              |
+| `--gitlab-base-url <url>`  | `--provider-opt "gitlab_baseurl=<url>"`          |
+| `--gitlab-project-id <id>` | `--provider-opt "gitlab_projectid=<id>"`         |
+| `--slug`                   | `--provider-opt "slug=<url>"`                    |
+
 ## How does it work?
 Instead of writing [meaningless commit messages](http://whatthecommit.com/), we can take our time to think about the changes in the codebase and write them down. Following the [AngularJS Commit Message Conventions](https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit) it is then possible to generate a helpful changelog and to derive the next semantic version number from them.
 
@@ -19,15 +44,19 @@ You can enforce semantic commit messages using [a git hook](https://github.com/h
 
 
 ## Installation
-__Install the latest version of semantic-release__
+
+
+### Option 1: Use the go-semantic-release GitHub Action ([go-semantic-release/action](https://github.com/go-semantic-release/action)
+
+### Option 2: Install `semantic-release` manually
+
 ```bash
 curl -SL https://get-release.xyz/semantic-release/linux/amd64 -o ./semantic-release && chmod +x ./semantic-release
 ```
 
-
 ## Plugin System
 
-Since version 2, semantic-release is equipped with a plugin system. The plugins are standalone binaries that use [hashicorp/go-plugin](https://github.com/hashicorp/go-plugin) as a plugin library. `semantic-release` automatically downloads the necessary plugins if they don't exist locally. The plugins are stored in the `.semrel` directory of the current working directory in the following format: `.semrel/<os>_<arch>/<plugin name>/<version>/`. The go-semantic-release plugins API (`https://plugins.go-semantic-release.xyz/api/v1/`) is used to resolve plugins to the correct binary. The served content of the API can be found [here](https://github.com/go-semantic-release/go-semantic-release.github.io/tree/plugin-index), and a list of all existing plugins can be found [here](https://plugins.go-semantic-release.xyz/api/v1/plugins.json).
+Since v2, semantic-release is equipped with a plugin system. The plugins are standalone binaries that use [hashicorp/go-plugin](https://github.com/hashicorp/go-plugin) as a plugin library. `semantic-release` automatically downloads the necessary plugins if they don't exist locally. The plugins are stored in the `.semrel` directory of the current working directory in the following format: `.semrel/<os>_<arch>/<plugin name>/<version>/`. The go-semantic-release plugins API (`https://plugins.go-semantic-release.xyz/api/v1/`) is used to resolve plugins to the correct binary. The served content of the API can be found [here](https://github.com/go-semantic-release/go-semantic-release.github.io/tree/plugin-index), and a list of all existing plugins can be found [here](https://plugins.go-semantic-release.xyz/api/v1/plugins.json).
 
 ### Plugin Types
 
