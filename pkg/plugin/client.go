@@ -7,6 +7,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/v2/pkg/analyzer"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/hooks"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/updater"
 	"github.com/hashicorp/go-hclog"
@@ -98,4 +99,12 @@ func StartFilesUpdaterPlugin(opts *PluginOpts) (updater.FilesUpdater, error) {
 		return nil, err
 	}
 	return raw.(updater.FilesUpdater), nil
+}
+
+func StartHooksPlugin(opts *PluginOpts) (hooks.Hooks, error) {
+	raw, err := startPlugin(opts)
+	if err != nil {
+		return nil, err
+	}
+	return raw.(hooks.Hooks), nil
 }

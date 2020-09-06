@@ -7,6 +7,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/v2/pkg/analyzer"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/hooks"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/updater"
 	"github.com/hashicorp/go-plugin"
@@ -41,6 +42,10 @@ func (p *GRPCWrapper) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) erro
 		updater.RegisterFilesUpdaterPluginServer(s, &updater.FilesUpdaterServer{
 			Impl: p.Impl.(updater.FilesUpdater),
 		})
+	case hooks.PluginName:
+		hooks.RegisterHooksPluginServer(s, &hooks.Server{
+			Impl: p.Impl.(hooks.Hooks),
+		})
 	default:
 		return errors.New("unknown plugin type")
 	}
@@ -68,6 +73,10 @@ func (p *GRPCWrapper) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker,
 	case updater.FilesUpdaterPluginName:
 		return &updater.FilesUpdaterClient{
 			Impl: updater.NewFilesUpdaterPluginClient(c),
+		}, nil
+	case hooks.PluginName:
+		return &hooks.Client{
+			Impl: hooks.NewHooksPluginClient(c),
 		}, nil
 	}
 	return nil, errors.New("unknown plugin type")

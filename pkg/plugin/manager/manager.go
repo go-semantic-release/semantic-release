@@ -5,6 +5,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/v2/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/config"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/hooks"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
@@ -90,6 +91,26 @@ func (m *PluginManager) GetChainedUpdater() (*updater.ChainedUpdater, error) {
 		Updaters: updaters,
 	}
 	return updater, nil
+}
+
+func (m *PluginManager) GetChainedHooksExecutor() (*hooks.ChainedHooksExecutor, error) {
+	hooksChain := make([]hooks.Hooks, 0)
+	for _, pl := range m.config.HooksPlugins {
+		opts, err := discovery.FindPlugin(hooks.PluginName, pl)
+		if err != nil {
+			return nil, err
+		}
+
+		hp, err := plugin.StartHooksPlugin(opts)
+		if err != nil {
+			return nil, err
+		}
+		hooksChain = append(hooksChain, hp)
+	}
+
+	return &hooks.ChainedHooksExecutor{
+		HooksChain: hooksChain,
+	}, nil
 }
 
 func (m *PluginManager) Stop() {

@@ -22,6 +22,8 @@ type Config struct {
 	Changelog                       string
 	FilesUpdaterPlugins             []string
 	FilesUpdaterOpts                map[string]string
+	HooksPlugins                    []string
+	HooksOpts                       map[string]string
 	UpdateFiles                     []string
 	Match                           string
 	VersionFile                     bool
@@ -89,6 +91,9 @@ func NewConfig(cmd *cobra.Command) (*Config, error) {
 	fuOpts := mergeOpts(
 		viper.GetStringMapString("plugins.files-updater.options"),
 		mustGetStringArray(cmd, "files-updater-opt"))
+	hoOpts := mergeOpts(
+		viper.GetStringMapString("plugins.hooks.options"),
+		mustGetStringArray(cmd, "hooks-opt"))
 
 	conf := &Config{
 		Token:                           mustGetString(cmd, "token"),
@@ -103,6 +108,8 @@ func NewConfig(cmd *cobra.Command) (*Config, error) {
 		Changelog:                       mustGetString(cmd, "changelog"),
 		FilesUpdaterPlugins:             viper.GetStringSlice("plugins.files-updater.names"),
 		FilesUpdaterOpts:                fuOpts,
+		HooksPlugins:                    viper.GetStringSlice("plugins.hooks.names"),
+		HooksOpts:                       hoOpts,
 		UpdateFiles:                     mustGetStringArray(cmd, "update"),
 		Match:                           mustGetString(cmd, "match"),
 		VersionFile:                     mustGetBool(cmd, "version-file"),
@@ -114,7 +121,6 @@ func NewConfig(cmd *cobra.Command) (*Config, error) {
 		AllowNoChanges:                  mustGetBool(cmd, "allow-no-changes"),
 		MaintainedVersion:               viper.GetString("maintainedVersion"),
 	}
-
 	return conf, nil
 }
 func must(err error) {
@@ -153,6 +159,8 @@ func InitConfig(cmd *cobra.Command) error {
 	cmd.Flags().String("changelog", "", "creates a changelog file")
 	cmd.Flags().StringSlice("files-updater", []string{"npm"}, "files-updater plugin names")
 	cmd.Flags().StringArray("files-updater-opt", []string{}, "options that are passed to the files-updater plugins")
+	cmd.Flags().StringSlice("hooks", []string{}, "hooks plugin names")
+	cmd.Flags().StringArray("hooks-opt", []string{}, "options that are passed to the hooks plugins")
 	cmd.Flags().StringArrayP("update", "u", []string{}, "updates the version of a certain files")
 	cmd.Flags().String("match", "", "only consider tags matching the given glob(7) pattern, excluding the \"refs/tags/\" prefix.")
 	cmd.Flags().String("maintained-version", "", "set the maintained version as base for new releases")
@@ -177,6 +185,7 @@ func InitConfig(cmd *cobra.Command) error {
 	must(viper.BindPFlag("plugins.ci-condition.name", cmd.Flags().Lookup("ci-condition")))
 	must(viper.BindPFlag("plugins.changelog-generator.name", cmd.Flags().Lookup("changelog-generator")))
 	must(viper.BindPFlag("plugins.files-updater.names", cmd.Flags().Lookup("files-updater")))
+	must(viper.BindPFlag("plugins.hooks.names", cmd.Flags().Lookup("hooks")))
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
