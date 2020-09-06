@@ -11,6 +11,7 @@ import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/config"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/hooks"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/manager"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/semrel"
@@ -114,17 +115,38 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	currentSha := ci.GetCurrentSHA()
 	logger.Println("found current sha: " + currentSha)
 
+	hooksExecutor, err := pluginManager.GetChainedHooksExecutor()
+	exitIfError(err)
+
+	hooksNames := hooksExecutor.GetNameVersionPairs()
+	if len(hooksNames) > 0 {
+		logger.Printf("hooks plugins: %s\n", strings.Join(hooksNames, ", "))
+	}
+
+	exitIfError(hooksExecutor.Init(conf.HooksOpts))
+
 	if !conf.NoCI {
 		logger.Println("running CI condition...")
-		config := map[string]string{
+		conditionConfig := map[string]string{
 			"token":         conf.Token,
 			"defaultBranch": repoInfo.DefaultBranch,
 			"private":       fmt.Sprintf("%t", repoInfo.Private),
 		}
 		for k, v := range conf.CIConditionOpts {
-			config[k] = v
+			conditionConfig[k] = v
 		}
-		exitIfError(ci.RunCondition(config), 66)
+		err = ci.RunCondition(conditionConfig)
+		if err != nil {
+			herr := hooksExecutor.NoRelease(&hooks.NoReleaseConfig{
+				Reason:  hooks.NoReleaseReason_CONDITION,
+				Message: err.Error(),
+			})
+			if herr != nil {
+				logger.Printf("there was an error executing the hooks plugins: %s", herr.Error())
+			}
+			exitIfError(err, 66)
+		}
+
 	}
 
 	logger.Println("getting latest release...")
@@ -158,6 +180,13 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	logger.Println("calculating new version...")
 	newVer := semrel.GetNewVersion(conf, commits, release)
 	if newVer == "" {
+		herr := hooksExecutor.NoRelease(&hooks.NoReleaseConfig{
+			Reason:  hooks.NoReleaseReason_NO_CHANGE,
+			Message: "",
+		})
+		if herr != nil {
+			logger.Printf("there was an error executing the hooks plugins: %s", herr.Error())
+		}
 		if conf.AllowNoChanges {
 			logger.Println("no change")
 			os.Exit(0)
@@ -213,6 +242,21 @@ func cliHandler(cmd *cobra.Command, args []string) {
 		for _, f := range conf.UpdateFiles {
 			exitIfError(updater.Apply(f, newVer))
 		}
+	}
+
+	herr := hooksExecutor.Success(&hooks.SuccessHookConfig{
+		Commits:     commits,
+		PrevRelease: release,
+		NewRelease: &semrel.Release{
+			SHA:     currentSha,
+			Version: newVer,
+		},
+		Changelog: changelogRes,
+		RepoInfo:  repoInfo,
+	})
+
+	if herr != nil {
+		logger.Printf("there was an error executing the hooks plugins: %s", herr.Error())
 	}
 
 	logger.Println("done.")

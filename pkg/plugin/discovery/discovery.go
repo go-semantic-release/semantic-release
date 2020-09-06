@@ -16,6 +16,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-semantic-release/semantic-release/v2/pkg/hooks"
+
 	"github.com/Masterminds/semver/v3"
 	"github.com/cavaliercoder/grab"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/analyzer"
@@ -223,6 +225,8 @@ func getPluginType(t string) string {
 		return "provider"
 	case updater.FilesUpdaterPluginName:
 		return "files-updater"
+	case hooks.PluginName:
+		return "hooks"
 	}
 	return ""
 }
