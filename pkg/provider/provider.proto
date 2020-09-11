@@ -51,7 +51,8 @@ message GetInfo {
 
 message GetCommits {
   message Request {
-    string SHA = 1;
+    string FromSHA = 1;
+    string ToSHA = 2;
   }
   message Response {
     repeated RawCommit raw_commits = 1;

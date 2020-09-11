@@ -2,7 +2,9 @@
 
 set -euo pipefail
 
-shopt -s globstar
+if [[ "$OSTYPE" != "darwin"* ]]; then
+  shopt -s globstar
+fi
 
 for f in $(ls ./pkg/**/*.proto) ; do
   echo "generating $f"

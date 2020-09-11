@@ -9,7 +9,7 @@ type Provider interface {
 	Name() string
 	Version() string
 	GetInfo() (*RepositoryInfo, error)
-	GetCommits(sha string) ([]*semrel.RawCommit, error)
+	GetCommits(fromSha, toSha string) ([]*semrel.RawCommit, error)
 	GetReleases(re string) ([]*semrel.Release, error)
 	CreateRelease(*CreateReleaseConfig) error
 }
