@@ -40,7 +40,7 @@ func (s *Server) GetInfo(ctx context.Context, request *GetInfo_Request) (*GetInf
 }
 
 func (s *Server) GetCommits(ctx context.Context, request *GetCommits_Request) (*GetCommits_Response, error) {
-	commits, err := s.Impl.GetCommits(request.FromSHA, request.ToSHA)
+	commits, err := s.Impl.GetCommits(request.FromSha, request.ToSha)
 	if err != nil {
 		return &GetCommits_Response{Error: err.Error()}, nil
 	}
@@ -94,8 +94,8 @@ func (c *Client) GetInfo() (*RepositoryInfo, error) {
 
 func (c *Client) GetCommits(fromSha, toSha string) ([]*semrel.RawCommit, error) {
 	res, err := c.Impl.GetCommits(context.Background(), &GetCommits_Request{
-		FromSHA: fromSha,
-		ToSHA:   toSha,
+		FromSha: fromSha,
+		ToSha:   toSha,
 	})
 	if err != nil {
 		return nil, err
