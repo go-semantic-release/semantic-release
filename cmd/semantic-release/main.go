@@ -170,6 +170,7 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	rawCommits, err := prov.GetCommits(release.SHA, currentSha)
 	exitIfError(err)
 
+	logger.Println("analyzing commits...")
 	commitAnalyzer, err := pluginManager.GetCommitAnalyzer()
 	exitIfError(err)
 	logger.Printf("commit-analyzer plugin: %s@%s\n", commitAnalyzer.Name(), commitAnalyzer.Version())
@@ -237,6 +238,7 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	}
 
 	if len(conf.UpdateFiles) > 0 {
+		logger.Println("updating files...")
 		updater, err := pluginManager.GetChainedUpdater()
 		exitIfError(err)
 		logger.Printf("files-updater plugins: %s\n", strings.Join(updater.GetNameVersionPairs(), ", "))
