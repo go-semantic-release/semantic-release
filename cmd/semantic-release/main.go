@@ -187,18 +187,14 @@ func cliHandler(cmd *cobra.Command, args []string) {
 		if herr != nil {
 			logger.Printf("there was an error executing the hooks plugins: %s", herr.Error())
 		}
+		errNoChange := errors.New("no change")
 		if conf.AllowNoChanges {
-			logger.Println("no change")
-			os.Exit(0)
+			exitIfError(errNoChange, 0)
 		} else {
-			exitIfError(errors.New("no change"), 65)
+			exitIfError(errNoChange, 65)
 		}
 	}
 	logger.Println("new version: " + newVer)
-
-	if conf.Dry {
-		exitIfError(errors.New("DRY RUN: no release was created"), 65)
-	}
 
 	logger.Println("generating changelog...")
 	changelogGenerator, err := pluginManager.GetChangelogGenerator()
@@ -213,6 +209,13 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	})
 	if conf.Changelog != "" {
 		exitIfError(ioutil.WriteFile(conf.Changelog, []byte(changelogRes), 0644))
+	}
+
+	if conf.Dry {
+		exitIfError(errors.New("DRY RUN: no release was created"), 0)
+		if conf.VersionFile {
+			exitIfError(ioutil.WriteFile(".version-unreleased", []byte(newVer), 0644))
+		}
 	}
 
 	logger.Println("creating release...")
