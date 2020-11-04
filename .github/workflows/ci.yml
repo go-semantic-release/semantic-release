@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: go build ./cmd/semantic-release/
       - run: go test -v ./...
-      - run: ./semantic-release --dry --allow-no-changes
+      - run: ./semantic-release --dry --allow-no-changes --no-ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
