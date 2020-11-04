@@ -13,4 +13,4 @@ build:
   stage: build
   script:
     - go build ./cmd/semantic-release/
-    - ./semantic-release --dry --allow-no-changes
+    - ./semantic-release --dry --allow-no-changes --no-ci
