@@ -6,11 +6,15 @@ stages:
 
 test:
   stage: test
+  except:
+    - tags
   script:
     - go test -v ./...
 
 build:
   stage: build
+  except:
+    - tags
   script:
     - go build ./cmd/semantic-release/
     - ./semantic-release --dry --allow-no-changes --no-ci
