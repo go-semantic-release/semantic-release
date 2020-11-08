@@ -262,7 +262,8 @@ func FindPlugin(t, name string) (*plugin.PluginOpts, error) {
 	}
 
 	return &plugin.PluginOpts{
-		Type: t,
-		Cmd:  exec.Command(binPath),
+		Type:       t,
+		PluginName: pName,
+		Cmd:        exec.Command(binPath),
 	}, nil
 }
