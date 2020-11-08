@@ -213,10 +213,10 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	}
 
 	if conf.Dry {
-		exitIfError(errors.New("DRY RUN: no release was created"), 0)
 		if conf.VersionFile {
 			exitIfError(ioutil.WriteFile(".version-unreleased", []byte(newVer), 0644))
 		}
+		exitIfError(errors.New("DRY RUN: no release was created"), 0)
 	}
 
 	logger.Println("creating release...")
