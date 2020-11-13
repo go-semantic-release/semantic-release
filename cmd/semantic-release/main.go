@@ -209,7 +209,17 @@ func cliHandler(cmd *cobra.Command, args []string) {
 		NewVersion:    newVer,
 	})
 	if conf.Changelog != "" {
-		exitIfError(ioutil.WriteFile(conf.Changelog, []byte(changelogRes), 0644))
+		oldFile := make([]byte, 0)
+		if conf.PrependChangelog {
+			oldFile, err = ioutil.ReadFile(conf.Changelog)
+			if err == nil {
+				oldFile = append([]byte("\n\n"), oldFile...)
+			} else {
+				oldFile = make([]byte, 0)
+			}
+		}
+		changelogData := append([]byte(changelogRes), oldFile...)
+		exitIfError(ioutil.WriteFile(conf.Changelog, changelogData, 0644))
 	}
 
 	if conf.Dry {
