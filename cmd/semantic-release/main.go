@@ -211,11 +211,9 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	if conf.Changelog != "" {
 		oldFile := make([]byte, 0)
 		if conf.PrependChangelog {
-			oldFile, err = ioutil.ReadFile(conf.Changelog)
+			oldFileData, err := ioutil.ReadFile(conf.Changelog)
 			if err == nil {
-				oldFile = append([]byte("\n\n"), oldFile...)
-			} else {
-				oldFile = make([]byte, 0)
+				oldFile = append([]byte("\n"), oldFileData...)
 			}
 		}
 		changelogData := append([]byte(changelogRes), oldFile...)
