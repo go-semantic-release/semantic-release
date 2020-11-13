@@ -34,6 +34,7 @@ type Config struct {
 	AllowInitialDevelopmentVersions bool
 	AllowNoChanges                  bool
 	MaintainedVersion               string
+	PrependChangelog                bool
 }
 
 func mustGetString(cmd *cobra.Command, name string) string {
@@ -120,6 +121,7 @@ func NewConfig(cmd *cobra.Command) (*Config, error) {
 		AllowInitialDevelopmentVersions: mustGetBool(cmd, "allow-initial-development-versions"),
 		AllowNoChanges:                  mustGetBool(cmd, "allow-no-changes"),
 		MaintainedVersion:               viper.GetString("maintainedVersion"),
+		PrependChangelog:                mustGetBool(cmd, "prepend-changelog"),
 	}
 	return conf, nil
 }
@@ -171,6 +173,7 @@ func InitConfig(cmd *cobra.Command) error {
 	cmd.Flags().Bool("dry", false, "do not create release")
 	cmd.Flags().Bool("allow-initial-development-versions", false, "semantic-release will start your initial development release at 0.1.0")
 	cmd.Flags().Bool("allow-no-changes", false, "exit with code 0 if no changes are found, useful if semantic-release is automatically run")
+	cmd.Flags().Bool("prepend-changelog", false, "if the changelog file already exist the new changelog is prepended")
 	cmd.Flags().SortFlags = true
 
 	viper.AddConfigPath(".")
