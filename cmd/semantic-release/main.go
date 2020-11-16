@@ -84,6 +84,12 @@ func cliHandler(cmd *cobra.Command, args []string) {
 		exitIfError(errors.New("terminating..."))
 	}()
 
+	if conf.DownloadPlugins {
+		exitIfError(pluginManager.FetchAllPlugins())
+		logger.Println("all plugins are downloaded")
+		os.Exit(0)
+	}
+
 	ci, err := pluginManager.GetCICondition()
 	exitIfError(err)
 	logger.Printf("ci-condition plugin: %s@%s\n", ci.Name(), ci.Version())
