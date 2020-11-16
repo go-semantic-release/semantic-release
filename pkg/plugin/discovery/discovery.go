@@ -16,16 +16,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-semantic-release/semantic-release/v2/pkg/hooks"
-
 	"github.com/Masterminds/semver/v3"
 	"github.com/cavaliercoder/grab"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/analyzer"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/hooks"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/updater"
+	"github.com/schollz/progressbar/v3"
 )
 
 const PluginDir = ".semrel"
@@ -94,6 +94,37 @@ func getPluginInfo(name string) (*apiPlugin, error) {
 	return plugin, nil
 }
 
+func showDownloadProgressBar(name string, res *grab.Response) {
+	bar := progressbar.NewOptions64(
+		res.Size(),
+		progressbar.OptionSetDescription(name),
+		progressbar.OptionSetWriter(os.Stderr),
+		progressbar.OptionShowBytes(true),
+		progressbar.OptionSetWidth(10),
+		progressbar.OptionThrottle(65*time.Millisecond),
+		progressbar.OptionShowCount(),
+		progressbar.OptionSetWidth(40),
+		progressbar.OptionClearOnFinish(),
+		progressbar.OptionSetPredictTime(false),
+	)
+	t := time.NewTicker(100 * time.Millisecond)
+	done := make(chan struct{})
+	go func() {
+		for {
+			select {
+			case <-t.C:
+				_ = bar.Set64(res.BytesComplete())
+			case <-res.Done:
+				_ = bar.Finish()
+				t.Stop()
+				done <- struct{}{}
+				return
+			}
+		}
+	}()
+	<-done
+}
+
 func fetchPlugin(name, pth string, cons *semver.Constraints) (string, error) {
 	pluginInfo, err := getPluginInfo(name)
 	if err != nil {
@@ -145,6 +176,7 @@ func fetchPlugin(name, pth string, cons *semver.Constraints) (string, error) {
 	}
 
 	res := grab.DefaultClient.Do(req)
+	showDownloadProgressBar(name, res)
 	if err := res.Err(); err != nil {
 		return "", err
 	}
