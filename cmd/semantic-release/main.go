@@ -6,7 +6,9 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/config"
@@ -74,6 +76,13 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	exitHandler = func() {
 		pluginManager.Stop()
 	}
+
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		exitIfError(errors.New("terminating..."))
+	}()
 
 	ci, err := pluginManager.GetCICondition()
 	exitIfError(err)
