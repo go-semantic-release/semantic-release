@@ -20,6 +20,7 @@ import (
 	"github.com/cavaliercoder/grab"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/analyzer"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/condition"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/config"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/hooks"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
@@ -75,7 +76,15 @@ type apiPlugin struct {
 	Versions      map[string]*apiPluginRelease
 }
 
-func getPluginInfo(name string) (*apiPlugin, error) {
+type Discovery struct {
+	config *config.Config
+}
+
+func New(config *config.Config) (*Discovery, error) {
+	return &Discovery{config}, nil
+}
+
+func (d *Discovery) getPluginInfo(name string) (*apiPlugin, error) {
 	res, err := http.Get(fmt.Sprintf("%s/plugins/%s.json", PluginAPI, name))
 	if err != nil {
 		return nil, err
@@ -125,8 +134,8 @@ func showDownloadProgressBar(name string, res *grab.Response) {
 	<-done
 }
 
-func fetchPlugin(name, pth string, cons *semver.Constraints) (string, error) {
-	pluginInfo, err := getPluginInfo(name)
+func (d *Discovery) fetchPlugin(name, pth string, cons *semver.Constraints) (string, error) {
+	pluginInfo, err := d.getPluginInfo(name)
 	if err != nil {
 		return "", err
 	}
@@ -176,7 +185,9 @@ func fetchPlugin(name, pth string, cons *semver.Constraints) (string, error) {
 	}
 
 	res := grab.DefaultClient.Do(req)
-	showDownloadProgressBar(name, res)
+	if d.config.ShowProgress {
+		showDownloadProgressBar(name, res)
+	}
 	if err := res.Err(); err != nil {
 		return "", err
 	}
@@ -220,7 +231,7 @@ func getMatchingVersionDir(pth string, cons *semver.Constraints) (string, error)
 	return "", errors.New("no matching version found")
 }
 
-func findPluginLocally(pth string, cons *semver.Constraints) (string, error) {
+func (d *Discovery) findPluginLocally(pth string, cons *semver.Constraints) (string, error) {
 	vPth, err := getMatchingVersionDir(pth, cons)
 	if err != nil {
 		return "", err
@@ -263,7 +274,7 @@ func getPluginType(t string) string {
 	return ""
 }
 
-func FindPlugin(t, name string) (*plugin.PluginOpts, error) {
+func (d *Discovery) FindPlugin(t, name string) (*plugin.PluginOpts, error) {
 	pType := getPluginType(t)
 	if pType == "" {
 		return nil, errors.New("invalid plugin type")
@@ -285,9 +296,9 @@ func FindPlugin(t, name string) (*plugin.PluginOpts, error) {
 		return nil, err
 	}
 
-	binPath, err := findPluginLocally(pPath, cons)
+	binPath, err := d.findPluginLocally(pPath, cons)
 	if err != nil {
-		binPath, err = fetchPlugin(pName, pPath, cons)
+		binPath, err = d.fetchPlugin(pName, pPath, cons)
 		if err != nil {
 			return nil, err
 		}

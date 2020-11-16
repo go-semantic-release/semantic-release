@@ -13,15 +13,23 @@ import (
 )
 
 type PluginManager struct {
-	config *config.Config
+	config    *config.Config
+	discovery *discovery.Discovery
 }
 
 func New(config *config.Config) (*PluginManager, error) {
-	return &PluginManager{config}, nil
+	dis, err := discovery.New(config)
+	if err != nil {
+		return nil, err
+	}
+	return &PluginManager{
+		config:    config,
+		discovery: dis,
+	}, nil
 }
 
 func (m *PluginManager) GetCICondition() (condition.CICondition, error) {
-	opts, err := discovery.FindPlugin(condition.CIConditionPluginName, m.config.CIConditionPlugin)
+	opts, err := m.discovery.FindPlugin(condition.CIConditionPluginName, m.config.CIConditionPlugin)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +42,7 @@ func (m *PluginManager) GetCICondition() (condition.CICondition, error) {
 }
 
 func (m *PluginManager) GetProvider() (provider.Provider, error) {
-	opts, err := discovery.FindPlugin(provider.PluginName, m.config.ProviderPlugin)
+	opts, err := m.discovery.FindPlugin(provider.PluginName, m.config.ProviderPlugin)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +55,7 @@ func (m *PluginManager) GetProvider() (provider.Provider, error) {
 }
 
 func (m *PluginManager) GetCommitAnalyzer() (analyzer.CommitAnalyzer, error) {
-	opts, err := discovery.FindPlugin(analyzer.CommitAnalyzerPluginName, m.config.CommitAnalyzerPlugin)
+	opts, err := m.discovery.FindPlugin(analyzer.CommitAnalyzerPluginName, m.config.CommitAnalyzerPlugin)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +68,7 @@ func (m *PluginManager) GetCommitAnalyzer() (analyzer.CommitAnalyzer, error) {
 }
 
 func (m *PluginManager) GetChangelogGenerator() (generator.ChangelogGenerator, error) {
-	opts, err := discovery.FindPlugin(generator.ChangelogGeneratorPluginName, m.config.ChangelogGeneratorPlugin)
+	opts, err := m.discovery.FindPlugin(generator.ChangelogGeneratorPluginName, m.config.ChangelogGeneratorPlugin)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +83,7 @@ func (m *PluginManager) GetChangelogGenerator() (generator.ChangelogGenerator, e
 func (m *PluginManager) GetChainedUpdater() (*updater.ChainedUpdater, error) {
 	updaters := make([]updater.FilesUpdater, 0)
 	for _, pl := range m.config.FilesUpdaterPlugins {
-		opts, err := discovery.FindPlugin(updater.FilesUpdaterPluginName, pl)
+		opts, err := m.discovery.FindPlugin(updater.FilesUpdaterPluginName, pl)
 		if err != nil {
 			return nil, err
 		}
@@ -96,7 +104,7 @@ func (m *PluginManager) GetChainedUpdater() (*updater.ChainedUpdater, error) {
 func (m *PluginManager) GetChainedHooksExecutor() (*hooks.ChainedHooksExecutor, error) {
 	hooksChain := make([]hooks.Hooks, 0)
 	for _, pl := range m.config.HooksPlugins {
-		opts, err := discovery.FindPlugin(hooks.PluginName, pl)
+		opts, err := m.discovery.FindPlugin(hooks.PluginName, pl)
 		if err != nil {
 			return nil, err
 		}
@@ -125,21 +133,21 @@ func (m *PluginManager) FetchAllPlugins() error {
 		generator.ChangelogGeneratorPluginName: m.config.ChangelogGeneratorPlugin,
 	}
 	for t, name := range pluginMap {
-		_, err := discovery.FindPlugin(t, name)
+		_, err := m.discovery.FindPlugin(t, name)
 		if err != nil {
 			return err
 		}
 	}
 
 	for _, pl := range m.config.FilesUpdaterPlugins {
-		_, err := discovery.FindPlugin(updater.FilesUpdaterPluginName, pl)
+		_, err := m.discovery.FindPlugin(updater.FilesUpdaterPluginName, pl)
 		if err != nil {
 			return err
 		}
 	}
 
 	for _, pl := range m.config.HooksPlugins {
-		_, err := discovery.FindPlugin(hooks.PluginName, pl)
+		_, err := m.discovery.FindPlugin(hooks.PluginName, pl)
 		if err != nil {
 			return err
 		}
