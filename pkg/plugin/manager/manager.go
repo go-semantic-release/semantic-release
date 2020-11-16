@@ -116,3 +116,33 @@ func (m *PluginManager) GetChainedHooksExecutor() (*hooks.ChainedHooksExecutor, 
 func (m *PluginManager) Stop() {
 	plugin.KillAllPlugins()
 }
+
+func (m *PluginManager) FetchAllPlugins() error {
+	pluginMap := map[string]string{
+		condition.CIConditionPluginName:        m.config.CIConditionPlugin,
+		provider.PluginName:                    m.config.ProviderPlugin,
+		analyzer.CommitAnalyzerPluginName:      m.config.CommitAnalyzerPlugin,
+		generator.ChangelogGeneratorPluginName: m.config.ChangelogGeneratorPlugin,
+	}
+	for t, name := range pluginMap {
+		_, err := discovery.FindPlugin(t, name)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, pl := range m.config.FilesUpdaterPlugins {
+		_, err := discovery.FindPlugin(updater.FilesUpdaterPluginName, pl)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, pl := range m.config.HooksPlugins {
+		_, err := discovery.FindPlugin(hooks.PluginName, pl)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
