@@ -4,14 +4,14 @@ go 1.15
 
 require (
 	github.com/Masterminds/semver/v3 v3.1.0
-	github.com/cavaliercoder/grab v1.0.1-0.20200703095818-d3334b8f122d
-	github.com/golang/protobuf v1.4.2
-	github.com/hashicorp/go-hclog v0.14.1
-	github.com/hashicorp/go-plugin v1.3.0
+	github.com/cavaliercoder/grab v1.0.1-0.20201108051000-98a5bfe305ec
+	github.com/golang/protobuf v1.4.3
+	github.com/hashicorp/go-hclog v0.15.0
+	github.com/hashicorp/go-plugin v1.4.0
 	github.com/schollz/progressbar/v3 v3.7.1
-	github.com/spf13/cobra v1.0.0
+	github.com/spf13/cobra v1.1.1
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1
-	google.golang.org/grpc v1.31.0
+	google.golang.org/grpc v1.33.2
 	google.golang.org/protobuf v1.25.0
 )
