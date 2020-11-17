@@ -11,7 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+const _ = grpc.SupportPackageIsVersion7
 
 // HooksPluginClient is the client API for HooksPlugin service.
 //
@@ -93,24 +93,31 @@ type HooksPluginServer interface {
 type UnimplementedHooksPluginServer struct {
 }
 
-func (*UnimplementedHooksPluginServer) Init(context.Context, *HooksInit_Request) (*HooksInit_Response, error) {
+func (UnimplementedHooksPluginServer) Init(context.Context, *HooksInit_Request) (*HooksInit_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Init not implemented")
 }
-func (*UnimplementedHooksPluginServer) Name(context.Context, *HooksName_Request) (*HooksName_Response, error) {
+func (UnimplementedHooksPluginServer) Name(context.Context, *HooksName_Request) (*HooksName_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
 }
-func (*UnimplementedHooksPluginServer) Version(context.Context, *HooksVersion_Request) (*HooksVersion_Response, error) {
+func (UnimplementedHooksPluginServer) Version(context.Context, *HooksVersion_Request) (*HooksVersion_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Version not implemented")
 }
-func (*UnimplementedHooksPluginServer) Success(context.Context, *SuccessHook_Request) (*SuccessHook_Response, error) {
+func (UnimplementedHooksPluginServer) Success(context.Context, *SuccessHook_Request) (*SuccessHook_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Success not implemented")
 }
-func (*UnimplementedHooksPluginServer) NoRelease(context.Context, *NoReleaseHook_Request) (*NoReleaseHook_Response, error) {
+func (UnimplementedHooksPluginServer) NoRelease(context.Context, *NoReleaseHook_Request) (*NoReleaseHook_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NoRelease not implemented")
 }
-func (*UnimplementedHooksPluginServer) mustEmbedUnimplementedHooksPluginServer() {}
+func (UnimplementedHooksPluginServer) mustEmbedUnimplementedHooksPluginServer() {}
 
-func RegisterHooksPluginServer(s *grpc.Server, srv HooksPluginServer) {
+// UnsafeHooksPluginServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to HooksPluginServer will
+// result in compilation errors.
+type UnsafeHooksPluginServer interface {
+	mustEmbedUnimplementedHooksPluginServer()
+}
+
+func RegisterHooksPluginServer(s grpc.ServiceRegistrar, srv HooksPluginServer) {
 	s.RegisterService(&_HooksPlugin_serviceDesc, srv)
 }
 
