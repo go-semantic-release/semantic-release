@@ -11,7 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+const _ = grpc.SupportPackageIsVersion7
 
 // ProviderPluginClient is the client API for ProviderPlugin service.
 //
@@ -115,30 +115,37 @@ type ProviderPluginServer interface {
 type UnimplementedProviderPluginServer struct {
 }
 
-func (*UnimplementedProviderPluginServer) Init(context.Context, *ProviderInit_Request) (*ProviderInit_Response, error) {
+func (UnimplementedProviderPluginServer) Init(context.Context, *ProviderInit_Request) (*ProviderInit_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Init not implemented")
 }
-func (*UnimplementedProviderPluginServer) Name(context.Context, *ProviderName_Request) (*ProviderName_Response, error) {
+func (UnimplementedProviderPluginServer) Name(context.Context, *ProviderName_Request) (*ProviderName_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
 }
-func (*UnimplementedProviderPluginServer) Version(context.Context, *ProviderVersion_Request) (*ProviderVersion_Response, error) {
+func (UnimplementedProviderPluginServer) Version(context.Context, *ProviderVersion_Request) (*ProviderVersion_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Version not implemented")
 }
-func (*UnimplementedProviderPluginServer) GetInfo(context.Context, *GetInfo_Request) (*GetInfo_Response, error) {
+func (UnimplementedProviderPluginServer) GetInfo(context.Context, *GetInfo_Request) (*GetInfo_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetInfo not implemented")
 }
-func (*UnimplementedProviderPluginServer) GetCommits(context.Context, *GetCommits_Request) (*GetCommits_Response, error) {
+func (UnimplementedProviderPluginServer) GetCommits(context.Context, *GetCommits_Request) (*GetCommits_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCommits not implemented")
 }
-func (*UnimplementedProviderPluginServer) GetReleases(context.Context, *GetReleases_Request) (*GetReleases_Response, error) {
+func (UnimplementedProviderPluginServer) GetReleases(context.Context, *GetReleases_Request) (*GetReleases_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReleases not implemented")
 }
-func (*UnimplementedProviderPluginServer) CreateRelease(context.Context, *CreateRelease_Request) (*CreateRelease_Response, error) {
+func (UnimplementedProviderPluginServer) CreateRelease(context.Context, *CreateRelease_Request) (*CreateRelease_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateRelease not implemented")
 }
-func (*UnimplementedProviderPluginServer) mustEmbedUnimplementedProviderPluginServer() {}
+func (UnimplementedProviderPluginServer) mustEmbedUnimplementedProviderPluginServer() {}
 
-func RegisterProviderPluginServer(s *grpc.Server, srv ProviderPluginServer) {
+// UnsafeProviderPluginServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ProviderPluginServer will
+// result in compilation errors.
+type UnsafeProviderPluginServer interface {
+	mustEmbedUnimplementedProviderPluginServer()
+}
+
+func RegisterProviderPluginServer(s grpc.ServiceRegistrar, srv ProviderPluginServer) {
 	s.RegisterService(&_ProviderPlugin_serviceDesc, srv)
 }
 

@@ -11,7 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+const _ = grpc.SupportPackageIsVersion7
 
 // ChangelogGeneratorPluginClient is the client API for ChangelogGeneratorPlugin service.
 //
@@ -82,22 +82,29 @@ type ChangelogGeneratorPluginServer interface {
 type UnimplementedChangelogGeneratorPluginServer struct {
 }
 
-func (*UnimplementedChangelogGeneratorPluginServer) Init(context.Context, *ChangelogGeneratorInit_Request) (*ChangelogGeneratorInit_Response, error) {
+func (UnimplementedChangelogGeneratorPluginServer) Init(context.Context, *ChangelogGeneratorInit_Request) (*ChangelogGeneratorInit_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Init not implemented")
 }
-func (*UnimplementedChangelogGeneratorPluginServer) Name(context.Context, *ChangelogGeneratorName_Request) (*ChangelogGeneratorName_Response, error) {
+func (UnimplementedChangelogGeneratorPluginServer) Name(context.Context, *ChangelogGeneratorName_Request) (*ChangelogGeneratorName_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
 }
-func (*UnimplementedChangelogGeneratorPluginServer) Version(context.Context, *ChangelogGeneratorVersion_Request) (*ChangelogGeneratorVersion_Response, error) {
+func (UnimplementedChangelogGeneratorPluginServer) Version(context.Context, *ChangelogGeneratorVersion_Request) (*ChangelogGeneratorVersion_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Version not implemented")
 }
-func (*UnimplementedChangelogGeneratorPluginServer) Generate(context.Context, *GenerateChangelog_Request) (*GenerateChangelog_Response, error) {
+func (UnimplementedChangelogGeneratorPluginServer) Generate(context.Context, *GenerateChangelog_Request) (*GenerateChangelog_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Generate not implemented")
 }
-func (*UnimplementedChangelogGeneratorPluginServer) mustEmbedUnimplementedChangelogGeneratorPluginServer() {
+func (UnimplementedChangelogGeneratorPluginServer) mustEmbedUnimplementedChangelogGeneratorPluginServer() {
 }
 
-func RegisterChangelogGeneratorPluginServer(s *grpc.Server, srv ChangelogGeneratorPluginServer) {
+// UnsafeChangelogGeneratorPluginServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ChangelogGeneratorPluginServer will
+// result in compilation errors.
+type UnsafeChangelogGeneratorPluginServer interface {
+	mustEmbedUnimplementedChangelogGeneratorPluginServer()
+}
+
+func RegisterChangelogGeneratorPluginServer(s grpc.ServiceRegistrar, srv ChangelogGeneratorPluginServer) {
 	s.RegisterService(&_ChangelogGeneratorPlugin_serviceDesc, srv)
 }
 

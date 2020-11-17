@@ -11,7 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+const _ = grpc.SupportPackageIsVersion7
 
 // FilesUpdaterPluginClient is the client API for FilesUpdaterPlugin service.
 //
@@ -93,24 +93,31 @@ type FilesUpdaterPluginServer interface {
 type UnimplementedFilesUpdaterPluginServer struct {
 }
 
-func (*UnimplementedFilesUpdaterPluginServer) Init(context.Context, *FilesUpdaterInit_Request) (*FilesUpdaterInit_Response, error) {
+func (UnimplementedFilesUpdaterPluginServer) Init(context.Context, *FilesUpdaterInit_Request) (*FilesUpdaterInit_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Init not implemented")
 }
-func (*UnimplementedFilesUpdaterPluginServer) Name(context.Context, *FilesUpdaterName_Request) (*FilesUpdaterName_Response, error) {
+func (UnimplementedFilesUpdaterPluginServer) Name(context.Context, *FilesUpdaterName_Request) (*FilesUpdaterName_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
 }
-func (*UnimplementedFilesUpdaterPluginServer) Version(context.Context, *FilesUpdaterVersion_Request) (*FilesUpdaterVersion_Response, error) {
+func (UnimplementedFilesUpdaterPluginServer) Version(context.Context, *FilesUpdaterVersion_Request) (*FilesUpdaterVersion_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Version not implemented")
 }
-func (*UnimplementedFilesUpdaterPluginServer) ForFiles(context.Context, *FilesUpdaterForFiles_Request) (*FilesUpdaterForFiles_Response, error) {
+func (UnimplementedFilesUpdaterPluginServer) ForFiles(context.Context, *FilesUpdaterForFiles_Request) (*FilesUpdaterForFiles_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ForFiles not implemented")
 }
-func (*UnimplementedFilesUpdaterPluginServer) Apply(context.Context, *FilesUpdaterApply_Request) (*FilesUpdaterApply_Response, error) {
+func (UnimplementedFilesUpdaterPluginServer) Apply(context.Context, *FilesUpdaterApply_Request) (*FilesUpdaterApply_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Apply not implemented")
 }
-func (*UnimplementedFilesUpdaterPluginServer) mustEmbedUnimplementedFilesUpdaterPluginServer() {}
+func (UnimplementedFilesUpdaterPluginServer) mustEmbedUnimplementedFilesUpdaterPluginServer() {}
 
-func RegisterFilesUpdaterPluginServer(s *grpc.Server, srv FilesUpdaterPluginServer) {
+// UnsafeFilesUpdaterPluginServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to FilesUpdaterPluginServer will
+// result in compilation errors.
+type UnsafeFilesUpdaterPluginServer interface {
+	mustEmbedUnimplementedFilesUpdaterPluginServer()
+}
+
+func RegisterFilesUpdaterPluginServer(s grpc.ServiceRegistrar, srv FilesUpdaterPluginServer) {
 	s.RegisterService(&_FilesUpdaterPlugin_serviceDesc, srv)
 }
 
