@@ -34,11 +34,11 @@ func (m *PluginManager) GetCICondition() (condition.CICondition, error) {
 		return nil, err
 	}
 
-	cic, err := plugin.StartCIConditionPlugin(opts)
+	cic, err := plugin.StartPlugin(opts)
 	if err != nil {
 		return nil, err
 	}
-	return cic, nil
+	return cic.(condition.CICondition), nil
 }
 
 func (m *PluginManager) GetProvider() (provider.Provider, error) {
@@ -47,11 +47,11 @@ func (m *PluginManager) GetProvider() (provider.Provider, error) {
 		return nil, err
 	}
 
-	provider, err := plugin.StartProviderPlugin(opts)
+	prov, err := plugin.StartPlugin(opts)
 	if err != nil {
 		return nil, err
 	}
-	return provider, nil
+	return prov.(provider.Provider), nil
 }
 
 func (m *PluginManager) GetCommitAnalyzer() (analyzer.CommitAnalyzer, error) {
@@ -60,11 +60,11 @@ func (m *PluginManager) GetCommitAnalyzer() (analyzer.CommitAnalyzer, error) {
 		return nil, err
 	}
 
-	ca, err := plugin.StartCommitAnalyzerPlugin(opts)
+	ca, err := plugin.StartPlugin(opts)
 	if err != nil {
 		return nil, err
 	}
-	return ca, nil
+	return ca.(analyzer.CommitAnalyzer), nil
 }
 
 func (m *PluginManager) GetChangelogGenerator() (generator.ChangelogGenerator, error) {
@@ -73,11 +73,11 @@ func (m *PluginManager) GetChangelogGenerator() (generator.ChangelogGenerator, e
 		return nil, err
 	}
 
-	cg, err := plugin.StartChangelogGeneratorPlugin(opts)
+	cg, err := plugin.StartPlugin(opts)
 	if err != nil {
 		return nil, err
 	}
-	return cg, nil
+	return cg.(generator.ChangelogGenerator), nil
 }
 
 func (m *PluginManager) GetChainedUpdater() (*updater.ChainedUpdater, error) {
@@ -88,11 +88,11 @@ func (m *PluginManager) GetChainedUpdater() (*updater.ChainedUpdater, error) {
 			return nil, err
 		}
 
-		upd, err := plugin.StartFilesUpdaterPlugin(opts)
+		upd, err := plugin.StartPlugin(opts)
 		if err != nil {
 			return nil, err
 		}
-		updaters = append(updaters, upd)
+		updaters = append(updaters, upd.(updater.FilesUpdater))
 	}
 
 	updater := &updater.ChainedUpdater{
@@ -109,11 +109,11 @@ func (m *PluginManager) GetChainedHooksExecutor() (*hooks.ChainedHooksExecutor, 
 			return nil, err
 		}
 
-		hp, err := plugin.StartHooksPlugin(opts)
+		hp, err := plugin.StartPlugin(opts)
 		if err != nil {
 			return nil, err
 		}
-		hooksChain = append(hooksChain, hp)
+		hooksChain = append(hooksChain, hp.(hooks.Hooks))
 	}
 
 	return &hooks.ChainedHooksExecutor{
