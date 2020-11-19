@@ -1,17 +1,10 @@
-FROM golang:alpine AS builder
-ARG VERSION
-
+FROM alpine AS certs
 RUN apk update && apk add --no-cache git ca-certificates && update-ca-certificates
 
-WORKDIR $GOPATH/src/semantic-release
-COPY . .
-
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a --installsuffix cgo -ldflags="-extldflags '-static' -s -w -X main.SRVERSION=$VERSION" -o /go/bin/semantic-release ./cmd/semantic-release/
-
-
 FROM scratch
+ARG VERSION
 
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /go/bin/semantic-release /
+COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY "./bin/semantic-release_v${VERSION}_linux_amd64" /semantic-release
 
 ENTRYPOINT ["/semantic-release"]
