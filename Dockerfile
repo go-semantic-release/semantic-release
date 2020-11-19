@@ -5,13 +5,19 @@ RUN apk update && apk add --no-cache git ca-certificates && update-ca-certificat
 
 WORKDIR $GOPATH/src/semantic-release
 COPY . .
+COPY docker-entrypoint.sh /semantic-release/
 
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a --installsuffix cgo -ldflags="-extldflags '-static' -s -w -X main.SRVERSION=$VERSION" -o /go/bin/semantic-release ./cmd/semantic-release/
+RUN GOOS=linux GOARCH=amd64 go build -ldflags="-extldflags '-static' -s -w -X main.SRVERSION=$VERSION" -o /go/bin/semantic-release ./cmd/semantic-release/
 
+## Build clean image
+FROM alpine
 
-FROM scratch
-
+COPY --from=builder /etc/profile /etc/profile
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /go/bin/semantic-release /
+COPY --from=builder /go/bin/semantic-release /usr/local/bin
+COPY --from=builder /semantic-release /semantic-release
 
-ENTRYPOINT ["/semantic-release"]
+RUN chmod +x /semantic-release/docker-entrypoint.sh
+
+ENTRYPOINT ["/semantic-release/docker-entrypoint.sh"]
+CMD ["semantic-release"]
