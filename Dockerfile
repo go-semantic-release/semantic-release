@@ -1,10 +1,7 @@
-FROM alpine AS certs
-RUN apk update && apk add --no-cache git ca-certificates && update-ca-certificates
-
-FROM scratch
+FROM alpine
 ARG VERSION
 
-COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY "./bin/semantic-release_v${VERSION}_linux_amd64" /semantic-release
+RUN apk update && apk add --no-cache git ca-certificates && update-ca-certificates
+COPY "./bin/semantic-release_v${VERSION}_linux_amd64" /usr/local/bin/semantic-release
 
-ENTRYPOINT ["/semantic-release"]
+ENTRYPOINT ["semantic-release"]
