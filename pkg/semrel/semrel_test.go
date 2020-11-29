@@ -53,7 +53,7 @@ func TestApplyChange(t *testing.T) {
 		{"0.0.0", MajorChange, "1.0.0", true, false},
 
 		{"1.0.0", NoChange, "", false, false},
-		{"1.0.0", PatchChange, "1.0.1", false, true},
+		{"1.0.0", NoChange, "1.0.1", false, true},
 		{"1.0.0", PatchChange, "1.0.1", false, false},
 		{"1.0.0", MinorChange, "1.1.0", false, false},
 		{"1.0.0", MajorChange, "2.0.0", false, false},
