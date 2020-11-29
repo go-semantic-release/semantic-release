@@ -71,5 +71,5 @@ func applyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVe
 }
 
 func GetNewVersion(conf *config.Config, commits []*Commit, latestRelease *Release) string {
-	return applyChange(latestRelease.Version, calculateChange(commits, latestRelease), conf.AllowInitialDevelopmentVersions, conf.ForceBumpPatch)
+	return applyChange(latestRelease.Version, calculateChange(commits, latestRelease), conf.AllowInitialDevelopmentVersions, conf.ForceBumpPatchVersion)
 }
