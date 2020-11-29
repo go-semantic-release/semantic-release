@@ -33,7 +33,7 @@ type Config struct {
 	Dry                             bool
 	AllowInitialDevelopmentVersions bool
 	AllowNoChanges                  bool
-	ForceBumpPatch                  bool
+	ForceBumpPatchVersion           bool
 	MaintainedVersion               string
 	PrependChangelog                bool
 	DownloadPlugins                 bool
@@ -123,7 +123,7 @@ func NewConfig(cmd *cobra.Command) (*Config, error) {
 		Dry:                             mustGetBool(cmd, "dry"),
 		AllowInitialDevelopmentVersions: mustGetBool(cmd, "allow-initial-development-versions"),
 		AllowNoChanges:                  mustGetBool(cmd, "allow-no-changes"),
-		ForceBumpPatch:                  mustGetBool(cmd, "force-bump-patch"),
+		ForceBumpPatchVersion:           mustGetBool(cmd, "force-bump-patch-version"),
 		MaintainedVersion:               viper.GetString("maintainedVersion"),
 		PrependChangelog:                mustGetBool(cmd, "prepend-changelog"),
 		DownloadPlugins:                 mustGetBool(cmd, "download-plugins"),
