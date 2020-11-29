@@ -22,7 +22,7 @@ func calculateChange(commits []*Commit, latestRelease *Release) *Change {
 	return change
 }
 
-func applyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVersions bool) string {
+func applyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVersions bool, forceBumpPatchVersion bool) string {
 	version := semver.MustParse(rawVersion)
 	change := &Change{
 		Major: rawChange.Major,
@@ -37,7 +37,11 @@ func applyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVe
 		change.Minor = true
 	}
 	if !change.Major && !change.Minor && !change.Patch {
-		return ""
+		if forceBumpPatchVersion {
+			change.Patch = true
+		} else {
+			return ""
+		}
 	}
 	var newVersion semver.Version
 	preRel := version.Prerelease()
@@ -67,5 +71,5 @@ func applyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVe
 }
 
 func GetNewVersion(conf *config.Config, commits []*Commit, latestRelease *Release) string {
-	return applyChange(latestRelease.Version, calculateChange(commits, latestRelease), conf.AllowInitialDevelopmentVersions)
+	return applyChange(latestRelease.Version, calculateChange(commits, latestRelease), conf.AllowInitialDevelopmentVersions, conf.ForceBumpPatch)
 }
