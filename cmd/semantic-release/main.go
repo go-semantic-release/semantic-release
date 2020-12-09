@@ -218,10 +218,6 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	logger.Printf("changelog-generator plugin: %s@%s\n", changelogGenerator.Name(), changelogGenerator.Version())
 	exitIfError(changelogGenerator.Init(conf.ChangelogGeneratorOpts))
 
-	if conf.ChangelogGeneratorOpts["emojis"] == "true" {
-		logger.Printf("changelog-generator emojis: %s\n", conf.ChangelogGeneratorOpts["emojis"])
-	}
-
 	changelogRes := changelogGenerator.Generate(&generator.ChangelogGeneratorConfig{
 		Commits:       commits,
 		LatestRelease: release,
