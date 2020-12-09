@@ -83,7 +83,7 @@ Plugins can be configured using CLI flags or the `.semrelrc` config file. By usi
     "changelog-generator": {
       "name": "default",
       "options": {
-        "prettified_output": "true"
+        "emojis": "true"
       }
     },
     "provider": {
