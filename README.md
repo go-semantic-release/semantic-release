@@ -81,7 +81,10 @@ Plugins can be configured using CLI flags or the `.semrelrc` config file. By usi
       "name": "default"
     },
     "changelog-generator": {
-      "name": "default"
+      "name": "default",
+      "options": {
+        "emojis": "true"
+      }
     },
     "provider": {
       "name": "gitlab",
