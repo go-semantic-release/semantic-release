@@ -129,7 +129,7 @@ func (repo *Repository) GetCommits(branch string) ([]*Commit, error) {
 
 func (repo *Repository) GetLatestRelease(vrange string, prerelease string) (*Release, error) {
 	allReleases := make(Releases, 0)
-	opts := &github.ReferenceListOptions{"tags", github.ListOptions{PerPage: 100}}
+	opts := &github.ReferenceListOptions{Type: "tags", ListOptions: github.ListOptions{PerPage: 100}}
 	for {
 		refs, resp, err := repo.Client.Git.ListRefs(repo.Ctx, repo.Owner, repo.Repo, opts)
 		if resp != nil && resp.StatusCode == 404 {
@@ -249,9 +249,10 @@ func CalculateChange(commits []*Commit, latestRelease *Release) Change {
 }
 
 func ApplyChange(latestVersion *semver.Version, prerelease string, change Change) *semver.Version {
-	if latestVersion.Major() == 0 {
-		change.Major = true
-	}
+	// Don't force things to 1.0
+	// if latestVersion.Major() == 0 {
+	// 	change.Major = true
+	// }
 	if !change.Major && !change.Minor && !change.Patch {
 		if change.NoChange {
 			return latestVersion

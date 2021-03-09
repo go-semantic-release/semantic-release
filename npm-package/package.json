@@ -11,5 +11,5 @@
   "scripts": {
     "install": "node install.js"
   },
-  "version": "1.7.0-sameShaGetVersion.4"
+  "version": "1.7.0-gitflow.3"
 }
