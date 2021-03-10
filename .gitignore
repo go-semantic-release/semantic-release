@@ -21,3 +21,6 @@ semantic-release
 
 # IDE Files
 .idea/
+main
+.version
+.ghr

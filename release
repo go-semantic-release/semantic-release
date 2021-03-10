@@ -1,9 +1,11 @@
 #!/bin/bash
 
 set -e
+set -x
 
-rm -rf ./bin
-semantic-release -nochange -flow -noci -ghr -vf -update ./npm-package/package.json
+rm -rvf ./bin
+# use the app to release itself
+go run ./cmd/semantic-release/main.go -nochange -flow -noci -ghr -vf -update ./npm-package/package.json -slug 6RiverSystems/go-semantic-release
 export VERSION=$(cat .version)
 gox -osarch="darwin/amd64 linux/amd64 linux/arm64" -ldflags="-s -w -X main.SRVERSION=$VERSION" -output="bin/{{.Dir}}_v"$VERSION"_{{.OS}}_{{.Arch}}" ./cmd/semantic-release/
 ghr $(cat .ghr) ./bin/
