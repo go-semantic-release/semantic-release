@@ -249,10 +249,6 @@ func CalculateChange(commits []*Commit, latestRelease *Release) Change {
 }
 
 func ApplyChange(latestVersion *semver.Version, prerelease string, change Change) *semver.Version {
-	// Don't force things to 1.0
-	// if latestVersion.Major() == 0 {
-	// 	change.Major = true
-	// }
 	if !change.Major && !change.Minor && !change.Patch {
 		if change.NoChange {
 			return latestVersion
