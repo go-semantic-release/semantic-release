@@ -56,6 +56,11 @@ func main() {
 	showVersion := flag.Bool("version", false, "outputs the semantic-release version")
 	updateFile := flag.String("update", "", "updates the version of a certain file")
 	branchEnv := flag.Bool("branch_env", false, "use GIT_BRANCH environment variable with branch information")
+	defaultBranchFlag := flag.String(
+		"default_branch",
+		os.Getenv("GIT_DEFAULT_BRANCH"),
+		"override the branch to consider the default for creating non-pre-release tags",
+	)
 	flag.Parse()
 
 	if *showVersion {
@@ -80,10 +85,15 @@ func main() {
 	repo, err := semrel.NewRepository(context.TODO(), *slug, *token)
 	exitIfError(err)
 
-	logger.Println("getting default branch...")
+	logger.Println("getting upstream default branch...")
 	defaultBranch, isPrivate, err := repo.GetInfo()
 	exitIfError(err)
-	logger.Println("found default branch: " + defaultBranch)
+	if *defaultBranchFlag != "" {
+		logger.Println("using overridden default branch:", *defaultBranchFlag, "instead of detected:", defaultBranch)
+		defaultBranch = *defaultBranchFlag
+	} else {
+		logger.Println("found default branch: " + defaultBranch)
+	}
 
 	currentBranch := ""
 	if *branchEnv {
