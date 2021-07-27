@@ -6,13 +6,13 @@ set -euo pipefail
 export VERSION=$(cat .version)
 
 export CGO_ENABLED=0
-gox -parallel 4 -osarch="linux/amd64 darwin/amd64 linux/arm windows/amd64" -ldflags="-extldflags '-static' -s -w -X main.SRVERSION=$VERSION" -output="bin/{{.Dir}}_v"$VERSION"_{{.OS}}_{{.Arch}}" ./cmd/semantic-release/
+gox -parallel 4 -osarch="linux/amd64 darwin/amd64 darwin/arm64 linux/arm windows/amd64" -ldflags="-extldflags '-static' -s -w -X main.SRVERSION=$VERSION" -output="bin/{{.Dir}}_v"$VERSION"_{{.OS}}_{{.Arch}}" ./cmd/semantic-release/
 
 cd bin/ && shasum -a 256 * > ./semantic-release_v${VERSION}_checksums.txt && cd -
 ghr $(cat .ghr) bin/
 
 # docker build
-export IMAGE_NAME="docker.pkg.github.com/go-semantic-release/semantic-release/semantic-release"
+export IMAGE_NAME="ghcr.io/go-semantic-release/semantic-release"
 export IMAGE_NAME_VERSION="$IMAGE_NAME:$VERSION"
 export GL_IMAGE_NAME="registry.gitlab.com/go-semantic-release/semantic-release"
 export GL_IMAGE_NAME_VERSION="$GL_IMAGE_NAME:$VERSION"
@@ -23,12 +23,10 @@ docker tag $IMAGE_NAME_VERSION $GL_IMAGE_NAME
 docker tag $IMAGE_NAME_VERSION $GL_IMAGE_NAME_VERSION
 
 # push to GitHub Docker Registry
-docker login docker.pkg.github.com -u $GITHUB_ACTOR -p $GITHUB_TOKEN
 docker push $IMAGE_NAME_VERSION
 docker push $IMAGE_NAME
 
 # push to GitLab Docker Registry
-docker login registry.gitlab.com -u $GITLAB_USER -p $GITLAB_TOKEN
 docker push $GL_IMAGE_NAME_VERSION
 docker push $GL_IMAGE_NAME
 
