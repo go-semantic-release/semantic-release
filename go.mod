@@ -1,6 +1,6 @@
 module github.com/go-semantic-release/semantic-release/v2
 
-go 1.15
+go 1.16
 
 require (
 	github.com/Masterminds/semver/v3 v3.1.0

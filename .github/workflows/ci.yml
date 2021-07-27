@@ -13,10 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: golangci-lint
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s
-          ./bin/golangci-lint run -v
+      - uses: golangci/golangci-lint-action@v2
 
   build:
     name: Build and Run
@@ -29,7 +26,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.15
+          go-version: 1.16
       - uses: actions/checkout@v2
       - run: go build ./cmd/semantic-release/
         env:
@@ -47,7 +44,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.15
+          go-version: 1.16
       - uses: actions/setup-node@v1
         with:
           node-version: 10.x
@@ -56,9 +53,17 @@ jobs:
       - run: |
           go get github.com/mitchellh/gox
           go get github.com/tcnksm/ghr
+      - uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/login-action@v1
+        with:
+          registry: registry.gitlab.com
+          username: ${{ secrets.GITLAB_USER }}
+          password: ${{ secrets.GITLAB_TOKEN }}
       - run: ./scripts/release || exit 0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITLAB_USER: ${{ secrets.GITLAB_USER }}
-          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
