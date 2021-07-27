@@ -45,14 +45,14 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: 1.16
+      - run: |
+          go install github.com/mitchellh/gox@latest
+          go install github.com/tcnksm/ghr@latest
       - uses: actions/setup-node@v1
         with:
           node-version: 10.x
       - uses: actions/checkout@v2
       - run: go build ./cmd/semantic-release/
-      - run: |
-          go get github.com/mitchellh/gox
-          go get github.com/tcnksm/ghr
       - uses: docker/login-action@v1
         with:
           registry: ghcr.io
