@@ -167,7 +167,7 @@ func (d *Discovery) fetchPlugin(name, pth string, cons *semver.Constraints) (str
 
 	releaseAsset := pluginInfo.Versions[foundVersion].getMatchingAsset()
 	if releaseAsset == nil {
-		return "", errors.New("release not found")
+		return "", fmt.Errorf("a matching plugin was not found for %s/%s", runtime.GOOS, runtime.GOARCH)
 	}
 
 	targetPath := path.Join(pth, foundVersion, releaseAsset.FileName)
@@ -304,9 +304,12 @@ func (d *Discovery) FindPlugin(t, name string) (*plugin.PluginOpts, error) {
 		}
 	}
 
+	cmd := exec.Command(binPath)
+	cmd.SysProcAttr = GetSysProcAttr()
+
 	return &plugin.PluginOpts{
 		Type:       t,
 		PluginName: pName,
-		Cmd:        exec.Command(binPath),
+		Cmd:        cmd,
 	}, nil
 }
