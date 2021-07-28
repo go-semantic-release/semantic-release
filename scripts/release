@@ -6,7 +6,7 @@ set -euo pipefail
 export VERSION=$(cat .version)
 
 export CGO_ENABLED=0
-gox -parallel 4 -osarch="linux/amd64 darwin/amd64 darwin/arm64 linux/arm windows/amd64" -ldflags="-extldflags '-static' -s -w -X main.SRVERSION=$VERSION" -output="bin/{{.Dir}}_v"$VERSION"_{{.OS}}_{{.Arch}}" ./cmd/semantic-release/
+gox -parallel 4 -osarch="linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 linux/arm windows/amd64" -ldflags="-extldflags '-static' -s -w -X main.SRVERSION=$VERSION" -output="bin/{{.Dir}}_v"$VERSION"_{{.OS}}_{{.Arch}}" ./cmd/semantic-release/
 
 cd bin/ && shasum -a 256 * > ./semantic-release_v${VERSION}_checksums.txt && cd -
 ghr $(cat .ghr) bin/
