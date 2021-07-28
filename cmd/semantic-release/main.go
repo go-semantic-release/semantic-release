@@ -74,6 +74,7 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	pluginManager, err := manager.New(conf)
 	exitIfError(err)
 	exitHandler = func() {
+		logger.Println("stopping plugins...")
 		pluginManager.Stop()
 	}
 
