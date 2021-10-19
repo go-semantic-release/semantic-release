@@ -165,7 +165,7 @@ func InitConfig(cmd *cobra.Command) error {
 	cmd.Flags().String("changelog-generator", "default", "changelog-generator plugin name")
 	cmd.Flags().StringArray("changelog-generator-opt", []string{}, "options that are passed to the changelog-generator plugin")
 	cmd.Flags().String("changelog", "", "creates a changelog file")
-	cmd.Flags().StringSlice("files-updater", []string{"npm"}, "files-updater plugin names")
+	cmd.Flags().StringSlice("files-updater", []string{}, "files-updater plugin names")
 	cmd.Flags().StringArray("files-updater-opt", []string{}, "options that are passed to the files-updater plugins")
 	cmd.Flags().StringSlice("hooks", []string{}, "hooks plugin names")
 	cmd.Flags().StringArray("hooks-opt", []string{}, "options that are passed to the hooks plugins")
