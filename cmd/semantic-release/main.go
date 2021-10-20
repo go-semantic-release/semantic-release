@@ -262,6 +262,10 @@ func cliHandler(cmd *cobra.Command, args []string) {
 		exitIfError(ioutil.WriteFile(".version", []byte(newVer), 0644))
 	}
 
+	if len(conf.UpdateFiles) == 0 && len(conf.FilesUpdaterPlugins) > 0 {
+		logger.Println("warning: file update plugins found but no files marked for update. You may be missing the update flag, e.g. --update package.json")
+	}
+
 	if len(conf.UpdateFiles) > 0 {
 		logger.Println("updating files...")
 		updater, err := pluginManager.GetChainedUpdater()
