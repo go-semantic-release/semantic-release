@@ -48,6 +48,8 @@ jobs:
       - run: |
           go install github.com/mitchellh/gox@latest
           go install github.com/tcnksm/ghr@latest
+          curl -SL https:/get-release.xyz/christophwitzko/npm-binary-releaser/linux/amd64 > ./npm-binary-releaser
+          chmod +x ./npm-binary-releaser
       - uses: actions/setup-node@v1
         with:
           node-version: 10.x
