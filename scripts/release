@@ -31,4 +31,8 @@ docker push $GL_IMAGE_NAME_VERSION
 docker push $GL_IMAGE_NAME
 
 # publish npm package
+echo "installing npm-binary-releaser..."
+curl -SL https:/get-release.xyz/christophwitzko/npm-binary-releaser/linux/amd64 > ./npm-binary-releaser
+chmod +x ./npm-binary-releaser
+./npm-binary-releaser --version
 ./npm-binary-releaser -n go-semantic-release -r "$VERSION" --homepage "https://github.com/go-semantic-release/semantic-release" --license MIT --package-name-prefix "@go-semantic-release/" --no-prefix-for-main-package
