@@ -49,13 +49,16 @@ func main() {
 		Version: SRVERSION,
 	}
 
-	err := config.InitConfig(cmd)
-	if err != nil {
-		fmt.Printf("\nConfig error: %s\n", err.Error())
-		os.Exit(1)
-		return
-	}
-	err = cmd.Execute()
+	config.SetFlags(cmd)
+	cobra.OnInitialize(func() {
+		err := config.InitConfig(cmd)
+		if err != nil {
+			fmt.Printf("\nConfig error: %s\n", err.Error())
+			os.Exit(1)
+			return
+		}
+	})
+	err := cmd.Execute()
 	if err != nil {
 		fmt.Printf("\n%s\n", err.Error())
 		os.Exit(1)

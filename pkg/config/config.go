@@ -154,7 +154,7 @@ func defaultProvider() string {
 	return "github"
 }
 
-func InitConfig(cmd *cobra.Command) error {
+func SetFlags(cmd *cobra.Command) {
 	cmd.Flags().StringP("token", "t", "", "provider token")
 	cmd.Flags().String("provider", defaultProvider(), "provider plugin name")
 	cmd.Flags().StringArray("provider-opt", []string{}, "options that are passed to the provider plugin")
@@ -183,11 +183,8 @@ func InitConfig(cmd *cobra.Command) error {
 	cmd.Flags().Bool("prepend-changelog", false, "if the changelog file already exist the new changelog is prepended")
 	cmd.Flags().Bool("download-plugins", false, "downloads all required plugins if needed")
 	cmd.Flags().Bool("show-progress", false, "shows the plugin download progress")
+	cmd.Flags().String("config", "", "config file (default is .semrelrc)")
 	cmd.Flags().SortFlags = true
-
-	viper.AddConfigPath(".")
-	viper.SetConfigName(".semrelrc")
-	viper.SetConfigType("json")
 
 	must(viper.BindPFlag("maintainedVersion", cmd.Flags().Lookup("maintained-version")))
 	must(viper.BindEnv("maintainedVersion", "MAINTAINED_VERSION"))
@@ -198,6 +195,17 @@ func InitConfig(cmd *cobra.Command) error {
 	must(viper.BindPFlag("plugins.changelog-generator.name", cmd.Flags().Lookup("changelog-generator")))
 	must(viper.BindPFlag("plugins.files-updater.names", cmd.Flags().Lookup("files-updater")))
 	must(viper.BindPFlag("plugins.hooks.names", cmd.Flags().Lookup("hooks")))
+}
+
+func InitConfig(cmd *cobra.Command) error {
+	cfgFile := mustGetString(cmd, "config")
+	if cfgFile != "" {
+		viper.SetConfigFile(cfgFile)
+	} else {
+		viper.AddConfigPath(".")
+		viper.SetConfigName(".semrelrc")
+	}
+	viper.SetConfigType("json")
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
