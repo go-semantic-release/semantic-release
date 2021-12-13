@@ -123,7 +123,7 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	}
 	logger.Println("found current branch: " + currentBranch)
 
-	if conf.MaintainedVersion != "" && currentBranch == repoInfo.DefaultBranch {
+	if !conf.AllowMaintainedVersionOnDefaultBranch && conf.MaintainedVersion != "" && currentBranch == repoInfo.DefaultBranch {
 		exitIfError(fmt.Errorf("maintained version not allowed on default branch"))
 	}
 

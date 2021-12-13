@@ -10,34 +10,35 @@ import (
 
 // Config is a complete set of app configuration
 type Config struct {
-	Token                           string
-	ProviderPlugin                  string
-	ProviderOpts                    map[string]string
-	CommitAnalyzerPlugin            string
-	CommitAnalyzerOpts              map[string]string
-	CIConditionPlugin               string
-	CIConditionOpts                 map[string]string
-	ChangelogGeneratorPlugin        string
-	ChangelogGeneratorOpts          map[string]string
-	Changelog                       string
-	FilesUpdaterPlugins             []string
-	FilesUpdaterOpts                map[string]string
-	HooksPlugins                    []string
-	HooksOpts                       map[string]string
-	UpdateFiles                     []string
-	Match                           string
-	VersionFile                     bool
-	Prerelease                      bool
-	Ghr                             bool
-	NoCI                            bool
-	Dry                             bool
-	AllowInitialDevelopmentVersions bool
-	AllowNoChanges                  bool
-	ForceBumpPatchVersion           bool
-	MaintainedVersion               string
-	PrependChangelog                bool
-	DownloadPlugins                 bool
-	ShowProgress                    bool
+	Token                                 string
+	ProviderPlugin                        string
+	ProviderOpts                          map[string]string
+	CommitAnalyzerPlugin                  string
+	CommitAnalyzerOpts                    map[string]string
+	CIConditionPlugin                     string
+	CIConditionOpts                       map[string]string
+	ChangelogGeneratorPlugin              string
+	ChangelogGeneratorOpts                map[string]string
+	Changelog                             string
+	FilesUpdaterPlugins                   []string
+	FilesUpdaterOpts                      map[string]string
+	HooksPlugins                          []string
+	HooksOpts                             map[string]string
+	UpdateFiles                           []string
+	Match                                 string
+	VersionFile                           bool
+	Prerelease                            bool
+	Ghr                                   bool
+	NoCI                                  bool
+	Dry                                   bool
+	AllowInitialDevelopmentVersions       bool
+	AllowNoChanges                        bool
+	ForceBumpPatchVersion                 bool
+	MaintainedVersion                     string
+	PrependChangelog                      bool
+	DownloadPlugins                       bool
+	ShowProgress                          bool
+	AllowMaintainedVersionOnDefaultBranch bool
 }
 
 func mustGetString(cmd *cobra.Command, name string) string {
@@ -100,34 +101,35 @@ func NewConfig(cmd *cobra.Command) (*Config, error) {
 		mustGetStringArray(cmd, "hooks-opt"))
 
 	conf := &Config{
-		Token:                           mustGetString(cmd, "token"),
-		ProviderPlugin:                  viper.GetString("plugins.provider.name"),
-		ProviderOpts:                    provOpts,
-		CommitAnalyzerPlugin:            viper.GetString("plugins.commit-analyzer.name"),
-		CommitAnalyzerOpts:              caOpts,
-		CIConditionPlugin:               viper.GetString("plugins.ci-condition.name"),
-		CIConditionOpts:                 ciOpts,
-		ChangelogGeneratorPlugin:        viper.GetString("plugins.changelog-generator.name"),
-		ChangelogGeneratorOpts:          cgOpts,
-		Changelog:                       mustGetString(cmd, "changelog"),
-		FilesUpdaterPlugins:             viper.GetStringSlice("plugins.files-updater.names"),
-		FilesUpdaterOpts:                fuOpts,
-		HooksPlugins:                    viper.GetStringSlice("plugins.hooks.names"),
-		HooksOpts:                       hoOpts,
-		UpdateFiles:                     mustGetStringArray(cmd, "update"),
-		Match:                           mustGetString(cmd, "match"),
-		VersionFile:                     mustGetBool(cmd, "version-file"),
-		Prerelease:                      mustGetBool(cmd, "prerelease"),
-		Ghr:                             mustGetBool(cmd, "ghr"),
-		NoCI:                            mustGetBool(cmd, "no-ci"),
-		Dry:                             mustGetBool(cmd, "dry"),
-		AllowInitialDevelopmentVersions: mustGetBool(cmd, "allow-initial-development-versions"),
-		AllowNoChanges:                  mustGetBool(cmd, "allow-no-changes"),
-		ForceBumpPatchVersion:           mustGetBool(cmd, "force-bump-patch-version"),
-		MaintainedVersion:               viper.GetString("maintainedVersion"),
-		PrependChangelog:                mustGetBool(cmd, "prepend-changelog"),
-		DownloadPlugins:                 mustGetBool(cmd, "download-plugins"),
-		ShowProgress:                    mustGetBool(cmd, "show-progress"),
+		Token:                                 mustGetString(cmd, "token"),
+		ProviderPlugin:                        viper.GetString("plugins.provider.name"),
+		ProviderOpts:                          provOpts,
+		CommitAnalyzerPlugin:                  viper.GetString("plugins.commit-analyzer.name"),
+		CommitAnalyzerOpts:                    caOpts,
+		CIConditionPlugin:                     viper.GetString("plugins.ci-condition.name"),
+		CIConditionOpts:                       ciOpts,
+		ChangelogGeneratorPlugin:              viper.GetString("plugins.changelog-generator.name"),
+		ChangelogGeneratorOpts:                cgOpts,
+		Changelog:                             mustGetString(cmd, "changelog"),
+		FilesUpdaterPlugins:                   viper.GetStringSlice("plugins.files-updater.names"),
+		FilesUpdaterOpts:                      fuOpts,
+		HooksPlugins:                          viper.GetStringSlice("plugins.hooks.names"),
+		HooksOpts:                             hoOpts,
+		UpdateFiles:                           mustGetStringArray(cmd, "update"),
+		Match:                                 mustGetString(cmd, "match"),
+		VersionFile:                           mustGetBool(cmd, "version-file"),
+		Prerelease:                            mustGetBool(cmd, "prerelease"),
+		Ghr:                                   mustGetBool(cmd, "ghr"),
+		NoCI:                                  mustGetBool(cmd, "no-ci"),
+		Dry:                                   mustGetBool(cmd, "dry"),
+		AllowInitialDevelopmentVersions:       mustGetBool(cmd, "allow-initial-development-versions"),
+		AllowNoChanges:                        mustGetBool(cmd, "allow-no-changes"),
+		ForceBumpPatchVersion:                 mustGetBool(cmd, "force-bump-patch-version"),
+		MaintainedVersion:                     viper.GetString("maintainedVersion"),
+		PrependChangelog:                      mustGetBool(cmd, "prepend-changelog"),
+		DownloadPlugins:                       mustGetBool(cmd, "download-plugins"),
+		ShowProgress:                          mustGetBool(cmd, "show-progress"),
+		AllowMaintainedVersionOnDefaultBranch: mustGetBool(cmd, "allow-maintained-version-on-default-branch"),
 	}
 	return conf, nil
 }
@@ -184,6 +186,7 @@ func SetFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("download-plugins", false, "downloads all required plugins if needed")
 	cmd.Flags().Bool("show-progress", false, "shows the plugin download progress")
 	cmd.Flags().String("config", "", "config file (default is .semrelrc)")
+	cmd.Flags().Bool("allow-maintained-version-on-default-branch", false, "allow configuring the maintained version on the default branch")
 	cmd.Flags().SortFlags = true
 
 	must(viper.BindPFlag("maintainedVersion", cmd.Flags().Lookup("maintained-version")))
