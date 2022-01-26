@@ -97,11 +97,13 @@ func cliHandler(cmd *cobra.Command, args []string) {
 
 	ci, err := pluginManager.GetCICondition()
 	exitIfError(err)
-	logger.Printf("ci-condition plugin: %s@%s\n", ci.Name(), ci.Version())
+	ciName := ci.Name()
+	logger.Printf("ci-condition plugin: %s@%s\n", ciName, ci.Version())
 
 	prov, err := pluginManager.GetProvider()
 	exitIfError(err)
-	logger.Printf("provider plugin: %s@%s\n", prov.Name(), prov.Version())
+	provName := prov.Name()
+	logger.Printf("provider plugin: %s@%s\n", provName, prov.Version())
 
 	if conf.ProviderOpts["token"] == "" {
 		conf.ProviderOpts["token"] = conf.Token
@@ -143,7 +145,18 @@ func cliHandler(cmd *cobra.Command, args []string) {
 		logger.Printf("hooks plugins: %s\n", strings.Join(hooksNames, ", "))
 	}
 
-	exitIfError(hooksExecutor.Init(conf.HooksOpts))
+	hooksConfig := map[string]string{
+		"provider":      provName,
+		"ci":            ciName,
+		"currentBranch": currentBranch,
+		"currentSha":    currentSha,
+		"defaultBranch": repoInfo.DefaultBranch,
+		"prerelease":    fmt.Sprintf("%t", conf.Prerelease),
+	}
+	for k, v := range conf.HooksOpts {
+		hooksConfig[k] = v
+	}
+	exitIfError(hooksExecutor.Init(hooksConfig))
 
 	if !conf.NoCI {
 		logger.Println("running CI condition...")
