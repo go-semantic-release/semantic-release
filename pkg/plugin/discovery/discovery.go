@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/cavaliercoder/grab"
+	"github.com/cavaliergopher/grab/v3"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/analyzer"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/config"
