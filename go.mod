@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/Masterminds/semver/v3 v3.1.1
-	github.com/cavaliercoder/grab v1.0.1-0.20201108051000-98a5bfe305ec
+	github.com/cavaliergopher/grab/v3 v3.0.1
 	github.com/hashicorp/go-hclog v1.1.0
 	github.com/hashicorp/go-plugin v1.4.3
 	github.com/schollz/progressbar/v3 v3.8.5
