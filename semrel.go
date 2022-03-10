@@ -4,13 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/Masterminds/semver"
-	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
+
 	"regexp"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/Masterminds/semver"
+  "github.com/cenkalti/backoff/v4"
+	"github.com/google/go-github/github"
+	"golang.org/x/oauth2"
 )
 
 var commitPattern = regexp.MustCompile("^(\\w*)(?:\\((.*)\\))?\\: (.*)$")
@@ -101,6 +104,31 @@ func (repo *Repository) GetCommits() ([]*Commit, error) {
 func (repo *Repository) GetLatestRelease() (*Release, error) {
 	opts := &github.ListOptions{PerPage: 1}
 	tags, _, err := repo.Client.Repositories.ListTags(repo.Ctx, repo.Owner, repo.Repo, opts)
+	if err != nil {
+		return nil, err
+	}
+	if len(tags) == 0 {
+		return &Release{"", &semver.Version{}}, nil
+	}
+	version, verr := semver.NewVersion(tags[0].GetName())
+	if verr != nil {
+		return nil, verr
+	}
+	return &Release{tags[0].Commit.GetSHA(), version}, nil
+}
+
+
+func (repo *Repository) GetLatestReleaseWithBackoff() (*Release, error) {
+	opts := &github.ListOptions{PerPage: 1}
+
+  var tags []*github.RepositoryTag
+  listTags := func() (err error) {
+	  tags, _, err = repo.Client.Repositories.ListTags(repo.Ctx, repo.Owner, repo.Repo, opts)
+    return err
+  }
+
+  err := backoff.Retry(listTags, backoff.NewExponentialBackOff())
+
 	if err != nil {
 		return nil, err
 	}

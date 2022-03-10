@@ -5,9 +5,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/semantic-release/go-semantic-release"
-	"github.com/semantic-release/go-semantic-release/condition"
-	"github.com/semantic-release/go-semantic-release/update"
+	"github.com/6RiverSystems/go-semantic-release"
+	"github.com/6RiverSystems/go-semantic-release/condition"
+	"github.com/6RiverSystems/go-semantic-release/update"
 	"io/ioutil"
 	"log"
 	"os"
@@ -64,7 +64,7 @@ func main() {
 	}
 
 	logger.Println("getting latest release...")
-	release, err := repo.GetLatestRelease()
+	release, err := repo.GetLatestReleaseWithBackoff()
 	exitIfError(err)
 	logger.Println("found version: " + release.Version.String())
 
