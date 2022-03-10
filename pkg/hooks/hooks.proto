@@ -1,0 +1,72 @@
+syntax = "proto3";
+option go_package = "github.com/go-semantic-release/semantic-release/v2/pkg/hooks";
+
+import "pkg/semrel/structs.proto";
+import "pkg/provider/provider.proto";
+
+message HooksInit {
+  message Request {
+    map<string, string> config = 1;
+  }
+  message Response {
+    string error = 1;
+  }
+}
+
+message HooksName {
+  message Request {}
+  message Response {
+    string name = 1;
+  }
+}
+
+message HooksVersion {
+  message Request {}
+  message Response {
+    string version = 1;
+  }
+}
+
+message SuccessHookConfig {
+  repeated Commit commits = 1;
+  Release prev_release = 2;
+  Release new_release = 3;
+  string changelog = 4;
+  RepositoryInfo repo_info = 5;
+}
+
+message SuccessHook {
+  message Request {
+    SuccessHookConfig config = 1;
+  }
+  message Response {
+    string error = 1;
+  }
+}
+
+enum NoReleaseReason {
+  CONDITION = 0;
+  NO_CHANGE = 1;
+}
+
+message NoReleaseConfig {
+  NoReleaseReason reason = 1;
+  string message = 2;
+}
+
+message NoReleaseHook {
+  message Request {
+    NoReleaseConfig config = 1;
+  }
+  message Response {
+    string error = 1;
+  }
+}
+
+service HooksPlugin {
+  rpc Init(HooksInit.Request) returns (HooksInit.Response);
+  rpc Name(HooksName.Request) returns (HooksName.Response);
+  rpc Version(HooksVersion.Request) returns (HooksVersion.Response);
+  rpc Success(SuccessHook.Request) returns (SuccessHook.Response);
+  rpc NoRelease(NoReleaseHook.Request) returns (NoReleaseHook.Response);
+}

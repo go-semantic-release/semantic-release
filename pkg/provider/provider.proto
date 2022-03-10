@@ -1,0 +1,90 @@
+syntax = "proto3";
+option go_package = "github.com/go-semantic-release/semantic-release/v2/pkg/provider";
+
+import "pkg/semrel/structs.proto";
+
+message RepositoryInfo {
+  string owner = 1;
+  string repo = 2;
+  string default_branch = 3;
+  bool private = 4;
+}
+
+message CreateReleaseConfig {
+  string changelog = 1;
+  string new_version = 2;
+  bool prerelease = 3;
+  string branch = 4;
+  string SHA = 5;
+}
+
+message ProviderInit {
+  message Request {
+    map<string, string> config = 1;
+  }
+  message Response {
+    string error = 1;
+  }
+}
+
+message ProviderName {
+  message Request {}
+  message Response {
+    string name = 1;
+  }
+}
+
+message ProviderVersion {
+  message Request {}
+  message Response {
+    string version = 1;
+  }
+}
+
+message GetInfo {
+  message Request {}
+  message Response {
+    RepositoryInfo info = 1;
+    string error = 2;
+  }
+}
+
+message GetCommits {
+  message Request {
+    string to_sha = 1;
+    string from_sha = 2;
+  }
+  message Response {
+    repeated RawCommit raw_commits = 1;
+    string error = 2;
+  }
+}
+
+message GetReleases {
+  message Request {
+    string regexp = 1;
+  }
+  message Response {
+    repeated Release releases = 1;
+    string error = 2;
+  }
+}
+
+message CreateRelease {
+  message Request {
+    CreateReleaseConfig config = 1;
+  }
+  message Response {
+    string error = 1;
+  }
+}
+
+service ProviderPlugin {
+  rpc Init(ProviderInit.Request) returns (ProviderInit.Response);
+  rpc Name(ProviderName.Request) returns (ProviderName.Response);
+  rpc Version(ProviderVersion.Request) returns (ProviderVersion.Response);
+  rpc GetInfo(GetInfo.Request) returns (GetInfo.Response);
+  rpc GetCommits(GetCommits.Request) returns (GetCommits.Response);
+  rpc GetReleases(GetReleases.Request) returns (GetReleases.Response);
+  rpc CreateRelease(CreateRelease.Request) returns (CreateRelease.Response);
+}

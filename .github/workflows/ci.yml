@@ -1,0 +1,69 @@
+name: CI
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: golangci/golangci-lint-action@v2
+
+  build:
+    name: Build and Run
+    runs-on: ${{ matrix.os }}
+    needs: lint
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - uses: actions/checkout@v2
+      - run: go build ./cmd/semantic-release/
+        env:
+          CGO_ENABLED: 0
+      - run: go test -v ./...
+      - run: ./semantic-release --dry --allow-no-changes --no-ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - run: |
+          go install github.com/mitchellh/gox@latest
+          go install github.com/tcnksm/ghr@latest
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - uses: actions/checkout@v2
+      - run: go build ./cmd/semantic-release/
+      - uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/login-action@v1
+        with:
+          registry: registry.gitlab.com
+          username: ${{ secrets.GITLAB_USER }}
+          password: ${{ secrets.GITLAB_TOKEN }}
+      - run: ./scripts/release || exit 0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

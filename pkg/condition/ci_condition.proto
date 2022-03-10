@@ -1,0 +1,48 @@
+syntax = "proto3";
+option go_package = "github.com/go-semantic-release/semantic-release/v2/pkg/condition";
+
+message CIName {
+  message Request {}
+  message Response {
+    string name = 1;
+  }
+}
+
+message CIVersion {
+  message Request {}
+  message Response {
+    string version = 1;
+  }
+}
+
+message RunCondition {
+  message Request {
+    map<string, string> value = 1;
+
+  }
+  message Response {
+    string error = 1;
+  }
+}
+
+message GetCurrentBranch {
+  message Request {}
+  message Response {
+    string value = 1;
+  }
+}
+
+message GetCurrentSHA {
+  message Request {}
+  message Response {
+    string value = 1;
+  }
+}
+
+service CIConditionPlugin {
+  rpc Name(CIName.Request) returns (CIName.Response);
+  rpc Version(CIVersion.Request) returns (CIVersion.Response);
+  rpc RunCondition(RunCondition.Request) returns (RunCondition.Response);
+  rpc GetCurrentBranch(GetCurrentBranch.Request) returns (GetCurrentBranch.Response);
+  rpc GetCurrentSHA(GetCurrentSHA.Request) returns (GetCurrentSHA.Response);
+}
