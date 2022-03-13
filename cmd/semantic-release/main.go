@@ -65,6 +65,19 @@ func main() {
 	}
 }
 
+func mergeConfigWithDefaults(defaults, conf map[string]string) {
+	for k, v := range conf {
+		defaults[k] = v
+		// case-insensitive overwrite default values
+		kLower := strings.ToLower(k)
+		for dk := range defaults {
+			if strings.ToLower(dk) == kLower && dk != k {
+				defaults[dk] = v
+			}
+		}
+	}
+}
+
 func cliHandler(cmd *cobra.Command, args []string) {
 	logger := log.New(os.Stderr, "[go-semantic-release]: ", 0)
 	exitIfError := errorHandler(logger)
@@ -153,9 +166,8 @@ func cliHandler(cmd *cobra.Command, args []string) {
 		"defaultBranch": repoInfo.DefaultBranch,
 		"prerelease":    fmt.Sprintf("%t", conf.Prerelease),
 	}
-	for k, v := range conf.HooksOpts {
-		hooksConfig[k] = v
-	}
+	mergeConfigWithDefaults(hooksConfig, conf.HooksOpts)
+
 	exitIfError(hooksExecutor.Init(hooksConfig))
 
 	if !conf.NoCI {
@@ -165,9 +177,8 @@ func cliHandler(cmd *cobra.Command, args []string) {
 			"defaultBranch": repoInfo.DefaultBranch,
 			"private":       fmt.Sprintf("%t", repoInfo.Private),
 		}
-		for k, v := range conf.CIConditionOpts {
-			conditionConfig[k] = v
-		}
+		mergeConfigWithDefaults(conditionConfig, conf.CIConditionOpts)
+
 		err = ci.RunCondition(conditionConfig)
 		if err != nil {
 			herr := hooksExecutor.NoRelease(&hooks.NoReleaseConfig{
