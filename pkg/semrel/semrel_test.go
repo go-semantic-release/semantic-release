@@ -50,7 +50,7 @@ func TestApplyChange(t *testing.T) {
 		{"0.0.0", NoChange, "0.1.0", true, false},
 		{"0.0.0", PatchChange, "0.1.0", true, false},
 		{"0.0.0", MinorChange, "0.1.0", true, false},
-		{"0.0.0", MajorChange, "1.0.0", true, false},
+		{"0.0.0", MajorChange, "0.1.0", true, false},
 
 		{"1.0.0", NoChange, "", false, false},
 		{"1.0.0", NoChange, "1.0.1", false, true},
@@ -63,6 +63,11 @@ func TestApplyChange(t *testing.T) {
 		{"2.0.0-beta", MajorChange, "2.0.0-beta.1", false, false},
 		{"2.0.0-beta.2", MajorChange, "2.0.0-beta.3", false, false},
 		{"2.0.0-beta.1.1", MajorChange, "2.0.0-beta.2", false, false},
+
+		{"0.1.0", MajorChange, "0.2.0", true, false},
+		{"1.0.0", MajorChange, "2.0.0", true, false},
+		{"0.1.0", MinorChange, "0.2.0", true, false},
+		{"0.1.0", NoChange, "0.1.1", true, true},
 	}
 
 	for _, tc := range testCases {
