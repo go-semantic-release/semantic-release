@@ -179,7 +179,7 @@ func SetFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("ghr", false, "create a .ghr file with the parameters for ghr")
 	cmd.Flags().Bool("no-ci", false, "run semantic-release locally")
 	cmd.Flags().Bool("dry", false, "do not create release")
-	cmd.Flags().Bool("allow-initial-development-versions", false, "semantic-release will start your initial development release at 0.1.0")
+	cmd.Flags().Bool("allow-initial-development-versions", false, "semantic-release will start your initial development release at 0.1.0 and will handle breaking changes as minor version updates. This option will be ignored if a release with major version greater than or equal 1 exists.")
 	cmd.Flags().Bool("allow-no-changes", false, "exit with code 0 if no changes are found, useful if semantic-release is automatically run")
 	cmd.Flags().Bool("force-bump-patch-version", false, "increments the patch version if no changes are found")
 	cmd.Flags().Bool("prepend-changelog", false, "if the changelog file already exist the new changelog is prepended")

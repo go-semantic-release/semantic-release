@@ -33,6 +33,12 @@ func applyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVe
 		change.Major = true
 	}
 
+	// never allow major version changed if allowInitialDevelopmentVersions is set
+	if allowInitialDevelopmentVersions && version.Major() == 0 && change.Major {
+		change.Major = false
+		change.Minor = true
+	}
+
 	if allowInitialDevelopmentVersions && version.Major() == 0 && version.Minor() == 0 {
 		change.Minor = true
 	}
