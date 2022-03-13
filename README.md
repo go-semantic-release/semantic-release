@@ -40,7 +40,7 @@ Since v2, semantic-release is equipped with a plugin system. The plugins are sta
 * Changelog Generator ([Docs](https://pkg.go.dev/github.com/go-semantic-release/semantic-release/v2/pkg/generator?tab=doc#ChangelogGenerator), [Example](https://github.com/go-semantic-release/changelog-generator-default))
 * Provider ([Docs](https://pkg.go.dev/github.com/go-semantic-release/semantic-release/v2/pkg/provider?tab=doc#Provider), [Example](https://github.com/go-semantic-release/provider-github))
 * Files Updater ([Docs](https://pkg.go.dev/github.com/go-semantic-release/semantic-release/v2/pkg/updater?tab=doc#FilesUpdater), [Example](https://github.com/go-semantic-release/files-updater-npm))
-* Hooks ([Docs](https://pkg.go.dev/github.com/go-semantic-release/semantic-release/v2/pkg/hooks?tab=doc#Hooks))
+* Hooks ([Docs](https://pkg.go.dev/github.com/go-semantic-release/semantic-release/v2/pkg/hooks?tab=doc#Hooks), [Example](https://github.com/go-semantic-release/hooks-goreleaser))
 
 ### Configuration
 
