@@ -2,37 +2,20 @@
 
 set -euo pipefail
 
-./semantic-release --ghr --version-file --prerelease
+./semantic-release --version-file --hooks goreleaser --prerelease
 export VERSION=$(cat .version)
-
-export CGO_ENABLED=0
-gox -parallel 4 -osarch="linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 linux/arm windows/amd64" -ldflags="-extldflags '-static' -s -w -X main.SRVERSION=$VERSION" -output="bin/{{.Dir}}_v"$VERSION"_{{.OS}}_{{.Arch}}" ./cmd/semantic-release/
-
-cd bin/ && shasum -a 256 * > ./semantic-release_v${VERSION}_checksums.txt && cd -
-ghr $(cat .ghr) bin/
-
-# docker build
-export IMAGE_NAME="ghcr.io/go-semantic-release/semantic-release"
-export IMAGE_NAME_VERSION="$IMAGE_NAME:$VERSION"
-export GL_IMAGE_NAME="registry.gitlab.com/go-semantic-release/semantic-release"
-export GL_IMAGE_NAME_VERSION="$GL_IMAGE_NAME:$VERSION"
-
-docker build --build-arg VERSION=$VERSION --label "org.opencontainers.image.source=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" --label "org.opencontainers.image.version=$VERSION" --label "org.opencontainers.image.revision=$GITHUB_SHA" --label "org.opencontainers.image.created=$(date --rfc-3339 ns)" --label "org.opencontainers.image.title=semantic-release" --label "org.opencontainers.image.license=MIT" -t $IMAGE_NAME_VERSION .
-docker tag $IMAGE_NAME_VERSION $IMAGE_NAME
-docker tag $IMAGE_NAME_VERSION $GL_IMAGE_NAME
-docker tag $IMAGE_NAME_VERSION $GL_IMAGE_NAME_VERSION
-
-# push to GitHub Docker Registry
-docker push $IMAGE_NAME_VERSION
-docker push $IMAGE_NAME
-
-# push to GitLab Docker Registry
-docker push $GL_IMAGE_NAME_VERSION
-docker push $GL_IMAGE_NAME
 
 # publish npm package
 echo "installing npm-binary-releaser..."
 curl -SL https:/get-release.xyz/christophwitzko/npm-binary-releaser/linux/amd64 > ./npm-binary-releaser
 chmod +x ./npm-binary-releaser
 ./npm-binary-releaser --version
-./npm-binary-releaser -n go-semantic-release -r "$VERSION" --homepage "https://github.com/go-semantic-release/semantic-release" --license MIT --package-name-prefix "@go-semantic-release/" --no-prefix-for-main-package --publish
+
+./npm-binary-releaser -i ./dist \
+  -n go-semantic-release \
+  -r "$VERSION" \
+  --homepage "https://github.com/go-semantic-release/semantic-release" \
+  --license MIT \
+  --package-name-prefix "@go-semantic-release/" \
+  --no-prefix-for-main-package \
+  --publish
