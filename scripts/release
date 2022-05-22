@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ./semantic-release --version-file --hooks goreleaser --prerelease
-export VERSION=$(cat .version)
+version=$(cat .version)
 
 # publish npm package
 echo "installing npm-binary-releaser..."
@@ -13,7 +13,7 @@ chmod +x ./npm-binary-releaser
 
 ./npm-binary-releaser -i ./dist \
   -n go-semantic-release \
-  -r "$VERSION" \
+  -r "$version" \
   --homepage "https://github.com/go-semantic-release/semantic-release" \
   --license MIT \
   --package-name-prefix "@go-semantic-release/" \
