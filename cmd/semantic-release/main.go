@@ -315,10 +315,7 @@ func cliHandler(cmd *cobra.Command, args []string) {
 		Changelog: changelogRes,
 		RepoInfo:  repoInfo,
 	})
-
-	if herr != nil {
-		logger.Printf("there was an error executing the hooks plugins: %s", herr.Error())
-	}
+	exitIfError(herr)
 
 	logger.Println("done.")
 }
