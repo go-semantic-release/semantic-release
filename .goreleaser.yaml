@@ -33,3 +33,5 @@ dockers:
       - "--label=org.opencontainers.image.version={{.Version}}"
       - "--label=org.opencontainers.image.license=MIT"
       - "--label=org.opencontainers.image.source=https://github.com/go-semantic-release/semantic-release.git"
+    extra_files:
+      - ./docker/entrypoint.sh
