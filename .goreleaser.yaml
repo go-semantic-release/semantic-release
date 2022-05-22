@@ -1,0 +1,35 @@
+builds:
+  - env:
+      - CGO_ENABLED=0
+    targets:
+      - linux_amd64
+      - linux_arm64
+      - darwin_amd64
+      - darwin_arm64
+      - linux_arm
+      - windows_amd64
+    main: ./cmd/semantic-release/
+    ldflags:
+      - -extldflags '-static'
+      - -s -w -X main.SRVERSION={{.Version}}
+
+archives:
+  - format: binary
+    name_template: '{{ .Binary }}_v{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+
+checksum:
+  name_template: '{{ .ProjectName }}_v{{ .Version }}_checksums.txt'
+
+dockers:
+  - image_templates:
+      - "ghcr.io/go-semantic-release/semantic-release:latest"
+      - "ghcr.io/go-semantic-release/semantic-release:{{.Version}}"
+      - "registry.gitlab.com/go-semantic-release/semantic-release:latest"
+      - "registry.gitlab.com/go-semantic-release/semantic-release:{{.Version}}"
+    build_flag_templates:
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.license=MIT"
+      - "--label=org.opencontainers.image.source=https://github.com/go-semantic-release/semantic-release.git"

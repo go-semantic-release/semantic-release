@@ -48,9 +48,6 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: 1.18
-      - run: |
-          go install github.com/mitchellh/gox@latest
-          go install github.com/tcnksm/ghr@latest
       - uses: actions/setup-node@v1
         with:
           node-version: 16.x
