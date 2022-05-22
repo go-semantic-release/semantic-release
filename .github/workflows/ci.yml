@@ -27,10 +27,10 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
     steps:
+      - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
           go-version: 1.18
-      - uses: actions/checkout@v3
       - run: go build ./cmd/semantic-release/
         env:
           CGO_ENABLED: 0
@@ -45,13 +45,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
           go-version: 1.18
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 16.x
-      - uses: actions/checkout@v3
       - run: go build ./cmd/semantic-release/
       - uses: docker/login-action@v1
         with:
