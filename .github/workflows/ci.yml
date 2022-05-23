@@ -70,7 +70,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: |
           npm i -g npm-binary-releaser
-          npm-binary-releaser -i ./dist -n go-semantic-release -r ${{steps.semrel.outputs.version}} --homepage "https://github.com/go-semantic-release/semantic-release" --license MIT --package-name-prefix "@go-semantic-release/" --no-prefix-for-main-package --publish
+          npm-binary-releaser -r ${{steps.semrel.outputs.version}}
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         if: steps.semrel.outputs.version != ''

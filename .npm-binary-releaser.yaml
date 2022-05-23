@@ -1,0 +1,6 @@
+name: go-semantic-release
+description: "fully automated package/module/image publishing"
+license: MIT
+packageNamePrefix: "@go-semantic-release/"
+noPrefixForMainPackage: true
+publish: true
