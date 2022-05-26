@@ -64,13 +64,8 @@ jobs:
         id: semrel
         with:
           bin: ./semantic-release
-          hooks: goreleaser
+          hooks: goreleaser,npm-binary-releaser
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: |
-          npm i -g npm-binary-releaser
-          npm-binary-releaser -r ${{steps.semrel.outputs.version}}
-        env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        if: steps.semrel.outputs.version != ''
