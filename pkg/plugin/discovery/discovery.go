@@ -2,82 +2,62 @@ package discovery
 
 import (
 	"errors"
-	"os/exec"
-	"strings"
+	"fmt"
 
-	"github.com/Masterminds/semver/v3"
-	"github.com/go-semantic-release/semantic-release/v2/pkg/analyzer"
-	"github.com/go-semantic-release/semantic-release/v2/pkg/condition"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/config"
-	"github.com/go-semantic-release/semantic-release/v2/pkg/generator"
-	"github.com/go-semantic-release/semantic-release/v2/pkg/hooks"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
-	"github.com/go-semantic-release/semantic-release/v2/pkg/provider"
-	"github.com/go-semantic-release/semantic-release/v2/pkg/updater"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery/resolver"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery/resolver/registry"
 )
 
 type Discovery struct {
-	config *config.Config
+	config    *config.Config
+	resolvers map[string]resolver.Resolver
 }
 
 func New(config *config.Config) (*Discovery, error) {
-	return &Discovery{config}, nil
+	registryResolver := registry.NewResolver()
+	return &Discovery{
+		config: config,
+		resolvers: map[string]resolver.Resolver{
+			"default":  registryResolver,
+			"registry": registryResolver,
+		},
+	}, nil
 }
 
-func getPluginType(t string) string {
-	switch t {
-	case analyzer.CommitAnalyzerPluginName:
-		return "commit-analyzer"
-	case condition.CIConditionPluginName:
-		return "condition"
-	case generator.ChangelogGeneratorPluginName:
-		return "changelog-generator"
-	case provider.PluginName:
-		return "provider"
-	case updater.FilesUpdaterPluginName:
-		return "files-updater"
-	case hooks.PluginName:
-		return "hooks"
+func (d *Discovery) fetchPlugin(pluginInfo *plugin.PluginInfo) (string, error) {
+	pluginResolver, ok := d.resolvers[pluginInfo.Resolver]
+	if !ok {
+		return "", fmt.Errorf("resolver %s not found", pluginInfo.Resolver)
 	}
-	return ""
+
+	downloadInfo, err := pluginResolver.ResolvePlugin(pluginInfo)
+	if err != nil {
+		return "", err
+	}
+
+	return downloadPlugin(pluginInfo, downloadInfo, d.config.ShowProgress)
 }
 
-func (d *Discovery) FindPlugin(t, name string) (*plugin.PluginOpts, error) {
-	pType := getPluginType(t)
-	if pType == "" {
-		return nil, errors.New("invalid plugin type")
+func (d *Discovery) FindPlugin(t, name string) (*plugin.PluginInfo, error) {
+	pInfo, err := plugin.GetPluginInfo(t, name)
+	if err != nil {
+		return nil, err
 	}
-
-	var cons *semver.Constraints
-	if ve := strings.SplitN(name, "@", 2); len(ve) > 1 {
-		v, err := semver.NewConstraint(ve[1])
-		if err != nil {
-			return nil, err
-		}
-		name = ve[0]
-		cons = v
-	}
-
-	pName := strings.ToLower(pType + "-" + name)
-	pPath := getPluginPath(pName)
-	if err := ensurePluginDir(pPath); err != nil {
+	if err := setAndEnsurePluginPath(pInfo); err != nil {
 		return nil, err
 	}
 
-	binPath, err := findPluginLocally(pPath, cons)
-	if err != nil {
-		binPath, err = fetchPlugin(pName, pPath, cons, d.config.ShowProgress)
+	binPath, err := findPluginLocally(pInfo)
+	if errors.Is(err, ErrPluginNotFound) {
+		binPath, err = d.fetchPlugin(pInfo)
 		if err != nil {
 			return nil, err
 		}
+	} else if err != nil {
+		return nil, err
 	}
-
-	cmd := exec.Command(binPath)
-	cmd.SysProcAttr = GetSysProcAttr()
-
-	return &plugin.PluginOpts{
-		Type:       t,
-		PluginName: pName,
-		Cmd:        cmd,
-	}, nil
+	pInfo.BinPath = binPath
+	return pInfo, nil
 }

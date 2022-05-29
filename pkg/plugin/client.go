@@ -14,12 +14,6 @@ import (
 	"github.com/hashicorp/go-plugin"
 )
 
-type PluginOpts struct {
-	Type       string
-	PluginName string
-	Cmd        *exec.Cmd
-}
-
 var runningClientsMx sync.Mutex
 var runningClients = make([]*plugin.Client, 0)
 
@@ -31,11 +25,11 @@ func KillAllPlugins() {
 	}
 }
 
-func StartPlugin(opts *PluginOpts) (interface{}, error) {
+func StartPlugin(pluginInfo *PluginInfo) (interface{}, error) {
 	runningClientsMx.Lock()
 	defer runningClientsMx.Unlock()
 	logR, logW := io.Pipe()
-	pluginLogger := log.New(os.Stderr, fmt.Sprintf("[%s]: ", opts.PluginName), 0)
+	pluginLogger := log.New(os.Stderr, fmt.Sprintf("[%s]: ", pluginInfo.NormalizedName), 0)
 	go func() {
 		logLineScanner := bufio.NewScanner(logR)
 		for logLineScanner.Scan() {
@@ -47,16 +41,20 @@ func StartPlugin(opts *PluginOpts) (interface{}, error) {
 			pluginLogger.Println(line)
 		}
 	}()
+
+	cmd := exec.Command(pluginInfo.BinPath)
+	cmd.SysProcAttr = GetSysProcAttr()
+
 	client := plugin.NewClient(&plugin.ClientConfig{
 		HandshakeConfig: Handshake,
 		VersionedPlugins: map[int]plugin.PluginSet{
 			1: {
-				opts.Type: &GRPCWrapper{
-					Type: opts.Type,
+				pluginInfo.Type: &GRPCWrapper{
+					Type: pluginInfo.Type,
 				},
 			},
 		},
-		Cmd:              opts.Cmd,
+		Cmd:              cmd,
 		AllowedProtocols: []plugin.Protocol{plugin.ProtocolGRPC},
 		Logger:           hclog.NewNullLogger(),
 		Stderr:           logW,
@@ -67,7 +65,7 @@ func StartPlugin(opts *PluginOpts) (interface{}, error) {
 		client.Kill()
 		return nil, err
 	}
-	raw, err := rpcClient.Dispense(opts.Type)
+	raw, err := rpcClient.Dispense(pluginInfo.Type)
 	if err != nil {
 		client.Kill()
 		return nil, err
