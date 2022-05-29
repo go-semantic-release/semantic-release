@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
-          go-version: '1.18'
+          go-version: 1.18
       - uses: golangci/golangci-lint-action@v3
 
   build:
@@ -61,7 +61,6 @@ jobs:
           username: ${{ secrets.GITLAB_USER }}
           password: ${{ secrets.GITLAB_TOKEN }}
       - uses: go-semantic-release/action@v1
-        id: semrel
         with:
           bin: ./semantic-release
           hooks: goreleaser,npm-binary-releaser
