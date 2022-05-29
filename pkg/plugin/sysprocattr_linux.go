@@ -1,6 +1,7 @@
+//go:build linux
 // +build linux
 
-package discovery
+package plugin
 
 import "syscall"
 

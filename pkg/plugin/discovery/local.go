@@ -8,6 +8,8 @@ import (
 	"runtime"
 	"sort"
 
+	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
+
 	"github.com/Masterminds/semver/v3"
 )
 
@@ -15,56 +17,62 @@ const PluginDir = ".semrel"
 
 var osArchDir = runtime.GOOS + "_" + runtime.GOARCH
 
-func getPluginPath(name string) string {
-	pElem := append([]string{PluginDir}, osArchDir, name)
-	return path.Join(pElem...)
-}
-
-func ensurePluginDir(pth string) error {
-	_, err := os.Stat(pth)
-	if os.IsNotExist(err) {
-		return os.MkdirAll(pth, 0755)
+func setAndEnsurePluginPath(pluginInfo *plugin.PluginInfo) error {
+	pluginPath := path.Join(PluginDir, osArchDir, pluginInfo.NormalizedName)
+	if _, err := os.Stat(pluginPath); os.IsNotExist(err) {
+		if err := os.MkdirAll(pluginPath, 0755); err != nil {
+			return err
+		}
+	} else if err != nil {
+		return err
 	}
-	return err
+	pluginInfo.PluginPath = pluginPath
+	return nil
 }
 
-func getMatchingVersionDir(pth string, cons *semver.Constraints) (string, error) {
-	vDirs, err := ioutil.ReadDir(pth)
+var ErrPluginNotFound = errors.New("no plugin was found")
+
+func getMatchingVersionDir(pluginInfo *plugin.PluginInfo) (string, error) {
+	vDirs, err := ioutil.ReadDir(pluginInfo.PluginPath)
 	if err != nil {
 		return "", err
 	}
-	foundVers := make(semver.Collection, 0)
+	foundVersions := make(semver.Collection, 0)
 	for _, f := range vDirs {
 		if f.IsDir() {
 			fVer, err := semver.NewVersion(f.Name())
 			if err != nil {
 				continue
 			}
-			foundVers = append(foundVers, fVer)
+			foundVersions = append(foundVersions, fVer)
 		}
 	}
 
-	if len(foundVers) == 0 {
-		return "", errors.New("no installed version found")
+	if len(foundVersions) == 0 {
+		return "", nil
 	}
-	sort.Sort(sort.Reverse(foundVers))
+	sort.Sort(sort.Reverse(foundVersions))
 
-	if cons == nil {
-		return path.Join(pth, foundVers[0].String()), nil
+	if pluginInfo.Constraint == nil {
+		return path.Join(pluginInfo.PluginPath, foundVersions[0].String()), nil
 	}
 
-	for _, v := range foundVers {
-		if cons.Check(v) {
-			return path.Join(pth, v.String()), nil
+	for _, v := range foundVersions {
+		if pluginInfo.Constraint.Check(v) {
+			return path.Join(pluginInfo.PluginPath, v.String()), nil
 		}
 	}
-	return "", errors.New("no matching version found")
+	return "", nil
 }
 
-func findPluginLocally(pth string, cons *semver.Constraints) (string, error) {
-	vPth, err := getMatchingVersionDir(pth, cons)
+func findPluginLocally(pluginInfo *plugin.PluginInfo) (string, error) {
+	vPth, err := getMatchingVersionDir(pluginInfo)
 	if err != nil {
 		return "", err
+	}
+
+	if vPth == "" {
+		return "", ErrPluginNotFound
 	}
 
 	files, err := ioutil.ReadDir(vPth)
@@ -72,7 +80,7 @@ func findPluginLocally(pth string, cons *semver.Constraints) (string, error) {
 		return "", err
 	}
 	if len(files) == 0 {
-		return "", errors.New("no plugins found")
+		return "", ErrPluginNotFound
 	}
 	for _, f := range files {
 		if f.IsDir() {
@@ -83,5 +91,5 @@ func findPluginLocally(pth string, cons *semver.Constraints) (string, error) {
 		}
 		return path.Join(vPth, f.Name()), nil
 	}
-	return "", errors.New("no matching plugin found")
+	return "", ErrPluginNotFound
 }

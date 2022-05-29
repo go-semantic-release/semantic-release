@@ -29,12 +29,12 @@ func New(config *config.Config) (*PluginManager, error) {
 }
 
 func (m *PluginManager) GetCICondition() (condition.CICondition, error) {
-	opts, err := m.discovery.FindPlugin(condition.CIConditionPluginName, m.config.CIConditionPlugin)
+	pluginInfo, err := m.discovery.FindPlugin(condition.CIConditionPluginName, m.config.CIConditionPlugin)
 	if err != nil {
 		return nil, err
 	}
 
-	cic, err := plugin.StartPlugin(opts)
+	cic, err := plugin.StartPlugin(pluginInfo)
 	if err != nil {
 		return nil, err
 	}
@@ -42,12 +42,12 @@ func (m *PluginManager) GetCICondition() (condition.CICondition, error) {
 }
 
 func (m *PluginManager) GetProvider() (provider.Provider, error) {
-	opts, err := m.discovery.FindPlugin(provider.PluginName, m.config.ProviderPlugin)
+	pluginInfo, err := m.discovery.FindPlugin(provider.PluginName, m.config.ProviderPlugin)
 	if err != nil {
 		return nil, err
 	}
 
-	prov, err := plugin.StartPlugin(opts)
+	prov, err := plugin.StartPlugin(pluginInfo)
 	if err != nil {
 		return nil, err
 	}
@@ -55,12 +55,12 @@ func (m *PluginManager) GetProvider() (provider.Provider, error) {
 }
 
 func (m *PluginManager) GetCommitAnalyzer() (analyzer.CommitAnalyzer, error) {
-	opts, err := m.discovery.FindPlugin(analyzer.CommitAnalyzerPluginName, m.config.CommitAnalyzerPlugin)
+	pluginInfo, err := m.discovery.FindPlugin(analyzer.CommitAnalyzerPluginName, m.config.CommitAnalyzerPlugin)
 	if err != nil {
 		return nil, err
 	}
 
-	ca, err := plugin.StartPlugin(opts)
+	ca, err := plugin.StartPlugin(pluginInfo)
 	if err != nil {
 		return nil, err
 	}
@@ -68,12 +68,12 @@ func (m *PluginManager) GetCommitAnalyzer() (analyzer.CommitAnalyzer, error) {
 }
 
 func (m *PluginManager) GetChangelogGenerator() (generator.ChangelogGenerator, error) {
-	opts, err := m.discovery.FindPlugin(generator.ChangelogGeneratorPluginName, m.config.ChangelogGeneratorPlugin)
+	pluginInfo, err := m.discovery.FindPlugin(generator.ChangelogGeneratorPluginName, m.config.ChangelogGeneratorPlugin)
 	if err != nil {
 		return nil, err
 	}
 
-	cg, err := plugin.StartPlugin(opts)
+	cg, err := plugin.StartPlugin(pluginInfo)
 	if err != nil {
 		return nil, err
 	}
@@ -83,12 +83,12 @@ func (m *PluginManager) GetChangelogGenerator() (generator.ChangelogGenerator, e
 func (m *PluginManager) GetChainedUpdater() (*updater.ChainedUpdater, error) {
 	updaters := make([]updater.FilesUpdater, 0)
 	for _, pl := range m.config.FilesUpdaterPlugins {
-		opts, err := m.discovery.FindPlugin(updater.FilesUpdaterPluginName, pl)
+		pluginInfo, err := m.discovery.FindPlugin(updater.FilesUpdaterPluginName, pl)
 		if err != nil {
 			return nil, err
 		}
 
-		upd, err := plugin.StartPlugin(opts)
+		upd, err := plugin.StartPlugin(pluginInfo)
 		if err != nil {
 			return nil, err
 		}
@@ -103,12 +103,12 @@ func (m *PluginManager) GetChainedUpdater() (*updater.ChainedUpdater, error) {
 func (m *PluginManager) GetChainedHooksExecutor() (*hooks.ChainedHooksExecutor, error) {
 	hooksChain := make([]hooks.Hooks, 0)
 	for _, pl := range m.config.HooksPlugins {
-		opts, err := m.discovery.FindPlugin(hooks.PluginName, pl)
+		pluginInfo, err := m.discovery.FindPlugin(hooks.PluginName, pl)
 		if err != nil {
 			return nil, err
 		}
 
-		hp, err := plugin.StartPlugin(opts)
+		hp, err := plugin.StartPlugin(pluginInfo)
 		if err != nil {
 			return nil, err
 		}

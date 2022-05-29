@@ -1,4 +1,4 @@
-package discovery
+package registry
 
 import (
 	"encoding/json"
@@ -34,8 +34,6 @@ func (r *apiPluginRelease) getMatchingAsset() *apiPluginAsset {
 }
 
 type apiPlugin struct {
-	Type          string
-	Name          string
 	LatestRelease string
 	Versions      map[string]*apiPluginRelease
 }
