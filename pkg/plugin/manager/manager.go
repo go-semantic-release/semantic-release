@@ -95,10 +95,9 @@ func (m *PluginManager) GetChainedUpdater() (*updater.ChainedUpdater, error) {
 		updaters = append(updaters, upd.(updater.FilesUpdater))
 	}
 
-	updater := &updater.ChainedUpdater{
+	return &updater.ChainedUpdater{
 		Updaters: updaters,
-	}
-	return updater, nil
+	}, nil
 }
 
 func (m *PluginManager) GetChainedHooksExecutor() (*hooks.ChainedHooksExecutor, error) {

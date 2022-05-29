@@ -16,9 +16,10 @@ type ChainedHooksExecutor struct {
 
 func (c *ChainedHooksExecutor) Success(config *SuccessHookConfig) error {
 	for _, h := range c.HooksChain {
+		name := h.Name()
 		err := h.Success(config)
 		if err != nil {
-			return err
+			return fmt.Errorf("%s hook has failed: %w", name, err)
 		}
 	}
 	return nil
@@ -26,9 +27,10 @@ func (c *ChainedHooksExecutor) Success(config *SuccessHookConfig) error {
 
 func (c *ChainedHooksExecutor) NoRelease(config *NoReleaseConfig) error {
 	for _, h := range c.HooksChain {
+		name := h.Name()
 		err := h.NoRelease(config)
 		if err != nil {
-			return err
+			return fmt.Errorf("%s hook has failed: %w", name, err)
 		}
 	}
 	return nil
