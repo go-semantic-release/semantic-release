@@ -60,7 +60,7 @@ func downloadPlugin(pluginInfo *plugin.PluginInfo, downloadInfo *resolver.Plugin
 
 	res := grab.DefaultClient.Do(req)
 	if showProgress {
-		showDownloadProgressBar(pluginInfo.NormalizedName, res)
+		showDownloadProgressBar(pluginInfo.ShortNormalizedName, res)
 	}
 	if err := res.Err(); err != nil {
 		return "", err

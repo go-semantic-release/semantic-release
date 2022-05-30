@@ -14,13 +14,14 @@ import (
 )
 
 type PluginInfo struct {
-	Type           string
-	Name           string
-	NormalizedName string
-	Constraint     *semver.Constraints
-	Resolver       string
-	PluginPath     string
-	BinPath        string
+	Type                string
+	Name                string
+	NormalizedName      string
+	ShortNormalizedName string
+	Constraint          *semver.Constraints
+	Resolver            string
+	PluginPath          string
+	BinPath             string
 }
 
 func normalizedPluginType(t string) string {
@@ -49,36 +50,47 @@ func GetPluginInfo(pluginType, pluginName string) (*PluginInfo, error) {
 	resolver := "default"
 	name := pluginName
 	normalizedName := fmt.Sprintf("%s-%s", nPluginType, pluginName)
+
 	if strings.Contains(name, ":") {
-		parts := strings.SplitN(name, ":", 2)
+		parts := strings.Split(name, ":")
+		if len(parts) != 2 {
+			return nil, fmt.Errorf("invalid plugin name format")
+		}
 		resolver = parts[0]
 		name = parts[1]
 		normalizedName = strings.ReplaceAll(normalizedName, ":", "-")
 	}
+
 	if strings.Contains(name, "/") {
-		parts := strings.SplitN(name, "/", 2)
+		parts := strings.Split(name, "/")
+		if len(parts) != 2 {
+			return nil, fmt.Errorf("invalid plugin name format")
+		}
 		name = parts[1]
 		normalizedName = strings.ReplaceAll(normalizedName, "/", "-")
 	}
 
 	var constraint *semver.Constraints
 	if strings.Contains(name, "@") {
-		parts := strings.SplitN(name, "@", 2)
+		parts := strings.Split(name, "@")
+		if len(parts) != 2 {
+			return nil, fmt.Errorf("invalid plugin name format")
+		}
 		v, err := semver.NewConstraint(parts[1])
 		if err != nil {
 			return nil, err
 		}
 		name = parts[0]
 		constraint = v
-		parts = strings.SplitN(normalizedName, "@", 2)
-		normalizedName = parts[0]
+		normalizedName, _, _ = strings.Cut(normalizedName, "@")
 	}
 
 	return &PluginInfo{
-		Type:           pluginType,
-		Name:           name,
-		NormalizedName: normalizedName,
-		Constraint:     constraint,
-		Resolver:       resolver,
+		Type:                pluginType,
+		Name:                name,
+		NormalizedName:      normalizedName,
+		ShortNormalizedName: fmt.Sprintf("%s-%s", nPluginType, name),
+		Constraint:          constraint,
+		Resolver:            resolver,
 	}, nil
 }
