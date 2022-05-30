@@ -15,14 +15,27 @@ type Discovery struct {
 	resolvers map[string]resolver.Resolver
 }
 
+func loadResolvers(resolvers ...resolver.Resolver) (map[string]resolver.Resolver, error) {
+	resolversMap := make(map[string]resolver.Resolver)
+	for _, r := range resolvers {
+		for _, name := range r.Names() {
+			if _, ok := resolversMap[name]; ok {
+				return nil, fmt.Errorf("resolver %s already exists", name)
+			}
+			resolversMap[name] = r
+		}
+	}
+	return resolversMap, nil
+}
+
 func New(config *config.Config) (*Discovery, error) {
-	registryResolver := registry.NewResolver()
+	resolvers, err := loadResolvers(registry.NewResolver())
+	if err != nil {
+		return nil, err
+	}
 	return &Discovery{
-		config: config,
-		resolvers: map[string]resolver.Resolver{
-			"default":  registryResolver,
-			"registry": registryResolver,
-		},
+		config:    config,
+		resolvers: resolvers,
 	}, nil
 }
 
