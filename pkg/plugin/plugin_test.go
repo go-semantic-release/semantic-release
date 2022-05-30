@@ -32,6 +32,7 @@ func TestGetPluginInfo(t *testing.T) {
 			NormalizedName:      "provider-github-myorg-myplugin",
 			ShortNormalizedName: "provider-myplugin",
 			Resolver:            "github",
+			RepoSlug:            "myorg/myplugin",
 		}},
 		{"ci_condition", "github:myorg/myplugin", &PluginInfo{
 			Type:                "ci_condition",
@@ -39,6 +40,7 @@ func TestGetPluginInfo(t *testing.T) {
 			NormalizedName:      "condition-github-myorg-myplugin",
 			ShortNormalizedName: "condition-myplugin",
 			Resolver:            "github",
+			RepoSlug:            "myorg/myplugin",
 		}},
 		{"provider", "github:myorg/myplugin@^1.0.0", &PluginInfo{
 			Type:                "provider",
@@ -46,6 +48,7 @@ func TestGetPluginInfo(t *testing.T) {
 			NormalizedName:      "provider-github-myorg-myplugin",
 			ShortNormalizedName: "provider-myplugin",
 			Resolver:            "github",
+			RepoSlug:            "myorg/myplugin",
 			Constraint:          parseConstraint("^1.0.0"),
 		}},
 		{"provider", "git@2.0.0", &PluginInfo{
@@ -62,6 +65,23 @@ func TestGetPluginInfo(t *testing.T) {
 			NormalizedName:      "hooks-registry-logger",
 			ShortNormalizedName: "hooks-logger",
 			Resolver:            "registry",
+		}},
+		{"hooks", "myresolver:@myorg/myplugin", &PluginInfo{
+			Type:                "hooks",
+			Name:                "myplugin",
+			NormalizedName:      "hooks-myresolver-@myorg-myplugin",
+			ShortNormalizedName: "hooks-myplugin",
+			Resolver:            "myresolver",
+			RepoSlug:            "@myorg/myplugin",
+		}},
+		{"hooks", "myresolver:@myorg/myplugin@1.2.3", &PluginInfo{
+			Type:                "hooks",
+			Name:                "myplugin",
+			NormalizedName:      "hooks-myresolver-@myorg-myplugin",
+			ShortNormalizedName: "hooks-myplugin",
+			Resolver:            "myresolver",
+			RepoSlug:            "@myorg/myplugin",
+			Constraint:          parseConstraint("1.2.3"),
 		}},
 	}
 	for _, testCase := range testCases {

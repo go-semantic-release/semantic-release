@@ -20,6 +20,7 @@ type PluginInfo struct {
 	ShortNormalizedName string
 	Constraint          *semver.Constraints
 	Resolver            string
+	RepoSlug            string
 	PluginPath          string
 	BinPath             string
 }
@@ -42,14 +43,17 @@ func normalizedPluginType(t string) string {
 	return ""
 }
 
+var nameNormalizer = strings.NewReplacer(":", "-", "/", "-")
+
 func GetPluginInfo(pluginType, pluginName string) (*PluginInfo, error) {
 	nPluginType := normalizedPluginType(pluginType)
 	if nPluginType == "" {
 		return nil, fmt.Errorf("invalid plugin type: %s", pluginType)
 	}
 	resolver := "default"
+	repoSlug := ""
 	name := pluginName
-	normalizedName := fmt.Sprintf("%s-%s", nPluginType, pluginName)
+	normalizedName := nameNormalizer.Replace(fmt.Sprintf("%s-%s", nPluginType, pluginName))
 
 	if strings.Contains(name, ":") {
 		parts := strings.Split(name, ":")
@@ -58,16 +62,20 @@ func GetPluginInfo(pluginType, pluginName string) (*PluginInfo, error) {
 		}
 		resolver = parts[0]
 		name = parts[1]
-		normalizedName = strings.ReplaceAll(normalizedName, ":", "-")
 	}
 
 	if strings.Contains(name, "/") {
-		parts := strings.Split(name, "/")
-		if len(parts) != 2 {
-			return nil, fmt.Errorf("invalid plugin name format")
+		slashParts := strings.Split(name, "/")
+		pName := slashParts[len(slashParts)-1]
+		// remove version constraint from the slug
+		if strings.Contains(pName, "@") {
+			nameWithoutVersion, _, _ := strings.Cut(pName, "@")
+			repoSlug = strings.Join(slashParts[:len(slashParts)-1], "/") + "/" + nameWithoutVersion
+		} else {
+			repoSlug = name
 		}
-		name = parts[1]
-		normalizedName = strings.ReplaceAll(normalizedName, "/", "-")
+		// the last part is the plugin name
+		name = pName
 	}
 
 	var constraint *semver.Constraints
@@ -82,7 +90,10 @@ func GetPluginInfo(pluginType, pluginName string) (*PluginInfo, error) {
 		}
 		name = parts[0]
 		constraint = v
-		normalizedName, _, _ = strings.Cut(normalizedName, "@")
+
+		// remove version constraint from the normalized name
+		normalizedParts := strings.Split(normalizedName, "@")
+		normalizedName = strings.Join(normalizedParts[:len(normalizedParts)-1], "@")
 	}
 
 	return &PluginInfo{
@@ -92,5 +103,6 @@ func GetPluginInfo(pluginType, pluginName string) (*PluginInfo, error) {
 		ShortNormalizedName: fmt.Sprintf("%s-%s", nPluginType, name),
 		Constraint:          constraint,
 		Resolver:            resolver,
+		RepoSlug:            repoSlug,
 	}, nil
 }
