@@ -29,7 +29,7 @@ func StartPlugin(pluginInfo *PluginInfo) (interface{}, error) {
 	runningClientsMx.Lock()
 	defer runningClientsMx.Unlock()
 	logR, logW := io.Pipe()
-	pluginLogger := log.New(os.Stderr, fmt.Sprintf("[%s]: ", pluginInfo.NormalizedName), 0)
+	pluginLogger := log.New(os.Stderr, fmt.Sprintf("[%s]: ", pluginInfo.ShortNormalizedName), 0)
 	go func() {
 		logLineScanner := bufio.NewScanner(logR)
 		for logLineScanner.Scan() {
