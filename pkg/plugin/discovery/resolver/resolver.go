@@ -11,4 +11,5 @@ type PluginDownloadInfo struct {
 
 type Resolver interface {
 	ResolvePlugin(*plugin.PluginInfo) (*PluginDownloadInfo, error)
+	Names() []string
 }

@@ -60,3 +60,7 @@ func (r RegistryResolver) ResolvePlugin(pluginInfo *plugin.PluginInfo) (*resolve
 		Version:  foundVersion,
 	}, nil
 }
+
+func (r *RegistryResolver) Names() []string {
+	return []string{"default", "registry"}
+}
