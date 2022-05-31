@@ -38,7 +38,11 @@ func New(config *config.Config) (*Discovery, error) {
 		return nil, err
 	}
 	// use the registry resolver as default
-	resolvers["default"] = resolvers["registry"]
+	resolvers["default"] = resolvers[config.PluginResolver]
+
+	if resolvers["default"] == nil {
+		return nil, fmt.Errorf("resolver %s does not exist", config.PluginResolver)
+	}
 
 	return &Discovery{
 		config:    config,

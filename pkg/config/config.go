@@ -39,6 +39,7 @@ type Config struct {
 	DownloadPlugins                       bool
 	ShowProgress                          bool
 	AllowMaintainedVersionOnDefaultBranch bool
+	PluginResolver                        string
 }
 
 func mustGetString(cmd *cobra.Command, name string) string {
@@ -130,6 +131,7 @@ func NewConfig(cmd *cobra.Command) (*Config, error) {
 		DownloadPlugins:                       mustGetBool(cmd, "download-plugins"),
 		ShowProgress:                          mustGetBool(cmd, "show-progress"),
 		AllowMaintainedVersionOnDefaultBranch: mustGetBool(cmd, "allow-maintained-version-on-default-branch"),
+		PluginResolver:                        viper.GetString("pluginResolver"),
 	}
 	return conf, nil
 }
@@ -187,6 +189,7 @@ func SetFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("show-progress", false, "shows the plugin download progress")
 	cmd.Flags().String("config", "", "config file (default is .semrelrc)")
 	cmd.Flags().Bool("allow-maintained-version-on-default-branch", false, "allow configuring the maintained version on the default branch")
+	cmd.Flags().String("plugin-resolver", "registry", "which resolver should be used to resolve plugins (registry or github)")
 	cmd.Flags().SortFlags = true
 
 	must(viper.BindPFlag("maintainedVersion", cmd.Flags().Lookup("maintained-version")))
@@ -198,6 +201,9 @@ func SetFlags(cmd *cobra.Command) {
 	must(viper.BindPFlag("plugins.changelog-generator.name", cmd.Flags().Lookup("changelog-generator")))
 	must(viper.BindPFlag("plugins.files-updater.names", cmd.Flags().Lookup("files-updater")))
 	must(viper.BindPFlag("plugins.hooks.names", cmd.Flags().Lookup("hooks")))
+
+	must(viper.BindPFlag("pluginResolver", cmd.Flags().Lookup("plugin-resolver")))
+	must(viper.BindEnv("pluginResolver", "SEMREL_PLUGIN_RESOLVER"))
 }
 
 func InitConfig(cmd *cobra.Command) error {
