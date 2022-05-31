@@ -7,6 +7,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/v2/pkg/config"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery/resolver"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery/resolver/github"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery/resolver/registry"
 )
 
@@ -19,6 +20,9 @@ func loadResolvers(resolvers ...resolver.Resolver) (map[string]resolver.Resolver
 	resolversMap := make(map[string]resolver.Resolver)
 	for _, r := range resolvers {
 		for _, name := range r.Names() {
+			if name == "default" {
+				return nil, fmt.Errorf("resolver name default is reserved")
+			}
 			if _, ok := resolversMap[name]; ok {
 				return nil, fmt.Errorf("resolver %s already exists", name)
 			}
@@ -29,10 +33,13 @@ func loadResolvers(resolvers ...resolver.Resolver) (map[string]resolver.Resolver
 }
 
 func New(config *config.Config) (*Discovery, error) {
-	resolvers, err := loadResolvers(registry.NewResolver())
+	resolvers, err := loadResolvers(registry.NewResolver(), github.NewResolver())
 	if err != nil {
 		return nil, err
 	}
+	// use the registry resolver as default
+	resolvers["default"] = resolvers["registry"]
+
 	return &Discovery{
 		config:    config,
 		resolvers: resolvers,

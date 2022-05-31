@@ -18,7 +18,7 @@ func NewResolver() *RegistryResolver {
 	return &RegistryResolver{}
 }
 
-func (r RegistryResolver) ResolvePlugin(pluginInfo *plugin.PluginInfo) (*resolver.PluginDownloadInfo, error) {
+func (r *RegistryResolver) ResolvePlugin(pluginInfo *plugin.PluginInfo) (*resolver.PluginDownloadInfo, error) {
 	pluginApiRes, err := getPluginInfo(pluginInfo.NormalizedName)
 	if err != nil {
 		return nil, err
@@ -62,5 +62,5 @@ func (r RegistryResolver) ResolvePlugin(pluginInfo *plugin.PluginInfo) (*resolve
 }
 
 func (r *RegistryResolver) Names() []string {
-	return []string{"default", "registry"}
+	return []string{"registry"}
 }
