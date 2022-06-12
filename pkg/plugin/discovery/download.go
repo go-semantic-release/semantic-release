@@ -1,10 +1,16 @@
 package discovery
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
+	"io"
 	"os"
 	"path"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/cavaliergopher/grab/v3"
@@ -44,9 +50,49 @@ func showDownloadProgressBar(name string, res *grab.Response) {
 	<-done
 }
 
+func extractFileFromTarGz(name, inputFile, outputFile string) error {
+	compressedFile, err := os.Open(inputFile)
+	if err != nil {
+		return err
+	}
+	defer compressedFile.Close()
+
+	decompressedFile, err := gzip.NewReader(compressedFile)
+	if err != nil {
+		return err
+	}
+	defer decompressedFile.Close()
+
+	tarReader := tar.NewReader(decompressedFile)
+	for {
+		header, err := tarReader.Next()
+		if err == io.EOF {
+			return fmt.Errorf("could not extract file")
+		}
+		if err != nil {
+			return err
+		}
+		if header.Typeflag == tar.TypeReg && strings.HasPrefix(header.Name, name) {
+			outFile, err := os.OpenFile(outputFile, os.O_CREATE|os.O_WRONLY, 0755)
+			if err != nil {
+				return err
+			}
+			_, err = io.Copy(outFile, tarReader)
+			outFile.Close()
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+	}
+}
+
+var tgzRegexp = regexp.MustCompile(`^(.*)\.(tgz|tar\.gz)$`)
+
 func downloadPlugin(pluginInfo *plugin.PluginInfo, downloadInfo *resolver.PluginDownloadInfo, showProgress bool) (string, error) {
-	targetPath := path.Join(pluginInfo.PluginPath, downloadInfo.Version, downloadInfo.FileName)
-	req, err := grab.NewRequest(targetPath, downloadInfo.URL)
+	versionDir := path.Join(pluginInfo.PluginPath, downloadInfo.Version)
+	targetFile := path.Join(versionDir, downloadInfo.FileName)
+	req, err := grab.NewRequest(targetFile, downloadInfo.URL)
 	if err != nil {
 		return "", err
 	}
@@ -65,8 +111,17 @@ func downloadPlugin(pluginInfo *plugin.PluginInfo, downloadInfo *resolver.Plugin
 	if err := res.Err(); err != nil {
 		return "", err
 	}
-	if err := os.Chmod(res.Filename, 0755); err != nil {
+
+	tgzMatch := tgzRegexp.FindStringSubmatch(downloadInfo.FileName)
+	if len(tgzMatch) > 2 {
+		outFile := path.Join(versionDir, tgzMatch[1])
+		if err = extractFileFromTarGz(pluginInfo.Name, targetFile, outFile); err != nil {
+			return "", err
+		}
+		targetFile = outFile
+	}
+	if err := os.Chmod(targetFile, 0755); err != nil {
 		return "", err
 	}
-	return res.Filename, nil
+	return targetFile, nil
 }
