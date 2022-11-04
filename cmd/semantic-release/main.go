@@ -218,7 +218,7 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	commitAnalyzer, err := pluginManager.GetCommitAnalyzer()
 	exitIfError(err)
 	logger.Printf("commit-analyzer plugin: %s@%s\n", commitAnalyzer.Name(), commitAnalyzer.Version())
-	exitIfError(commitAnalyzer.Init(conf.ChangelogGeneratorOpts))
+	exitIfError(commitAnalyzer.Init(conf.CommitAnalyzerOpts))
 
 	commits := commitAnalyzer.Analyze(rawCommits)
 
