@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
@@ -23,22 +22,23 @@ import (
 // SRVERSION is the semantic-release version (added at compile time)
 var SRVERSION string
 
+var logger = log.New(os.Stderr, "[go-semantic-release]: ", 0)
+
 var exitHandler func()
 
-func errorHandler(logger *log.Logger) func(error, ...int) {
-	return func(err error, exitCode ...int) {
-		if err != nil {
-			logger.Println(err)
-			if exitHandler != nil {
-				exitHandler()
-			}
-			if len(exitCode) == 1 {
-				os.Exit(exitCode[0])
-				return
-			}
-			os.Exit(1)
-		}
+func exitIfError(err error, exitCode ...int) {
+	if err == nil {
+		return
 	}
+	logger.Println(err)
+	if exitHandler != nil {
+		exitHandler()
+	}
+	if len(exitCode) == 1 {
+		os.Exit(exitCode[0])
+		return
+	}
+	os.Exit(1)
 }
 
 func main() {
@@ -53,14 +53,14 @@ func main() {
 	cobra.OnInitialize(func() {
 		err := config.InitConfig(cmd)
 		if err != nil {
-			fmt.Printf("\nConfig error: %s\n", err.Error())
+			logger.Printf("Config error: %s", err.Error())
 			os.Exit(1)
 			return
 		}
 	})
 	err := cmd.Execute()
 	if err != nil {
-		fmt.Printf("\n%s\n", err.Error())
+		logger.Printf("ERROR: %s", err.Error())
 		os.Exit(1)
 	}
 }
@@ -69,19 +69,17 @@ func mergeConfigWithDefaults(defaults, conf map[string]string) {
 	for k, v := range conf {
 		defaults[k] = v
 		// case-insensitive overwrite default values
-		kLower := strings.ToLower(k)
+		keyLower := strings.ToLower(k)
 		for dk := range defaults {
-			if strings.ToLower(dk) == kLower && dk != k {
+			if strings.ToLower(dk) == keyLower && dk != k {
 				defaults[dk] = v
 			}
 		}
 	}
 }
 
+//gocyclo:ignore
 func cliHandler(cmd *cobra.Command, args []string) {
-	logger := log.New(os.Stderr, "[go-semantic-release]: ", 0)
-	exitIfError := errorHandler(logger)
-
 	logger.Printf("version: %s\n", SRVERSION)
 
 	conf, err := config.NewConfig(cmd)
@@ -98,14 +96,15 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
-		<-c
-		exitIfError(errors.New("terminating..."))
+		termSignal := <-c
+		logger.Println("terminating...")
+		exitIfError(fmt.Errorf("received signal: %s", termSignal))
 	}()
 
 	if conf.DownloadPlugins {
 		exitIfError(pluginManager.FetchAllPlugins())
 		logger.Println("all plugins are downloaded")
-		os.Exit(0)
+		return
 	}
 
 	ci, err := pluginManager.GetCICondition()
@@ -255,18 +254,18 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	if conf.Changelog != "" {
 		oldFile := make([]byte, 0)
 		if conf.PrependChangelog {
-			oldFileData, err := ioutil.ReadFile(conf.Changelog)
+			oldFileData, err := os.ReadFile(conf.Changelog)
 			if err == nil {
 				oldFile = append([]byte("\n"), oldFileData...)
 			}
 		}
 		changelogData := append([]byte(changelogRes), oldFile...)
-		exitIfError(ioutil.WriteFile(conf.Changelog, changelogData, 0o644))
+		exitIfError(os.WriteFile(conf.Changelog, changelogData, 0o644))
 	}
 
 	if conf.Dry {
 		if conf.VersionFile {
-			exitIfError(ioutil.WriteFile(".version-unreleased", []byte(newVer), 0o644))
+			exitIfError(os.WriteFile(".version-unreleased", []byte(newVer), 0o644))
 		}
 		exitIfError(errors.New("DRY RUN: no release was created"), 0)
 	}
@@ -282,11 +281,11 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	exitIfError(prov.CreateRelease(newRelease))
 
 	if conf.Ghr {
-		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repoInfo.Owner, repoInfo.Repo, newVer)), 0o644))
+		exitIfError(os.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repoInfo.Owner, repoInfo.Repo, newVer)), 0o644))
 	}
 
 	if conf.VersionFile {
-		exitIfError(ioutil.WriteFile(".version", []byte(newVer), 0o644))
+		exitIfError(os.WriteFile(".version", []byte(newVer), 0o644))
 	}
 
 	if len(conf.UpdateFiles) == 0 && len(conf.FilesUpdaterPlugins) > 0 {
