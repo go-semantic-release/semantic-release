@@ -17,7 +17,7 @@ func NewResolver() *Resolver {
 	return &Resolver{}
 }
 
-func (r *Resolver) ResolvePlugin(pluginInfo *plugin.PluginInfo) (*resolver.PluginDownloadInfo, error) {
+func (r *Resolver) ResolvePlugin(pluginInfo *plugin.Info) (*resolver.PluginDownloadInfo, error) {
 	pluginAPIRes, err := getPluginInfo(pluginInfo.NormalizedName)
 	if err != nil {
 		return nil, err

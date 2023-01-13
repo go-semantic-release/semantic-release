@@ -119,7 +119,7 @@ func (g *Resolver) getAllValidGitHubReleases(repoOwner, repoName string) (ghRele
 	return ret, nil
 }
 
-func (g *Resolver) ResolvePlugin(pluginInfo *plugin.PluginInfo) (*resolver.PluginDownloadInfo, error) {
+func (g *Resolver) ResolvePlugin(pluginInfo *plugin.Info) (*resolver.PluginDownloadInfo, error) {
 	if pluginInfo.RepoSlug == "" {
 		pluginInfo.RepoSlug = knownPlugins[pluginInfo.ShortNormalizedName]
 	}

@@ -27,7 +27,7 @@ func KillAllPlugins() {
 	}
 }
 
-func StartPlugin(pluginInfo *PluginInfo) (interface{}, error) {
+func StartPlugin(pluginInfo *Info) (interface{}, error) {
 	runningClientsMx.Lock()
 	defer runningClientsMx.Unlock()
 	logR, logW := io.Pipe()

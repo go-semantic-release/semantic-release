@@ -13,7 +13,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/v2/pkg/updater"
 )
 
-type PluginInfo struct {
+type Info struct {
 	Type                string
 	Name                string
 	NormalizedName      string
@@ -45,7 +45,7 @@ func normalizedPluginType(t string) string {
 
 var nameNormalizer = strings.NewReplacer(":", "-", "/", "-")
 
-func GetPluginInfo(pluginType, pluginName string) (*PluginInfo, error) {
+func GetPluginInfo(pluginType, pluginName string) (*Info, error) {
 	nPluginType := normalizedPluginType(pluginType)
 	if nPluginType == "" {
 		return nil, fmt.Errorf("invalid plugin type: %s", pluginType)
@@ -96,7 +96,7 @@ func GetPluginInfo(pluginType, pluginName string) (*PluginInfo, error) {
 		normalizedName = strings.Join(normalizedParts[:len(normalizedParts)-1], "@")
 	}
 
-	return &PluginInfo{
+	return &Info{
 		Type:                pluginType,
 		Name:                name,
 		NormalizedName:      normalizedName,

@@ -22,7 +22,8 @@ func calculateChange(commits []*Commit, latestRelease *Release) *Change {
 	return change
 }
 
-func applyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVersions bool, forceBumpPatchVersion bool) string {
+//gocyclo:ignore
+func applyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVersions, forceBumpPatchVersion bool) string {
 	version := semver.MustParse(rawVersion)
 	change := &Change{
 		Major: rawChange.Major,

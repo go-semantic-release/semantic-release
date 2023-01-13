@@ -90,7 +90,7 @@ func extractFileFromTarGz(name, inputFile, outputFile string) error {
 
 var tgzRegexp = regexp.MustCompile(`^(.*)\.(tgz|tar\.gz)$`)
 
-func downloadPlugin(pluginInfo *plugin.PluginInfo, downloadInfo *resolver.PluginDownloadInfo, showProgress bool) (string, error) {
+func downloadPlugin(pluginInfo *plugin.Info, downloadInfo *resolver.PluginDownloadInfo, showProgress bool) (string, error) {
 	versionDir := path.Join(pluginInfo.PluginPath, downloadInfo.Version)
 	targetFile := path.Join(versionDir, downloadInfo.FileName)
 	req, err := grab.NewRequest(targetFile, downloadInfo.URL)

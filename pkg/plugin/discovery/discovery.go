@@ -50,7 +50,7 @@ func New(config *config.Config) (*Discovery, error) {
 	}, nil
 }
 
-func (d *Discovery) fetchPlugin(pluginInfo *plugin.PluginInfo) (string, error) {
+func (d *Discovery) fetchPlugin(pluginInfo *plugin.Info) (string, error) {
 	pluginResolver, ok := d.resolvers[pluginInfo.Resolver]
 	if !ok {
 		return "", fmt.Errorf("resolver %s not found", pluginInfo.Resolver)
@@ -64,7 +64,7 @@ func (d *Discovery) fetchPlugin(pluginInfo *plugin.PluginInfo) (string, error) {
 	return downloadPlugin(pluginInfo, downloadInfo, d.config.ShowProgress)
 }
 
-func (d *Discovery) FindPlugin(t, name string) (*plugin.PluginInfo, error) {
+func (d *Discovery) FindPlugin(t, name string) (*plugin.Info, error) {
 	pInfo, err := plugin.GetPluginInfo(t, name)
 	if err != nil {
 		return nil, err
