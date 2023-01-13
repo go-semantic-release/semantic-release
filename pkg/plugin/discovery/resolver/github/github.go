@@ -3,7 +3,7 @@ package github
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"regexp"
@@ -18,21 +18,22 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type GitHubResolver struct {
+type Resolver struct {
 	ghClient *github.Client
 }
 
-func NewResolver() *GitHubResolver {
+func NewResolver() *Resolver {
 	var tc *http.Client
 	if ghToken := os.Getenv("GITHUB_TOKEN"); ghToken != "" {
 		tc = oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(&oauth2.Token{AccessToken: ghToken}))
 	}
-	return &GitHubResolver{
+	return &Resolver{
 		ghClient: github.NewClient(tc),
 	}
 }
 
-func (g *GitHubResolver) githubReleaseToDownloadInfo(repoOwner, repoName string, release *github.RepositoryRelease) (*resolver.PluginDownloadInfo, error) {
+//gocyclo:ignore
+func (g *Resolver) githubReleaseToDownloadInfo(repoOwner, repoName string, release *github.RepositoryRelease) (*resolver.PluginDownloadInfo, error) {
 	var checksumAsset *github.ReleaseAsset
 	var pluginAsset *github.ReleaseAsset
 	osArchRe := regexp.MustCompile("(?i)" + runtime.GOOS + "(_|-)" + runtime.GOARCH)
@@ -56,7 +57,7 @@ func (g *GitHubResolver) githubReleaseToDownloadInfo(repoOwner, repoName string,
 		if err != nil {
 			return nil, err
 		}
-		checksumData, err := ioutil.ReadAll(checksumDownload)
+		checksumData, err := io.ReadAll(checksumDownload)
 		checksumDownload.Close()
 		if err != nil {
 			return nil, err
@@ -91,7 +92,7 @@ func (gr ghReleases) Len() int           { return len(gr) }
 func (gr ghReleases) Less(i, j int) bool { return gr[j].version.LessThan(gr[i].version) }
 func (gr ghReleases) Swap(i, j int)      { gr[i], gr[j] = gr[j], gr[i] }
 
-func (g *GitHubResolver) getAllValidGitHubReleases(repoOwner, repoName string) (ghReleases, error) {
+func (g *Resolver) getAllValidGitHubReleases(repoOwner, repoName string) (ghReleases, error) {
 	ret := make(ghReleases, 0)
 	opts := &github.ListOptions{Page: 1, PerPage: 100}
 	for {
@@ -118,7 +119,7 @@ func (g *GitHubResolver) getAllValidGitHubReleases(repoOwner, repoName string) (
 	return ret, nil
 }
 
-func (g *GitHubResolver) ResolvePlugin(pluginInfo *plugin.PluginInfo) (*resolver.PluginDownloadInfo, error) {
+func (g *Resolver) ResolvePlugin(pluginInfo *plugin.PluginInfo) (*resolver.PluginDownloadInfo, error) {
 	if pluginInfo.RepoSlug == "" {
 		pluginInfo.RepoSlug = knownPlugins[pluginInfo.ShortNormalizedName]
 	}
@@ -155,6 +156,6 @@ func (g *GitHubResolver) ResolvePlugin(pluginInfo *plugin.PluginInfo) (*resolver
 	return di, err
 }
 
-func (g *GitHubResolver) Names() []string {
+func (g *Resolver) Names() []string {
 	return []string{"github", "gh"}
 }

@@ -69,7 +69,9 @@ func (d *Discovery) FindPlugin(t, name string) (*plugin.PluginInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := setAndEnsurePluginPath(pInfo); err != nil {
+
+	err = setAndEnsurePluginPath(pInfo)
+	if err != nil {
 		return nil, err
 	}
 

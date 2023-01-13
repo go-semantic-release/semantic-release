@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -66,7 +67,7 @@ func extractFileFromTarGz(name, inputFile, outputFile string) error {
 	tarReader := tar.NewReader(decompressedFile)
 	for {
 		header, err := tarReader.Next()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			return fmt.Errorf("could not extract file")
 		}
 		if err != nil {
@@ -97,9 +98,9 @@ func downloadPlugin(pluginInfo *plugin.PluginInfo, downloadInfo *resolver.Plugin
 		return "", err
 	}
 	if downloadInfo.Checksum != "" {
-		sum, err := hex.DecodeString(downloadInfo.Checksum)
-		if err != nil {
-			return "", err
+		sum, decErr := hex.DecodeString(downloadInfo.Checksum)
+		if decErr != nil {
+			return "", decErr
 		}
 		req.SetChecksum(sha256.New(), sum, true)
 	}
@@ -108,7 +109,8 @@ func downloadPlugin(pluginInfo *plugin.PluginInfo, downloadInfo *resolver.Plugin
 	if showProgress {
 		showDownloadProgressBar(pluginInfo.ShortNormalizedName, res)
 	}
-	if err := res.Err(); err != nil {
+	err = res.Err()
+	if err != nil {
 		return "", err
 	}
 

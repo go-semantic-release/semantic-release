@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"os"
 	"strings"
 
@@ -142,18 +143,20 @@ func must(err error) {
 	}
 }
 
+var trueString = "true"
+
 func detectCI() string {
-	if os.Getenv("GITHUB_ACTIONS") == "true" {
+	if os.Getenv("GITHUB_ACTIONS") == trueString {
 		return "github"
 	}
-	if os.Getenv("GITLAB_CI") == "true" {
+	if os.Getenv("GITLAB_CI") == trueString {
 		return "gitlab"
 	}
 	return "default"
 }
 
 func defaultProvider() string {
-	if os.Getenv("GITLAB_CI") == "true" {
+	if os.Getenv("GITLAB_CI") == trueString {
 		return "gitlab"
 	}
 	return "github"
@@ -218,7 +221,8 @@ func InitConfig(cmd *cobra.Command) error {
 	viper.SetConfigType("json")
 
 	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+		var viperConfigNotFound viper.ConfigFileNotFoundError
+		if !errors.As(err, &viperConfigNotFound) {
 			return err
 		}
 	}

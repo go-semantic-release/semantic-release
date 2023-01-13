@@ -2,15 +2,14 @@ package discovery
 
 import (
 	"errors"
-	"io/ioutil"
+	"fmt"
 	"os"
 	"path"
 	"runtime"
 	"sort"
 
-	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
-
 	"github.com/Masterminds/semver/v3"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
 )
 
 const PluginDir = ".semrel"
@@ -20,7 +19,8 @@ var osArchDir = runtime.GOOS + "_" + runtime.GOARCH
 func setAndEnsurePluginPath(pluginInfo *plugin.PluginInfo) error {
 	pluginPath := path.Join(PluginDir, osArchDir, pluginInfo.NormalizedName)
 	if _, err := os.Stat(pluginPath); os.IsNotExist(err) {
-		if err := os.MkdirAll(pluginPath, 0o755); err != nil {
+		err = os.MkdirAll(pluginPath, 0o755)
+		if err != nil {
 			return err
 		}
 	} else if err != nil {
@@ -33,7 +33,7 @@ func setAndEnsurePluginPath(pluginInfo *plugin.PluginInfo) error {
 var ErrPluginNotFound = errors.New("no plugin was found")
 
 func getMatchingVersionDir(pluginInfo *plugin.PluginInfo) (string, error) {
-	vDirs, err := ioutil.ReadDir(pluginInfo.PluginPath)
+	vDirs, err := os.ReadDir(pluginInfo.PluginPath)
 	if err != nil {
 		return "", err
 	}
@@ -75,7 +75,7 @@ func findPluginLocally(pluginInfo *plugin.PluginInfo) (string, error) {
 		return "", ErrPluginNotFound
 	}
 
-	files, err := ioutil.ReadDir(vPth)
+	files, err := os.ReadDir(vPth)
 	if err != nil {
 		return "", err
 	}
@@ -86,7 +86,12 @@ func findPluginLocally(pluginInfo *plugin.PluginInfo) (string, error) {
 		if f.IsDir() {
 			continue
 		}
-		if f.Mode()&0o100 == 0 {
+		fInfo, err := f.Info()
+		if err != nil {
+			return "", fmt.Errorf("failed to get file info for %s: %w", f.Name(), err)
+		}
+		// check if the file is executable by the user
+		if fInfo.Mode()&0o100 == 0 {
 			continue
 		}
 		return path.Join(vPth, f.Name()), nil

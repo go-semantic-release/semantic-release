@@ -11,24 +11,24 @@ import (
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery/resolver"
 )
 
-type RegistryResolver struct{}
+type Resolver struct{}
 
-func NewResolver() *RegistryResolver {
-	return &RegistryResolver{}
+func NewResolver() *Resolver {
+	return &Resolver{}
 }
 
-func (r *RegistryResolver) ResolvePlugin(pluginInfo *plugin.PluginInfo) (*resolver.PluginDownloadInfo, error) {
-	pluginApiRes, err := getPluginInfo(pluginInfo.NormalizedName)
+func (r *Resolver) ResolvePlugin(pluginInfo *plugin.PluginInfo) (*resolver.PluginDownloadInfo, error) {
+	pluginAPIRes, err := getPluginInfo(pluginInfo.NormalizedName)
 	if err != nil {
 		return nil, err
 	}
 
 	foundVersion := ""
 	if pluginInfo.Constraint == nil {
-		foundVersion = pluginApiRes.LatestRelease
+		foundVersion = pluginAPIRes.LatestRelease
 	} else {
 		versions := make(semver.Collection, 0)
-		for v := range pluginApiRes.Versions {
+		for v := range pluginAPIRes.Versions {
 			pv, err := semver.NewVersion(v)
 			if err != nil {
 				return nil, err
@@ -48,7 +48,7 @@ func (r *RegistryResolver) ResolvePlugin(pluginInfo *plugin.PluginInfo) (*resolv
 		return nil, errors.New("version not found")
 	}
 
-	releaseAsset := pluginApiRes.Versions[foundVersion].getMatchingAsset()
+	releaseAsset := pluginAPIRes.Versions[foundVersion].getMatchingAsset()
 	if releaseAsset == nil {
 		return nil, fmt.Errorf("a matching plugin was not found for %s/%s", runtime.GOOS, runtime.GOARCH)
 	}
@@ -60,6 +60,6 @@ func (r *RegistryResolver) ResolvePlugin(pluginInfo *plugin.PluginInfo) (*resolv
 	}, nil
 }
 
-func (r *RegistryResolver) Names() []string {
+func (r *Resolver) Names() []string {
 	return []string{"registry"}
 }
