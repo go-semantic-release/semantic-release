@@ -15,12 +15,14 @@ var Handshake = plugin.HandshakeConfig{
 	MagicCookieValue: "beepboop",
 }
 
-type CommitAnalyzerFunc func() analyzer.CommitAnalyzer
-type CIConditionFunc func() condition.CICondition
-type ChangelogGeneratorFunc func() generator.ChangelogGenerator
-type ProviderFunc func() provider.Provider
-type FilesUpdaterFunc func() updater.FilesUpdater
-type HooksFunc func() hooks.Hooks
+type (
+	CommitAnalyzerFunc     func() analyzer.CommitAnalyzer
+	CIConditionFunc        func() condition.CICondition
+	ChangelogGeneratorFunc func() generator.ChangelogGenerator
+	ProviderFunc           func() provider.Provider
+	FilesUpdaterFunc       func() updater.FilesUpdater
+	HooksFunc              func() hooks.Hooks
+)
 
 type ServeOpts struct {
 	CommitAnalyzer     CommitAnalyzerFunc

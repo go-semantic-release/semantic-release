@@ -11,8 +11,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery/resolver"
 )
 
-type RegistryResolver struct {
-}
+type RegistryResolver struct{}
 
 func NewResolver() *RegistryResolver {
 	return &RegistryResolver{}

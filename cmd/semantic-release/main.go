@@ -261,12 +261,12 @@ func cliHandler(cmd *cobra.Command, args []string) {
 			}
 		}
 		changelogData := append([]byte(changelogRes), oldFile...)
-		exitIfError(ioutil.WriteFile(conf.Changelog, changelogData, 0644))
+		exitIfError(ioutil.WriteFile(conf.Changelog, changelogData, 0o644))
 	}
 
 	if conf.Dry {
 		if conf.VersionFile {
-			exitIfError(ioutil.WriteFile(".version-unreleased", []byte(newVer), 0644))
+			exitIfError(ioutil.WriteFile(".version-unreleased", []byte(newVer), 0o644))
 		}
 		exitIfError(errors.New("DRY RUN: no release was created"), 0)
 	}
@@ -282,11 +282,11 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	exitIfError(prov.CreateRelease(newRelease))
 
 	if conf.Ghr {
-		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repoInfo.Owner, repoInfo.Repo, newVer)), 0644))
+		exitIfError(ioutil.WriteFile(".ghr", []byte(fmt.Sprintf("-u %s -r %s v%s", repoInfo.Owner, repoInfo.Repo, newVer)), 0o644))
 	}
 
 	if conf.VersionFile {
-		exitIfError(ioutil.WriteFile(".version", []byte(newVer), 0644))
+		exitIfError(ioutil.WriteFile(".version", []byte(newVer), 0o644))
 	}
 
 	if len(conf.UpdateFiles) == 0 && len(conf.FilesUpdaterPlugins) > 0 {

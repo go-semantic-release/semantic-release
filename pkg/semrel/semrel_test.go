@@ -73,7 +73,6 @@ func TestApplyChange(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Version: %s, Change: %v, Expected: %s", tc.currentVersion, tc.change, tc.expectedVersion), func(t *testing.T) {
 			current, err := semver.NewVersion(tc.currentVersion)
-
 			if err != nil {
 				t.Errorf("failed to create version: %v", err)
 			}

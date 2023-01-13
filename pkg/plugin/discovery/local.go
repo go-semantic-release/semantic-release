@@ -20,7 +20,7 @@ var osArchDir = runtime.GOOS + "_" + runtime.GOARCH
 func setAndEnsurePluginPath(pluginInfo *plugin.PluginInfo) error {
 	pluginPath := path.Join(PluginDir, osArchDir, pluginInfo.NormalizedName)
 	if _, err := os.Stat(pluginPath); os.IsNotExist(err) {
-		if err := os.MkdirAll(pluginPath, 0755); err != nil {
+		if err := os.MkdirAll(pluginPath, 0o755); err != nil {
 			return err
 		}
 	} else if err != nil {
@@ -86,7 +86,7 @@ func findPluginLocally(pluginInfo *plugin.PluginInfo) (string, error) {
 		if f.IsDir() {
 			continue
 		}
-		if f.Mode()&0100 == 0 {
+		if f.Mode()&0o100 == 0 {
 			continue
 		}
 		return path.Join(vPth, f.Name()), nil

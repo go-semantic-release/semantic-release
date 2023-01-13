@@ -73,7 +73,7 @@ func extractFileFromTarGz(name, inputFile, outputFile string) error {
 			return err
 		}
 		if header.Typeflag == tar.TypeReg && strings.HasPrefix(header.Name, name) {
-			outFile, err := os.OpenFile(outputFile, os.O_CREATE|os.O_WRONLY, 0755)
+			outFile, err := os.OpenFile(outputFile, os.O_CREATE|os.O_WRONLY, 0o755)
 			if err != nil {
 				return err
 			}
@@ -120,7 +120,7 @@ func downloadPlugin(pluginInfo *plugin.PluginInfo, downloadInfo *resolver.Plugin
 		}
 		targetFile = outFile
 	}
-	if err := os.Chmod(targetFile, 0755); err != nil {
+	if err := os.Chmod(targetFile, 0o755); err != nil {
 		return "", err
 	}
 	return targetFile, nil

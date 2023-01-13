@@ -14,8 +14,10 @@ import (
 	"github.com/hashicorp/go-plugin"
 )
 
-var runningClientsMx sync.Mutex
-var runningClients = make([]*plugin.Client, 0)
+var (
+	runningClientsMx sync.Mutex
+	runningClients   = make([]*plugin.Client, 0)
+)
 
 func KillAllPlugins() {
 	runningClientsMx.Lock()
