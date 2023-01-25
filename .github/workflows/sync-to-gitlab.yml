@@ -1,0 +1,19 @@
+name: Sync to GitLab
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Sync to GitLab
+        run: |
+          git remote add gitlab https://oauth2:${GITLAB_TOKEN}@gitlab.com/go-semantic-release/semantic-release.git
+          git push gitlab ${{ github.ref_name }} --force
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_PUSH_TOKEN }}
