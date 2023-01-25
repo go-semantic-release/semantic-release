@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: Cleanup
         run: |
-          git push https://oauth2:${GITLAB_TOKEN}@gitlab.com/go-semantic-release/semantic-release.git :${{ github.event.ref }}
+          git init
+          git remote add gitlab https://oauth2:${GITLAB_TOKEN}@gitlab.com/go-semantic-release/semantic-release.git
+          git push gitlab :${{ github.event.ref }}
         env:
           GITLAB_TOKEN: ${{ secrets.GITLAB_PUSH_TOKEN }}
