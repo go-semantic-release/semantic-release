@@ -1,0 +1,14 @@
+name: Sync to GitLab Cleanup
+on:
+  delete
+
+jobs:
+  cleanup:
+    if: github.event.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cleanup
+        run: |
+          git push https://oauth2:${GITLAB_TOKEN}@gitlab.com/go-semantic-release/semantic-release.git :${{ github.event.ref }}
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_PUSH_TOKEN }}
