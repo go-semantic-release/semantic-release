@@ -108,14 +108,15 @@ You can set the GitLab token via the `GITLAB_TOKEN` environment variable or the 
   - release
 
 release:
-  image: registry.gitlab.com/go-semantic-release/semantic-release:latest
+  image:
+    name: registry.gitlab.com/go-semantic-release/semantic-release:latest
+    entrypoint: [""]
   stage: release
-  # Remove this if you want a release created for each push to master
-  when: manual
+  # when: manual # Add this if you want to manually create releases
   only:
     - master
   script:
-    - release
+    - semantic-release # Add --allow-no-changes if you want to create a release for each push
 ```
 
 ## Plugin System
