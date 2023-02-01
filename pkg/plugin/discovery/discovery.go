@@ -65,26 +65,69 @@ func (d *Discovery) fetchPlugin(pluginInfo *plugin.Info) (string, error) {
 	return downloadPlugin(pluginInfo, downloadInfo, d.config.ShowProgress)
 }
 
-func (d *Discovery) FindPlugin(t, name string) (*plugin.Info, error) {
-	pInfo, err := plugin.GetPluginInfo(t, name)
-	if err != nil {
-		return nil, err
-	}
+func (d *Discovery) IsBatchResolver(resolverName string) bool {
+	_, ok := d.resolvers[resolverName].(resolver.BatchResolver)
+	return ok
+}
 
-	err = setAndEnsurePluginPath(pInfo)
+func (d *Discovery) FindPluginByPluginInfo(pInfo *plugin.Info) error {
+	err := setAndEnsurePluginPath(pInfo)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	binPath, err := findPluginLocally(pInfo)
 	if errors.Is(err, ErrPluginNotFound) {
 		binPath, err = d.fetchPlugin(pInfo)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	} else if err != nil {
-		return nil, err
+		return err
 	}
 	pInfo.BinPath = binPath
+	return nil
+}
+
+func (d *Discovery) FindPlugin(t, name string) (*plugin.Info, error) {
+	pInfo, err := plugin.GetPluginInfo(t, name)
+	if err != nil {
+		return nil, err
+	}
+	err = d.FindPluginByPluginInfo(pInfo)
+	if err != nil {
+		return nil, err
+	}
 	return pInfo, nil
+}
+
+func (d *Discovery) FindPluginsWithBatchResolver(resolverName string, pInfos []*plugin.Info) error {
+	if !d.IsBatchResolver(resolverName) {
+		return fmt.Errorf("resolver %s does not support batch resolving", resolverName)
+	}
+	missingPlugins := make([]*plugin.Info, 0)
+	for _, pInfo := range pInfos {
+		err := setAndEnsurePluginPath(pInfo)
+		if err != nil {
+			return err
+		}
+
+		binPath, err := findPluginLocally(pInfo)
+		if errors.Is(err, ErrPluginNotFound) {
+			missingPlugins = append(missingPlugins, pInfo)
+			continue
+		} else if err != nil {
+			return err
+		}
+		pInfo.BinPath = binPath
+	}
+
+	batchResolver := d.resolvers[resolverName].(resolver.BatchResolver)
+	batchDownloadInfo, err := batchResolver.BatchResolvePlugins(missingPlugins)
+	if err != nil {
+		return err
+	}
+	// TODO
+	_ = batchDownloadInfo
+	return nil
 }

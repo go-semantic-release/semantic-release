@@ -9,7 +9,16 @@ type PluginDownloadInfo struct {
 	Version  string
 }
 
+type BatchPluginDownloadInfo struct {
+	URL      string
+	Checksum string
+}
+
 type Resolver interface {
 	ResolvePlugin(*plugin.Info) (*PluginDownloadInfo, error)
 	Names() []string
+}
+
+type BatchResolver interface {
+	BatchResolvePlugins([]*plugin.Info) (*BatchPluginDownloadInfo, error)
 }
