@@ -124,29 +124,27 @@ func (m *PluginManager) Stop() {
 	plugin.KillAllPlugins()
 }
 
-func (m *PluginManager) FetchAllPlugins() error {
-	pluginMap := map[string]string{
-		condition.CIConditionPluginName:        m.config.CIConditionPlugin,
-		provider.PluginName:                    m.config.ProviderPlugin,
-		analyzer.CommitAnalyzerPluginName:      m.config.CommitAnalyzerPlugin,
-		generator.ChangelogGeneratorPluginName: m.config.ChangelogGeneratorPlugin,
-	}
-	for t, name := range pluginMap {
-		_, err := m.discovery.FindPlugin(t, name)
-		if err != nil {
-			return err
-		}
-	}
+func (m *PluginManager) getAllPlugins() [][]string {
+	plugins := make([][]string, 0, 4)
+	// required plugins
+	plugins = append(plugins, []string{condition.CIConditionPluginName, m.config.CIConditionPlugin})
+	plugins = append(plugins, []string{provider.PluginName, m.config.ProviderPlugin})
+	plugins = append(plugins, []string{analyzer.CommitAnalyzerPluginName, m.config.CommitAnalyzerPlugin})
+	plugins = append(plugins, []string{generator.ChangelogGeneratorPluginName, m.config.ChangelogGeneratorPlugin})
 
+	// optional plugins
 	for _, pl := range m.config.FilesUpdaterPlugins {
-		_, err := m.discovery.FindPlugin(updater.FilesUpdaterPluginName, pl)
-		if err != nil {
-			return err
-		}
+		plugins = append(plugins, []string{updater.FilesUpdaterPluginName, pl})
 	}
-
 	for _, pl := range m.config.HooksPlugins {
-		_, err := m.discovery.FindPlugin(hooks.PluginName, pl)
+		plugins = append(plugins, []string{hooks.PluginName, pl})
+	}
+	return plugins
+}
+
+func (m *PluginManager) FetchAllPlugins() error {
+	for _, pl := range m.getAllPlugins() {
+		_, err := m.discovery.FindPlugin(pl[0], pl[1])
 		if err != nil {
 			return err
 		}
