@@ -142,12 +142,62 @@ func (m *PluginManager) getAllPlugins() [][]string {
 	return plugins
 }
 
-func (m *PluginManager) FetchAllPlugins() error {
+func (m *PluginManager) getAllPluginInfos() ([]*plugin.Info, error) {
+	infos := make([]*plugin.Info, 0, 4)
 	for _, pl := range m.getAllPlugins() {
-		_, err := m.discovery.FindPlugin(pl[0], pl[1])
+		pInfo, err := plugin.GetPluginInfo(pl[0], pl[1])
 		if err != nil {
-			return err
+			return nil, err
+		}
+		infos = append(infos, pInfo)
+	}
+	return infos, nil
+}
+
+func (m *PluginManager) checkIfSameResolvers(infos []*plugin.Info) (string, bool) {
+	resolver := ""
+	for _, info := range infos {
+		if resolver == "" {
+			resolver = info.Resolver
+		} else if resolver != info.Resolver {
+			return "", false
+		}
+	}
+	return resolver, true
+}
+
+func (m *PluginManager) FetchAllPlugins() error {
+	batchWasPossible, pInfos, err := m.PrefetchAllPluginsIfBatchIsPossible()
+	if err != nil {
+		return err
+	}
+	if batchWasPossible {
+		return nil
+	}
+
+	// try to find plugins one by one
+	for _, pInfo := range pInfos {
+		fErr := m.discovery.FindPluginByPluginInfo(pInfo)
+		if fErr != nil {
+			return fErr
 		}
 	}
 	return nil
+}
+
+func (m *PluginManager) PrefetchAllPluginsIfBatchIsPossible() (bool, []*plugin.Info, error) {
+	pInfos, err := m.getAllPluginInfos()
+	if err != nil {
+		return false, nil, err
+	}
+
+	if resolver, ok := m.checkIfSameResolvers(pInfos); ok && m.discovery.IsBatchResolver(resolver) {
+		// all plugins have the same resolver, and it supports batch resolving
+		bErr := m.discovery.FindPluginsWithBatchResolver(resolver, pInfos)
+		if bErr != nil {
+			return false, nil, bErr
+		}
+		return true, pInfos, nil
+	}
+	return false, pInfos, nil
 }
