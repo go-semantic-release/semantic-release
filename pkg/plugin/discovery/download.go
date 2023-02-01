@@ -127,3 +127,78 @@ func downloadPlugin(pluginInfo *plugin.Info, downloadInfo *resolver.PluginDownlo
 	}
 	return targetFile, nil
 }
+
+//gocyclo:ignore
+func downloadBatchPlugins(pluginInfos []*plugin.Info, downloadInfo *resolver.BatchPluginDownloadInfo, showProgress bool) error {
+	req, err := grab.NewRequest(PluginDir, downloadInfo.URL)
+	if err != nil {
+		return err
+	}
+	if downloadInfo.Checksum != "" {
+		sum, decErr := hex.DecodeString(downloadInfo.Checksum)
+		if decErr != nil {
+			return fmt.Errorf("could not decode checksum: %w", decErr)
+		}
+		req.SetChecksum(sha256.New(), sum, true)
+	}
+
+	res := grab.DefaultClient.Do(req)
+	if showProgress {
+		showDownloadProgressBar("batched-plugins", res)
+	}
+	err = res.Err()
+	if err != nil {
+		return err
+	}
+	defer os.Remove(res.Filename)
+
+	tgzFile, err := os.Open(res.Filename)
+	if err != nil {
+		return err
+	}
+	defer tgzFile.Close()
+
+	gunzip, err := gzip.NewReader(tgzFile)
+	if err != nil {
+		return err
+	}
+	defer gunzip.Close()
+
+	tarReader := tar.NewReader(gunzip)
+	for {
+		header, tarErr := tarReader.Next()
+		if errors.Is(tarErr, io.EOF) {
+			break
+		}
+		if tarErr != nil {
+			return tarErr
+		}
+		if header.Typeflag != tar.TypeReg {
+			continue
+		}
+
+		outFileName := path.Join(PluginDir, header.Name)
+		outDirName := path.Dir(outFileName)
+		if err = os.MkdirAll(outDirName, 0o755); err != nil {
+			return err
+		}
+
+		outFile, oErr := os.OpenFile(outFileName, os.O_CREATE|os.O_WRONLY, 0o755)
+		if oErr != nil {
+			return oErr
+		}
+		_, cErr := io.Copy(outFile, tarReader)
+		_ = outFile.Close()
+		if cErr != nil {
+			return cErr
+		}
+
+		for _, pluginInfo := range pluginInfos {
+			if strings.HasPrefix(path.Join(PluginDir, header.Name), pluginInfo.PluginPath) {
+				pluginInfo.BinPath = outFileName
+			}
+		}
+
+	}
+	return nil
+}
