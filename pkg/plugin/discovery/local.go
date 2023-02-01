@@ -17,7 +17,7 @@ const PluginDir = ".semrel"
 var osArchDir = runtime.GOOS + "_" + runtime.GOARCH
 
 func setAndEnsurePluginPath(pluginInfo *plugin.Info) error {
-	pluginPath := path.Join(PluginDir, osArchDir, pluginInfo.NormalizedName)
+	pluginPath := path.Join(PluginDir, osArchDir, pluginInfo.ShortNormalizedName)
 	if _, err := os.Stat(pluginPath); os.IsNotExist(err) {
 		err = os.MkdirAll(pluginPath, 0o755)
 		if err != nil {

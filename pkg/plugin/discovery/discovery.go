@@ -127,7 +127,6 @@ func (d *Discovery) FindPluginsWithBatchResolver(resolverName string, pInfos []*
 	if err != nil {
 		return err
 	}
-	// TODO
-	_ = batchDownloadInfo
-	return nil
+
+	return downloadBatchPlugins(missingPlugins, batchDownloadInfo, d.config.ShowProgress)
 }
