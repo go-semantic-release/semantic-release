@@ -8,6 +8,7 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/go-semantic-release/plugin-registry/pkg/client"
+	"github.com/go-semantic-release/plugin-registry/pkg/registry"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery/resolver"
 )
@@ -82,7 +83,30 @@ func (r *Resolver) ResolvePlugin(pluginInfo *plugin.Info) (*resolver.PluginDownl
 }
 
 func (r *Resolver) BatchResolvePlugins(pluginInfos []*plugin.Info) (*resolver.BatchPluginDownloadInfo, error) {
-	return nil, fmt.Errorf("not implemented")
+	batchRequest := &registry.BatchRequest{
+		OS:      runtime.GOOS,
+		Arch:    runtime.GOARCH,
+		Plugins: make([]*registry.BatchRequestPlugin, len(pluginInfos)),
+	}
+	for i, pluginInfo := range pluginInfos {
+		versionConstraint := ""
+		if pluginInfo.Constraint != nil {
+			versionConstraint = pluginInfo.Constraint.String()
+		}
+		batchRequest.Plugins[i] = &registry.BatchRequestPlugin{
+			FullName:          pluginInfo.ShortNormalizedName,
+			VersionConstraint: versionConstraint,
+		}
+	}
+	batchResponse, err := r.client.SendBatchRequest(context.Background(), batchRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	return &resolver.BatchPluginDownloadInfo{
+		URL:      batchResponse.DownloadURL,
+		Checksum: batchResponse.DownloadChecksum,
+	}, nil
 }
 
 func (r *Resolver) Names() []string {
