@@ -9,6 +9,7 @@ import (
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery/resolver"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery/resolver/github"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery/resolver/registry"
+	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery/resolver/registryV1"
 )
 
 type Discovery struct {
@@ -33,7 +34,7 @@ func loadResolvers(resolvers ...resolver.Resolver) (map[string]resolver.Resolver
 }
 
 func New(config *config.Config) (*Discovery, error) {
-	resolvers, err := loadResolvers(registry.NewResolver(), github.NewResolver())
+	resolvers, err := loadResolvers(registryV1.NewResolver(), github.NewResolver(), registry.NewResolver())
 	if err != nil {
 		return nil, err
 	}
