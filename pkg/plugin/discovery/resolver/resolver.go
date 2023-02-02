@@ -20,5 +20,6 @@ type Resolver interface {
 }
 
 type BatchResolver interface {
+	// BatchResolvePlugins resolves a list of plugins and returns a single URL to download all plugins as tgz archive.
 	BatchResolvePlugins([]*plugin.Info) (*BatchPluginDownloadInfo, error)
 }

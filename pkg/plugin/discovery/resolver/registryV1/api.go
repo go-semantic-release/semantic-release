@@ -9,8 +9,6 @@ import (
 	"time"
 )
 
-const PluginAPI = "https://plugins.go-semantic-release.xyz/api/v1"
-
 type apiPluginAsset struct {
 	FileName string
 	URL      string
@@ -38,8 +36,8 @@ type apiPlugin struct {
 	Versions      map[string]*apiPluginRelease
 }
 
-func getPluginInfo(name string) (*apiPlugin, error) {
-	res, err := http.Get(fmt.Sprintf("%s/plugins/%s.json", PluginAPI, name))
+func getPluginInfo(endpoint, name string) (*apiPlugin, error) {
+	res, err := http.Get(fmt.Sprintf("%s/plugins/%s.json", endpoint, name))
 	if err != nil {
 		return nil, err
 	}
