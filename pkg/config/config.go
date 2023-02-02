@@ -41,6 +41,8 @@ type Config struct {
 	ShowProgress                          bool
 	AllowMaintainedVersionOnDefaultBranch bool
 	PluginResolver                        string
+	PluginResolverEndpoint                string
+	PluginResolverDisableBatchPrefetch    bool
 }
 
 func mustGetString(cmd *cobra.Command, name string) string {
@@ -133,6 +135,8 @@ func NewConfig(cmd *cobra.Command) (*Config, error) {
 		ShowProgress:                          mustGetBool(cmd, "show-progress"),
 		AllowMaintainedVersionOnDefaultBranch: mustGetBool(cmd, "allow-maintained-version-on-default-branch"),
 		PluginResolver:                        viper.GetString("pluginResolver"),
+		PluginResolverEndpoint:                viper.GetString("pluginResolverEndpoint"),
+		PluginResolverDisableBatchPrefetch:    viper.GetBool("pluginResolverDisableBatchPrefetch"),
 	}
 	return conf, nil
 }
@@ -193,7 +197,9 @@ func SetFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("show-progress", false, "shows the plugin download progress")
 	cmd.Flags().String("config", "", "config file (default is .semrelrc)")
 	cmd.Flags().Bool("allow-maintained-version-on-default-branch", false, "allow configuring the maintained version on the default branch")
-	cmd.Flags().String("plugin-resolver", "registry", "which resolver should be used to resolve plugins (registry or github)")
+	cmd.Flags().String("plugin-resolver", "registry-v1", "which resolver should be used to resolve plugins (registry-v1, registry-v2 or github)")
+	cmd.Flags().Bool("plugin-resolver-disable-batch-prefetch", false, "plugins should not be batch prefetched using the registry")
+	cmd.Flags().String("plugin-resolver-endpoint", "", "explicitly specify the resolver endpoint that should be used for resolving the plugin dependencies")
 	cmd.Flags().SortFlags = true
 
 	must(viper.BindPFlag("maintainedVersion", cmd.Flags().Lookup("maintained-version")))
@@ -208,6 +214,8 @@ func SetFlags(cmd *cobra.Command) {
 
 	must(viper.BindPFlag("pluginResolver", cmd.Flags().Lookup("plugin-resolver")))
 	must(viper.BindEnv("pluginResolver", "SEMREL_PLUGIN_RESOLVER"))
+	must(viper.BindPFlag("pluginResolverDisableBatchPrefetch", cmd.Flags().Lookup("plugin-resolver-disable-batch-prefetch")))
+	must(viper.BindPFlag("pluginResolverEndpoint", cmd.Flags().Lookup("plugin-resolver-endpoint")))
 }
 
 func InitConfig(cmd *cobra.Command) error {

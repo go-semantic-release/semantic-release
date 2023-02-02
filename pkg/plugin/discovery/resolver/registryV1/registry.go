@@ -5,20 +5,34 @@ import (
 	"fmt"
 	"runtime"
 	"sort"
+	"strings"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin"
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery/resolver"
 )
 
-type Resolver struct{}
+const DefaultEndpoint = "https://plugins.go-semantic-release.xyz/api/v1"
 
-func NewResolver() *Resolver {
-	return &Resolver{}
+type Resolver struct {
+	endpoint string
+}
+
+func NewResolver(endpoint string) *Resolver {
+	if endpoint == "" {
+		endpoint = DefaultEndpoint
+	}
+	endpoint = strings.TrimSuffix(endpoint, "/")
+	if !strings.HasSuffix(endpoint, "/api/v1") {
+		endpoint = fmt.Sprintf("%s/api/v1", endpoint)
+	}
+	return &Resolver{
+		endpoint: endpoint,
+	}
 }
 
 func (r *Resolver) ResolvePlugin(pluginInfo *plugin.Info) (*resolver.PluginDownloadInfo, error) {
-	pluginAPIRes, err := getPluginInfo(pluginInfo.ShortNormalizedName)
+	pluginAPIRes, err := getPluginInfo(r.endpoint, pluginInfo.ShortNormalizedName)
 	if err != nil {
 		return nil, err
 	}
@@ -61,5 +75,5 @@ func (r *Resolver) ResolvePlugin(pluginInfo *plugin.Info) (*resolver.PluginDownl
 }
 
 func (r *Resolver) Names() []string {
-	return []string{"registry"}
+	return []string{"registry-v1"}
 }

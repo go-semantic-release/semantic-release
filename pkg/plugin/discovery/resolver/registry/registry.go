@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"runtime"
 	"sort"
+	"strings"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/go-semantic-release/plugin-registry/pkg/client"
@@ -13,15 +14,22 @@ import (
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery/resolver"
 )
 
-const DefaultEndpoint = "https://registry-staging.go-semantic-release.xyz/api/v2"
+const DefaultEndpoint = "https://registry.go-semantic-release.xyz/api/v2"
 
 type Resolver struct {
 	client *client.Client
 }
 
-func NewResolver() *Resolver {
+func NewResolver(endpoint string) *Resolver {
+	if endpoint == "" {
+		endpoint = DefaultEndpoint
+	}
+	endpoint = strings.TrimSuffix(endpoint, "/")
+	if !strings.HasSuffix(endpoint, "/api/v2") {
+		endpoint = fmt.Sprintf("%s/api/v2", endpoint)
+	}
 	return &Resolver{
-		client: client.New(DefaultEndpoint),
+		client: client.New(endpoint),
 	}
 }
 
@@ -110,6 +118,5 @@ func (r *Resolver) BatchResolvePlugins(pluginInfos []*plugin.Info) (*resolver.Ba
 }
 
 func (r *Resolver) Names() []string {
-	// TODO: this should be registry when the registry is ready
-	return []string{"registry-beta"}
+	return []string{"registry", "registry-v2"}
 }

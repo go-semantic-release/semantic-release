@@ -34,7 +34,11 @@ func loadResolvers(resolvers ...resolver.Resolver) (map[string]resolver.Resolver
 }
 
 func New(config *config.Config) (*Discovery, error) {
-	resolvers, err := loadResolvers(registryV1.NewResolver(), github.NewResolver(), registry.NewResolver())
+	resolvers, err := loadResolvers(
+		registry.NewResolver(config.PluginResolverEndpoint),
+		registryV1.NewResolver(config.PluginResolverEndpoint),
+		github.NewResolver(),
+	)
 	if err != nil {
 		return nil, err
 	}
