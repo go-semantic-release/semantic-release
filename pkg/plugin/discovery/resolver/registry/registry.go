@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"runtime"
 	"sort"
-	"strings"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/go-semantic-release/plugin-registry/pkg/client"
@@ -14,19 +13,13 @@ import (
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery/resolver"
 )
 
-const DefaultEndpoint = "https://registry.go-semantic-release.xyz/api/v2"
-
 type Resolver struct {
 	client *client.Client
 }
 
 func NewResolver(endpoint string) *Resolver {
 	if endpoint == "" {
-		endpoint = DefaultEndpoint
-	}
-	endpoint = strings.TrimSuffix(endpoint, "/")
-	if !strings.HasSuffix(endpoint, "/api/v2") {
-		endpoint = fmt.Sprintf("%s/api/v2", endpoint)
+		endpoint = client.DefaultProductionEndpoint
 	}
 	return &Resolver{
 		client: client.New(endpoint),

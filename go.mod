@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/Masterminds/semver/v3 v3.2.0
 	github.com/cavaliergopher/grab/v3 v3.0.1
-	github.com/go-semantic-release/plugin-registry v1.4.0
+	github.com/go-semantic-release/plugin-registry v1.8.0
 	github.com/google/go-github/v49 v49.1.1-0.20230111123143-ced4abd274f3
 	github.com/hashicorp/go-hclog v1.4.0
 	github.com/hashicorp/go-plugin v1.4.8
