@@ -18,6 +18,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
+var _ resolver.Resolver = &Resolver{}
+
 type Resolver struct {
 	ghClient *github.Client
 }
@@ -102,6 +104,10 @@ func (g *Resolver) getAllValidGitHubReleases(repoOwner, repoName string) (ghRele
 		}
 		for _, release := range releases {
 			if release.GetDraft() {
+				continue
+			}
+
+			if len(release.Assets) == 0 {
 				continue
 			}
 

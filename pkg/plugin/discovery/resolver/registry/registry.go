@@ -13,6 +13,11 @@ import (
 	"github.com/go-semantic-release/semantic-release/v2/pkg/plugin/discovery/resolver"
 )
 
+var (
+	_ resolver.Resolver      = &Resolver{}
+	_ resolver.BatchResolver = &Resolver{}
+)
+
 type Resolver struct {
 	client *client.Client
 }

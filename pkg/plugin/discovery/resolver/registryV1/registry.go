@@ -14,6 +14,8 @@ import (
 
 const DefaultEndpoint = "https://plugins.go-semantic-release.xyz/api/v1"
 
+var _ resolver.Resolver = &Resolver{}
+
 type Resolver struct {
 	endpoint string
 }
