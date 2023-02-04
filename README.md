@@ -31,7 +31,7 @@ curl -SL https://get-release.xyz/semantic-release/linux/amd64 -o ./semantic-rele
 
 ## Plugin System
 
-Since v2, semantic-release is equipped with a plugin system. The plugins are standalone binaries that use [hashicorp/go-plugin](https://github.com/hashicorp/go-plugin) as a plugin library. `semantic-release` automatically downloads the necessary plugins if they don't exist locally. The plugins are stored in the `.semrel` directory of the current working directory in the following format: `.semrel/<os>_<arch>/<plugin name>/<version>/`. The go-semantic-release plugins API (`https://plugins.go-semantic-release.xyz/api/v1/`) is used to resolve plugins to the correct binary. The served content of the API can be found [here](https://github.com/go-semantic-release/go-semantic-release.github.io/tree/plugin-index), and a list of all existing plugins can be found [here](https://plugins.go-semantic-release.xyz/api/v1/plugins.json).
+Since v2, semantic-release is equipped with a plugin system. The plugins are standalone binaries that use [hashicorp/go-plugin](https://github.com/hashicorp/go-plugin) as a plugin library. `semantic-release` automatically downloads the necessary plugins if they don't exist locally. The plugins are stored in the `.semrel` directory of the current working directory in the following format: `.semrel/<os>_<arch>/<plugin name>/<version>/`. The go-semantic-release plugins registry (https://registry.go-semantic-release.xyz/) is used to resolve plugins and to download the correct binary. With the new [plugin-registry](https://github.com/go-semantic-release/plugin-registry) service the API also supports batch requests to resolve multiple plugins at once and caching of the plugins.
 
 ### Plugin Types
 
