@@ -95,7 +95,7 @@ func (r *Resolver) BatchResolvePlugins(pluginInfos []*plugin.Info) (*resolver.Ba
 		Plugins: make([]*registry.BatchRequestPlugin, len(pluginInfos)),
 	}
 	for i, pluginInfo := range pluginInfos {
-		versionConstraint := ""
+		versionConstraint := "latest"
 		if pluginInfo.Constraint != nil {
 			versionConstraint = pluginInfo.Constraint.String()
 		}
