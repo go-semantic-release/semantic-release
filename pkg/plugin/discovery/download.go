@@ -144,7 +144,7 @@ func downloadBatchPlugins(pluginInfos []*plugin.Info, downloadInfo *resolver.Bat
 
 	res := grab.DefaultClient.Do(req)
 	if showProgress {
-		showDownloadProgressBar("batched-plugins.tar.gz", res)
+		showDownloadProgressBar("plugin-archive.tar.gz", res)
 	}
 	err = res.Err()
 	if err != nil {
