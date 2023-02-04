@@ -166,6 +166,27 @@ func (m *PluginManager) checkIfSameResolvers(infos []*plugin.Info) (string, bool
 	return resolver, true
 }
 
+func (m *PluginManager) PrefetchAllPluginsIfBatchIsPossible() (bool, []*plugin.Info, error) {
+	pInfos, err := m.getAllPluginInfos()
+	if err != nil {
+		return false, nil, err
+	}
+
+	if m.config.PluginResolverDisableBatchPrefetch {
+		return false, pInfos, nil
+	}
+
+	if resolver, ok := m.checkIfSameResolvers(pInfos); ok && m.discovery.IsBatchResolver(resolver) {
+		// all plugins have the same resolver, and it supports batch resolving
+		bErr := m.discovery.FindPluginsWithBatchResolver(resolver, pInfos)
+		if bErr != nil {
+			return false, pInfos, bErr
+		}
+		return true, pInfos, nil
+	}
+	return false, pInfos, nil
+}
+
 func (m *PluginManager) FetchAllPlugins() error {
 	batchWasPossible, pInfos, err := m.PrefetchAllPluginsIfBatchIsPossible()
 	if err != nil && pInfos == nil {
@@ -183,21 +204,4 @@ func (m *PluginManager) FetchAllPlugins() error {
 		}
 	}
 	return nil
-}
-
-func (m *PluginManager) PrefetchAllPluginsIfBatchIsPossible() (bool, []*plugin.Info, error) {
-	pInfos, err := m.getAllPluginInfos()
-	if err != nil {
-		return false, nil, err
-	}
-
-	if resolver, ok := m.checkIfSameResolvers(pInfos); ok && m.discovery.IsBatchResolver(resolver) {
-		// all plugins have the same resolver, and it supports batch resolving
-		bErr := m.discovery.FindPluginsWithBatchResolver(resolver, pInfos)
-		if bErr != nil {
-			return false, pInfos, bErr
-		}
-		return true, pInfos, nil
-	}
-	return false, pInfos, nil
 }

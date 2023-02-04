@@ -103,17 +103,21 @@ func cliHandler(cmd *cobra.Command, args []string) {
 
 	if conf.DownloadPlugins {
 		exitIfError(pluginManager.FetchAllPlugins())
-		logger.Println("all plugins are downloaded")
+		logger.Println("all plugins were downloaded!")
 		return
 	}
 
 	if !conf.PluginResolverDisableBatchPrefetch {
-		ok, _, pErr := pluginManager.PrefetchAllPluginsIfBatchIsPossible()
+		logger.Println("trying to prefetch plugins...")
+		pluginsWerePrefetched, _, pErr := pluginManager.PrefetchAllPluginsIfBatchIsPossible()
 		if pErr != nil {
 			logger.Printf("warning: failed to prefetch plugins: %v", pErr)
-		}
-		if ok {
-			logger.Println("all plugins were prefetched!")
+		} else {
+			if pluginsWerePrefetched {
+				logger.Println("all plugins were prefetched!")
+			} else {
+				logger.Println("prefetching plugins was not possible.")
+			}
 		}
 	}
 
