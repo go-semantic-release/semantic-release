@@ -126,6 +126,10 @@ func (d *Discovery) FindPluginsWithBatchResolver(resolverName string, pInfos []*
 		pInfo.BinPath = binPath
 	}
 
+	if len(missingPlugins) == 0 {
+		return nil
+	}
+
 	batchResolver := d.resolvers[resolverName].(resolver.BatchResolver)
 	batchDownloadInfo, err := batchResolver.BatchResolvePlugins(missingPlugins)
 	if err != nil {
