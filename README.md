@@ -119,6 +119,35 @@ release:
     - semantic-release # Add --allow-no-changes if you want to create a release for each push
 ```
 
+### Releasing a Go application with GitLab CI
+The full example can be found at https://gitlab.com/go-semantic-release/example-go-application.
+
+Example [.gitlab-ci.yml](https://gitlab.com/go-semantic-release/example-go-application/-/blob/main/.gitlab-ci.yml) config:
+```yaml
+image: golang:1.19
+
+stages:
+  - test
+  - release
+
+test:
+  stage: test
+  except:
+    - tags
+  script:
+    - go test -v ./...
+    - go build ./
+    - ./example-go-application
+
+release:
+  stage: release
+  only:
+    - main
+  script:
+    - curl -SL https://get-release.xyz/semantic-release/linux/amd64 -o ./semantic-release && chmod +x ./semantic-release
+    - ./semantic-release --hooks goreleaser
+```
+
 ## Plugin System
 
 Since v2, semantic-release is equipped with a plugin system. The plugins are standalone binaries that use [hashicorp/go-plugin](https://github.com/hashicorp/go-plugin) as a plugin library. `semantic-release` automatically downloads the necessary plugins if they don't exist locally. The plugins are stored in the `.semrel` directory of the current working directory in the following format: `.semrel/<os>_<arch>/<plugin name>/<version>/`. The go-semantic-release plugins registry (https://registry.go-semantic-release.xyz/) is used to resolve plugins and to download the correct binary. With the new [plugin-registry](https://github.com/go-semantic-release/plugin-registry) service the API also supports batch requests to resolve multiple plugins at once and caching of the plugins.
