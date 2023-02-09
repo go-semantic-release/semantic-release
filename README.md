@@ -188,6 +188,7 @@ tar -xzvf ./semrel-plugins.tgz
   * [GoReleaser](https://github.com/go-semantic-release/hooks-goreleaser)
   * [npm-binary-releaser](https://github.com/go-semantic-release/hooks-npm-binary-releaser)
   * [plugin-registry-update](https://github.com/go-semantic-release/hooks-plugin-registry-update)
+  * [exec](https://github.com/go-semantic-release/hooks-exec)
 * Files Updater ([Docs](https://pkg.go.dev/github.com/go-semantic-release/semantic-release/v2/pkg/updater?tab=doc#FilesUpdater))
   * [npm](https://github.com/go-semantic-release/files-updater-npm)
   * [helm](https://github.com/go-semantic-release/files-updater-helm)
@@ -237,4 +238,4 @@ If you commit to this branch a new incremental pre-release is created everytime 
 
 The [MIT License (MIT)](http://opensource.org/licenses/MIT)
 
-Copyright © 2020 [Christoph Witzko](https://twitter.com/christophwitzko)
+Copyright © 2023 [Christoph Witzko](https://twitter.com/christophwitzko)
