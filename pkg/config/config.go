@@ -197,7 +197,7 @@ func SetFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("show-progress", false, "shows the plugin download progress")
 	cmd.Flags().String("config", "", "config file (default is .semrelrc)")
 	cmd.Flags().Bool("allow-maintained-version-on-default-branch", false, "allow configuring the maintained version on the default branch")
-	cmd.Flags().String("plugin-resolver", "registry", "which resolver should be used to resolve plugins (registry-v1, registry[-v2] or github)")
+	cmd.Flags().String("plugin-resolver", "registry", "which resolver should be used to resolve plugins (registry[-v2] or github)")
 	cmd.Flags().Bool("plugin-resolver-disable-batch-prefetch", false, "plugins should not be batch prefetched using the registry")
 	cmd.Flags().String("plugin-resolver-endpoint", "", "explicitly specify the resolver endpoint that should be used for resolving the plugin dependencies")
 	cmd.Flags().SortFlags = true
