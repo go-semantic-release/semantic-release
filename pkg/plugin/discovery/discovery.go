@@ -124,8 +124,13 @@ func (d *Discovery) FindPluginsWithBatchResolver(resolverName string, pInfos []*
 		pInfo.BinPath = binPath
 	}
 
+	// no plugins need to be downloaded
 	if len(missingPlugins) == 0 {
 		return nil
+	}
+
+	if len(missingPlugins) == 1 {
+		return fmt.Errorf("no batch prefetching possible for a single plugin")
 	}
 
 	batchResolver := d.resolvers[resolverName].(resolver.BatchResolver)
