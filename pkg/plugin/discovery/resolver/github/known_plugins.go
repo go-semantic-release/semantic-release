@@ -15,4 +15,5 @@ var knownPlugins = map[string]string{
 	"hooks-goreleaser":             "go-semantic-release/hooks-goreleaser",
 	"hooks-npm-binary-releaser":    "go-semantic-release/hooks-npm-binary-releaser",
 	"hooks-plugin-registry-update": "go-semantic-release/hooks-plugin-registry-update",
+	"hooks-exec":                   "go-semantic-release/hooks-exec",
 }
