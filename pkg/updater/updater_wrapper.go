@@ -12,7 +12,7 @@ type FilesUpdaterServer struct {
 	UnimplementedFilesUpdaterPluginServer
 }
 
-func (f *FilesUpdaterServer) Init(ctx context.Context, request *FilesUpdaterInit_Request) (*FilesUpdaterInit_Response, error) {
+func (f *FilesUpdaterServer) Init(_ context.Context, request *FilesUpdaterInit_Request) (*FilesUpdaterInit_Response, error) {
 	err := f.Impl.Init(request.Config)
 	res := &FilesUpdaterInit_Response{}
 	if err != nil {
@@ -21,19 +21,19 @@ func (f *FilesUpdaterServer) Init(ctx context.Context, request *FilesUpdaterInit
 	return res, nil
 }
 
-func (f *FilesUpdaterServer) Name(ctx context.Context, request *FilesUpdaterName_Request) (*FilesUpdaterName_Response, error) {
+func (f *FilesUpdaterServer) Name(_ context.Context, _ *FilesUpdaterName_Request) (*FilesUpdaterName_Response, error) {
 	return &FilesUpdaterName_Response{Name: f.Impl.Name()}, nil
 }
 
-func (f *FilesUpdaterServer) Version(ctx context.Context, request *FilesUpdaterVersion_Request) (*FilesUpdaterVersion_Response, error) {
+func (f *FilesUpdaterServer) Version(_ context.Context, _ *FilesUpdaterVersion_Request) (*FilesUpdaterVersion_Response, error) {
 	return &FilesUpdaterVersion_Response{Version: f.Impl.Version()}, nil
 }
 
-func (f *FilesUpdaterServer) ForFiles(ctx context.Context, request *FilesUpdaterForFiles_Request) (*FilesUpdaterForFiles_Response, error) {
+func (f *FilesUpdaterServer) ForFiles(_ context.Context, _ *FilesUpdaterForFiles_Request) (*FilesUpdaterForFiles_Response, error) {
 	return &FilesUpdaterForFiles_Response{Files: f.Impl.ForFiles()}, nil
 }
 
-func (f *FilesUpdaterServer) Apply(ctx context.Context, request *FilesUpdaterApply_Request) (*FilesUpdaterApply_Response, error) {
+func (f *FilesUpdaterServer) Apply(_ context.Context, request *FilesUpdaterApply_Request) (*FilesUpdaterApply_Response, error) {
 	err := f.Impl.Apply(request.File, request.NewVersion)
 	res := &FilesUpdaterApply_Response{}
 	if err != nil {

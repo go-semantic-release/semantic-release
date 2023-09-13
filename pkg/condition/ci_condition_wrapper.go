@@ -12,15 +12,15 @@ type CIConditionServer struct {
 	UnimplementedCIConditionPluginServer
 }
 
-func (c *CIConditionServer) Name(ctx context.Context, request *CIName_Request) (*CIName_Response, error) {
+func (c *CIConditionServer) Name(_ context.Context, _ *CIName_Request) (*CIName_Response, error) {
 	return &CIName_Response{Name: c.Impl.Name()}, nil
 }
 
-func (c *CIConditionServer) Version(ctx context.Context, request *CIVersion_Request) (*CIVersion_Response, error) {
+func (c *CIConditionServer) Version(_ context.Context, _ *CIVersion_Request) (*CIVersion_Response, error) {
 	return &CIVersion_Response{Version: c.Impl.Version()}, nil
 }
 
-func (c *CIConditionServer) RunCondition(ctx context.Context, request *RunCondition_Request) (*RunCondition_Response, error) {
+func (c *CIConditionServer) RunCondition(_ context.Context, request *RunCondition_Request) (*RunCondition_Response, error) {
 	err := c.Impl.RunCondition(request.Value)
 	ret := &RunCondition_Response{}
 	if err != nil {
@@ -29,11 +29,11 @@ func (c *CIConditionServer) RunCondition(ctx context.Context, request *RunCondit
 	return ret, nil
 }
 
-func (c *CIConditionServer) GetCurrentBranch(ctx context.Context, request *GetCurrentBranch_Request) (*GetCurrentBranch_Response, error) {
+func (c *CIConditionServer) GetCurrentBranch(_ context.Context, _ *GetCurrentBranch_Request) (*GetCurrentBranch_Response, error) {
 	return &GetCurrentBranch_Response{Value: c.Impl.GetCurrentBranch()}, nil
 }
 
-func (c *CIConditionServer) GetCurrentSHA(ctx context.Context, request *GetCurrentSHA_Request) (*GetCurrentSHA_Response, error) {
+func (c *CIConditionServer) GetCurrentSHA(_ context.Context, _ *GetCurrentSHA_Request) (*GetCurrentSHA_Response, error) {
 	return &GetCurrentSHA_Response{Value: c.Impl.GetCurrentSHA()}, nil
 }
 
