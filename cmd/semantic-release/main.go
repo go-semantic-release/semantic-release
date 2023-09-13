@@ -79,7 +79,7 @@ func mergeConfigWithDefaults(defaults, conf map[string]string) {
 }
 
 //gocyclo:ignore
-func cliHandler(cmd *cobra.Command, args []string) {
+func cliHandler(cmd *cobra.Command, _ []string) {
 	logger.Printf("version: %s\n", SRVERSION)
 
 	conf, err := config.NewConfig(cmd)

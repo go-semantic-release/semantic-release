@@ -27,7 +27,7 @@ func (tfu *testFileUpdater) ForFiles() string {
 	return "package\\.json"
 }
 
-func (tfu *testFileUpdater) Apply(file, newVersion string) error {
+func (tfu *testFileUpdater) Apply(_, newVersion string) error {
 	tfu.req.Equal(newVersion, tfu.nVer, "invalid version")
 	return nil
 }

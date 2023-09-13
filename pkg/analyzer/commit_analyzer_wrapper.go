@@ -14,7 +14,7 @@ type CommitAnalyzerServer struct {
 	UnimplementedCommitAnalyzerPluginServer
 }
 
-func (c *CommitAnalyzerServer) Init(ctx context.Context, request *CommitAnalyzerInit_Request) (*CommitAnalyzerInit_Response, error) {
+func (c *CommitAnalyzerServer) Init(_ context.Context, request *CommitAnalyzerInit_Request) (*CommitAnalyzerInit_Response, error) {
 	err := c.Impl.Init(request.Config)
 	res := &CommitAnalyzerInit_Response{}
 	if err != nil {
@@ -23,15 +23,15 @@ func (c *CommitAnalyzerServer) Init(ctx context.Context, request *CommitAnalyzer
 	return res, nil
 }
 
-func (c *CommitAnalyzerServer) Name(ctx context.Context, request *CommitAnalyzerName_Request) (*CommitAnalyzerName_Response, error) {
+func (c *CommitAnalyzerServer) Name(_ context.Context, _ *CommitAnalyzerName_Request) (*CommitAnalyzerName_Response, error) {
 	return &CommitAnalyzerName_Response{Name: c.Impl.Name()}, nil
 }
 
-func (c *CommitAnalyzerServer) Version(ctx context.Context, request *CommitAnalyzerVersion_Request) (*CommitAnalyzerVersion_Response, error) {
+func (c *CommitAnalyzerServer) Version(_ context.Context, _ *CommitAnalyzerVersion_Request) (*CommitAnalyzerVersion_Response, error) {
 	return &CommitAnalyzerVersion_Response{Version: c.Impl.Version()}, nil
 }
 
-func (c *CommitAnalyzerServer) Analyze(ctx context.Context, request *AnalyzeCommits_Request) (*AnalyzeCommits_Response, error) {
+func (c *CommitAnalyzerServer) Analyze(_ context.Context, request *AnalyzeCommits_Request) (*AnalyzeCommits_Response, error) {
 	return &AnalyzeCommits_Response{
 		Commits: c.Impl.Analyze(request.RawCommits),
 	}, nil

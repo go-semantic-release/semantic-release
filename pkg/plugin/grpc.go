@@ -20,7 +20,7 @@ type GRPCWrapper struct {
 	plugin.NetRPCUnsupportedPlugin
 }
 
-func (p *GRPCWrapper) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
+func (p *GRPCWrapper) GRPCServer(_ *plugin.GRPCBroker, s *grpc.Server) error {
 	switch p.Type {
 	case analyzer.CommitAnalyzerPluginName:
 		analyzer.RegisterCommitAnalyzerPluginServer(s, &analyzer.CommitAnalyzerServer{
@@ -52,7 +52,7 @@ func (p *GRPCWrapper) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) erro
 	return nil
 }
 
-func (p *GRPCWrapper) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
+func (p *GRPCWrapper) GRPCClient(_ context.Context, _ *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
 	switch p.Type {
 	case analyzer.CommitAnalyzerPluginName:
 		return &analyzer.CommitAnalyzerClient{

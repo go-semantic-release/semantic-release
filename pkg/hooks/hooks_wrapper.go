@@ -12,7 +12,7 @@ type Server struct {
 	UnimplementedHooksPluginServer
 }
 
-func (h *Server) Init(ctx context.Context, request *HooksInit_Request) (*HooksInit_Response, error) {
+func (h *Server) Init(_ context.Context, request *HooksInit_Request) (*HooksInit_Response, error) {
 	err := h.Impl.Init(request.Config)
 	res := &HooksInit_Response{}
 	if err != nil {
@@ -21,15 +21,15 @@ func (h *Server) Init(ctx context.Context, request *HooksInit_Request) (*HooksIn
 	return res, nil
 }
 
-func (h *Server) Name(ctx context.Context, request *HooksName_Request) (*HooksName_Response, error) {
+func (h *Server) Name(_ context.Context, _ *HooksName_Request) (*HooksName_Response, error) {
 	return &HooksName_Response{Name: h.Impl.Name()}, nil
 }
 
-func (h *Server) Version(ctx context.Context, request *HooksVersion_Request) (*HooksVersion_Response, error) {
+func (h *Server) Version(_ context.Context, _ *HooksVersion_Request) (*HooksVersion_Response, error) {
 	return &HooksVersion_Response{Version: h.Impl.Version()}, nil
 }
 
-func (h *Server) Success(ctx context.Context, request *SuccessHook_Request) (*SuccessHook_Response, error) {
+func (h *Server) Success(_ context.Context, request *SuccessHook_Request) (*SuccessHook_Response, error) {
 	err := h.Impl.Success(request.Config)
 	res := &SuccessHook_Response{}
 	if err != nil {
@@ -38,7 +38,7 @@ func (h *Server) Success(ctx context.Context, request *SuccessHook_Request) (*Su
 	return res, nil
 }
 
-func (h *Server) NoRelease(ctx context.Context, request *NoReleaseHook_Request) (*NoReleaseHook_Response, error) {
+func (h *Server) NoRelease(_ context.Context, request *NoReleaseHook_Request) (*NoReleaseHook_Response, error) {
 	err := h.Impl.NoRelease(request.Config)
 	res := &NoReleaseHook_Response{}
 	if err != nil {

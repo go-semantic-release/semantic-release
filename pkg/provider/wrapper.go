@@ -14,7 +14,7 @@ type Server struct {
 	UnimplementedProviderPluginServer
 }
 
-func (s *Server) Init(ctx context.Context, request *ProviderInit_Request) (*ProviderInit_Response, error) {
+func (s *Server) Init(_ context.Context, request *ProviderInit_Request) (*ProviderInit_Response, error) {
 	err := s.Impl.Init(request.Config)
 	res := &ProviderInit_Response{}
 	if err != nil {
@@ -23,15 +23,15 @@ func (s *Server) Init(ctx context.Context, request *ProviderInit_Request) (*Prov
 	return res, nil
 }
 
-func (s *Server) Name(ctx context.Context, request *ProviderName_Request) (*ProviderName_Response, error) {
+func (s *Server) Name(_ context.Context, _ *ProviderName_Request) (*ProviderName_Response, error) {
 	return &ProviderName_Response{Name: s.Impl.Name()}, nil
 }
 
-func (s *Server) Version(ctx context.Context, request *ProviderVersion_Request) (*ProviderVersion_Response, error) {
+func (s *Server) Version(_ context.Context, _ *ProviderVersion_Request) (*ProviderVersion_Response, error) {
 	return &ProviderVersion_Response{Version: s.Impl.Version()}, nil
 }
 
-func (s *Server) GetInfo(ctx context.Context, request *GetInfo_Request) (*GetInfo_Response, error) {
+func (s *Server) GetInfo(_ context.Context, _ *GetInfo_Request) (*GetInfo_Response, error) {
 	info, err := s.Impl.GetInfo()
 	if err != nil {
 		return &GetInfo_Response{Error: err.Error()}, nil
@@ -39,7 +39,7 @@ func (s *Server) GetInfo(ctx context.Context, request *GetInfo_Request) (*GetInf
 	return &GetInfo_Response{Info: info}, nil
 }
 
-func (s *Server) GetCommits(ctx context.Context, request *GetCommits_Request) (*GetCommits_Response, error) {
+func (s *Server) GetCommits(_ context.Context, request *GetCommits_Request) (*GetCommits_Response, error) {
 	commits, err := s.Impl.GetCommits(request.FromSha, request.ToSha)
 	if err != nil {
 		return &GetCommits_Response{Error: err.Error()}, nil
@@ -47,7 +47,7 @@ func (s *Server) GetCommits(ctx context.Context, request *GetCommits_Request) (*
 	return &GetCommits_Response{RawCommits: commits}, nil
 }
 
-func (s *Server) GetReleases(ctx context.Context, request *GetReleases_Request) (*GetReleases_Response, error) {
+func (s *Server) GetReleases(_ context.Context, request *GetReleases_Request) (*GetReleases_Response, error) {
 	releases, err := s.Impl.GetReleases(request.Regexp)
 	if err != nil {
 		return &GetReleases_Response{Error: err.Error()}, nil
@@ -55,7 +55,7 @@ func (s *Server) GetReleases(ctx context.Context, request *GetReleases_Request) 
 	return &GetReleases_Response{Releases: releases}, nil
 }
 
-func (s *Server) CreateRelease(ctx context.Context, request *CreateRelease_Request) (*CreateRelease_Response, error) {
+func (s *Server) CreateRelease(_ context.Context, request *CreateRelease_Request) (*CreateRelease_Response, error) {
 	err := s.Impl.CreateRelease(request.Config)
 	res := &CreateRelease_Response{}
 	if err != nil {
