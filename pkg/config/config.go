@@ -23,8 +23,7 @@ type Config struct {
 	Changelog                             string
 	FilesUpdaterPlugins                   []string
 	FilesUpdaterOpts                      map[string]string
-	HooksPlugins                          []string
-	HooksOpts                             map[string]string
+	HooksPlugins                          map[string]map[string]interface{}
 	UpdateFiles                           []string
 	Match                                 string
 	VersionFile                           bool
@@ -100,9 +99,11 @@ func NewConfig(cmd *cobra.Command) (*Config, error) {
 	fuOpts := mergeOpts(
 		viper.GetStringMapString("plugins.files-updater.options"),
 		mustGetStringArray(cmd, "files-updater-opt"))
-	hoOpts := mergeOpts(
-		viper.GetStringMapString("plugins.hooks.options"),
-		mustGetStringArray(cmd, "hooks-opt"))
+
+	hooksConfig := map[string]map[string]interface{}{}
+	for hname, hc := range viper.GetStringMap("plugins.hooks") {
+		hooksConfig[hname] = hc.(map[string]interface{})
+	}
 
 	conf := &Config{
 		Token:                                 mustGetString(cmd, "token"),
@@ -117,8 +118,7 @@ func NewConfig(cmd *cobra.Command) (*Config, error) {
 		Changelog:                             mustGetString(cmd, "changelog"),
 		FilesUpdaterPlugins:                   viper.GetStringSlice("plugins.files-updater.names"),
 		FilesUpdaterOpts:                      fuOpts,
-		HooksPlugins:                          viper.GetStringSlice("plugins.hooks.names"),
-		HooksOpts:                             hoOpts,
+		HooksPlugins:                          hooksConfig,
 		UpdateFiles:                           mustGetStringArray(cmd, "update"),
 		Match:                                 mustGetString(cmd, "match"),
 		VersionFile:                           mustGetBool(cmd, "version-file"),

@@ -171,7 +171,7 @@ func cliHandler(cmd *cobra.Command, _ []string) {
 		logger.Printf("hooks plugins: %s\n", strings.Join(hooksNames, ", "))
 	}
 
-	hooksConfig := map[string]string{
+	/*hooksConfig := map[string]string{
 		"provider":      provName,
 		"ci":            ciName,
 		"currentBranch": currentBranch,
@@ -179,9 +179,9 @@ func cliHandler(cmd *cobra.Command, _ []string) {
 		"defaultBranch": repoInfo.DefaultBranch,
 		"prerelease":    fmt.Sprintf("%t", conf.Prerelease),
 	}
-	mergeConfigWithDefaults(hooksConfig, conf.HooksOpts)
+	mergeConfigWithDefaults(hooksConfig, conf.HooksOpts)*/
 
-	exitIfError(hooksExecutor.Init(hooksConfig))
+	exitIfError(hooksExecutor.Init(conf.HooksPlugins))
 
 	if !conf.NoCI {
 		logger.Println("running CI condition...")

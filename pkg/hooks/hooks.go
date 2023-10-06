@@ -1,9 +1,10 @@
 package hooks
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Hooks interface {
-	Init(map[string]string) error
 	Name() string
 	Version() string
 	Success(*SuccessHookConfig) error
@@ -36,11 +37,13 @@ func (c *ChainedHooksExecutor) NoRelease(config *NoReleaseConfig) error {
 	return nil
 }
 
-func (c *ChainedHooksExecutor) Init(conf map[string]string) error {
+func (c *ChainedHooksExecutor) Init(hooksConf map[string]map[string]interface{}) error {
 	for _, h := range c.HooksChain {
-		err := h.Init(conf)
+		var hookClient *Client = h.(*Client)
+		conf := hooksConf[h.Name()]
+		err := hookClient.Init(conf)
 		if err != nil {
-			return err
+			return fmt.Errorf("[hook %s]: %v", h.Name(), err)
 		}
 	}
 	return nil

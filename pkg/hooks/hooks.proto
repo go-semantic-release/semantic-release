@@ -1,12 +1,13 @@
 syntax = "proto3";
 option go_package = "github.com/go-semantic-release/semantic-release/v2/pkg/hooks";
 
+import "google/protobuf/struct.proto";
 import "pkg/semrel/structs.proto";
 import "pkg/provider/provider.proto";
 
 message HooksInit {
   message Request {
-    map<string, string> config = 1;
+    google.protobuf.Struct config = 1;
   }
   message Response {
     string error = 1;

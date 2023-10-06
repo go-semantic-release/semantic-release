@@ -3,6 +3,11 @@ package hooks
 import (
 	"context"
 	"errors"
+	"fmt"
+	"reflect"
+
+	"github.com/mitchellh/mapstructure"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 const PluginName = "hooks"
@@ -13,11 +18,40 @@ type Server struct {
 }
 
 func (h *Server) Init(_ context.Context, request *HooksInit_Request) (*HooksInit_Response, error) {
-	err := h.Impl.Init(request.Config)
-	res := &HooksInit_Response{}
-	if err != nil {
-		res.Error = err.Error()
+	hookType := reflect.TypeOf(h.Impl)
+	hookInit, ok := hookType.MethodByName("Init")
+
+	if !ok {
+		return nil, fmt.Errorf("hook plugin %s is missing Init function", h.Impl.Name())
 	}
+
+	if hookInit.Type.NumIn() != 2 {
+		return nil, fmt.Errorf("hook plugin %s.Init() argument count missmatch: expect 2 is %d", h.Impl.Name(), hookInit.Type.NumIn())
+	}
+
+	if hookInit.Type.NumOut() != 1 {
+		return nil, fmt.Errorf("hook plugin %s.Init() return value count missmatch: expect 1 is %d", h.Impl.Name(), hookInit.Type.NumOut())
+	} else if hookInit.Type.Out(0).String() != "error" {
+		return nil, fmt.Errorf("hook plugin %s.Init() return type missmatch: expect 'error' is %s", h.Impl.Name(), hookInit.Type.Out(0).String())
+	}
+
+	hookInitConfType := hookInit.Type.In(1)
+	hookInitConfVal := reflect.New(hookInitConfType).Elem()
+	err := mapstructure.Decode(request.Config.AsMap(), hookInitConfVal.Addr().Interface())
+	if err != nil {
+		return nil, fmt.Errorf("hook plugin %s failed to decode options: %v", h.Impl.Name(), err)
+	}
+
+	callRes := hookInit.Func.Call([]reflect.Value{
+		reflect.ValueOf(h.Impl),
+		hookInitConfVal,
+	})[0]
+
+	res := &HooksInit_Response{}
+	if !callRes.IsNil() {
+		res.Error = callRes.Interface().(error).Error()
+	}
+
 	return res, nil
 }
 
@@ -51,9 +85,14 @@ type Client struct {
 	Impl HooksPluginClient
 }
 
-func (h *Client) Init(m map[string]string) error {
+func (h *Client) Init(m map[string]interface{}) error {
+	s, err := structpb.NewStruct(m)
+	if err != nil {
+		return err
+	}
+
 	res, err := h.Impl.Init(context.Background(), &HooksInit_Request{
-		Config: m,
+		Config: s,
 	})
 	if err != nil {
 		return err

@@ -102,7 +102,7 @@ func (m *PluginManager) GetChainedUpdater() (*updater.ChainedUpdater, error) {
 
 func (m *PluginManager) GetChainedHooksExecutor() (*hooks.ChainedHooksExecutor, error) {
 	hooksChain := make([]hooks.Hooks, 0)
-	for _, pl := range m.config.HooksPlugins {
+	for pl := range m.config.HooksPlugins {
 		pluginInfo, err := m.discovery.FindPlugin(hooks.PluginName, pl)
 		if err != nil {
 			return nil, err
@@ -136,7 +136,7 @@ func (m *PluginManager) getAllPlugins() [][]string {
 	for _, pl := range m.config.FilesUpdaterPlugins {
 		plugins = append(plugins, []string{updater.FilesUpdaterPluginName, pl})
 	}
-	for _, pl := range m.config.HooksPlugins {
+	for pl := range m.config.HooksPlugins {
 		plugins = append(plugins, []string{hooks.PluginName, pl})
 	}
 	return plugins
