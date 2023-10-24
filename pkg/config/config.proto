@@ -1,0 +1,38 @@
+syntax = "proto3";
+option go_package = "github.com/go-semantic-release/semantic-release/v2/pkg/config";
+
+// Config is a complete set of app configuration
+message Config {
+  string token = 1;
+  string provider_plugin = 2;
+  map<string, string> provider_opts = 3;
+  string commit_analyzer_plugin = 4;
+  map<string, string> commit_analyzer_opts = 5;
+  string ci_condition_plugin = 6;
+  map<string, string> ci_condition_opts = 7;
+  string changelog_generator_plugin = 8;
+  map<string, string> changelog_generator_opts = 9;
+  string changelog = 10;
+  repeated string files_updater_plugins = 11;
+  map<string, string> files_updater_opts = 12;
+  repeated string hooks_plugins = 13;
+  map<string, string> hooks_opts = 14;
+  repeated string update_files = 15;
+  string match = 16;
+  bool version_file = 17;
+  bool prerelease = 18;
+  bool ghr = 19;
+  bool no_ci = 20;
+  bool dry = 21;
+  bool allow_initial_development_versions = 22;
+  bool allow_no_changes = 23;
+  bool force_bump_patch_version = 24;
+  string maintained_version = 25;
+  bool prepend_changelog = 26;
+  bool download_plugins = 27;
+  bool show_progress = 28;
+  bool allow_maintained_version_on_default_branch = 29;
+  string plugin_resolver = 30;
+  string plugin_resolver_endpoint = 31;
+  bool plugin_resolver_disable_batch_prefetch = 32;
+}

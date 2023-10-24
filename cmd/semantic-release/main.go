@@ -183,14 +183,14 @@ func cliHandler(cmd *cobra.Command, _ []string) {
 
 	exitIfError(hooksExecutor.Init(hooksConfig))
 
-	if !conf.NoCI {
+	if !conf.NoCi {
 		logger.Println("running CI condition...")
 		conditionConfig := map[string]string{
 			"token":         conf.Token,
 			"defaultBranch": repoInfo.DefaultBranch,
 			"private":       fmt.Sprintf("%t", repoInfo.Private),
 		}
-		mergeConfigWithDefaults(conditionConfig, conf.CIConditionOpts)
+		mergeConfigWithDefaults(conditionConfig, conf.CiConditionOpts)
 
 		err = ci.RunCondition(conditionConfig)
 		if err != nil {

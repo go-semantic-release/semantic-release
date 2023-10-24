@@ -29,7 +29,7 @@ func New(config *config.Config) (*PluginManager, error) {
 }
 
 func (m *PluginManager) GetCICondition() (condition.CICondition, error) {
-	pluginInfo, err := m.discovery.FindPlugin(condition.CIConditionPluginName, m.config.CIConditionPlugin)
+	pluginInfo, err := m.discovery.FindPlugin(condition.CIConditionPluginName, m.config.CiConditionPlugin)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (m *PluginManager) Stop() {
 func (m *PluginManager) getAllPlugins() [][]string {
 	plugins := make([][]string, 0, 4)
 	// required plugins
-	plugins = append(plugins, []string{condition.CIConditionPluginName, m.config.CIConditionPlugin})
+	plugins = append(plugins, []string{condition.CIConditionPluginName, m.config.CiConditionPlugin})
 	plugins = append(plugins, []string{provider.PluginName, m.config.ProviderPlugin})
 	plugins = append(plugins, []string{analyzer.CommitAnalyzerPluginName, m.config.CommitAnalyzerPlugin})
 	plugins = append(plugins, []string{generator.ChangelogGeneratorPluginName, m.config.ChangelogGeneratorPlugin})

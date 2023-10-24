@@ -9,42 +9,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config is a complete set of app configuration
-type Config struct {
-	Token                                 string
-	ProviderPlugin                        string
-	ProviderOpts                          map[string]string
-	CommitAnalyzerPlugin                  string
-	CommitAnalyzerOpts                    map[string]string
-	CIConditionPlugin                     string
-	CIConditionOpts                       map[string]string
-	ChangelogGeneratorPlugin              string
-	ChangelogGeneratorOpts                map[string]string
-	Changelog                             string
-	FilesUpdaterPlugins                   []string
-	FilesUpdaterOpts                      map[string]string
-	HooksPlugins                          []string
-	HooksOpts                             map[string]string
-	UpdateFiles                           []string
-	Match                                 string
-	VersionFile                           bool
-	Prerelease                            bool
-	Ghr                                   bool
-	NoCI                                  bool
-	Dry                                   bool
-	AllowInitialDevelopmentVersions       bool
-	AllowNoChanges                        bool
-	ForceBumpPatchVersion                 bool
-	MaintainedVersion                     string
-	PrependChangelog                      bool
-	DownloadPlugins                       bool
-	ShowProgress                          bool
-	AllowMaintainedVersionOnDefaultBranch bool
-	PluginResolver                        string
-	PluginResolverEndpoint                string
-	PluginResolverDisableBatchPrefetch    bool
-}
-
 func mustGetString(cmd *cobra.Command, name string) string {
 	res, err := cmd.Flags().GetString(name)
 	if err != nil {
@@ -110,8 +74,8 @@ func NewConfig(cmd *cobra.Command) (*Config, error) {
 		ProviderOpts:                          provOpts,
 		CommitAnalyzerPlugin:                  viper.GetString("plugins.commit-analyzer.name"),
 		CommitAnalyzerOpts:                    caOpts,
-		CIConditionPlugin:                     viper.GetString("plugins.ci-condition.name"),
-		CIConditionOpts:                       ciOpts,
+		CiConditionPlugin:                     viper.GetString("plugins.ci-condition.name"),
+		CiConditionOpts:                       ciOpts,
 		ChangelogGeneratorPlugin:              viper.GetString("plugins.changelog-generator.name"),
 		ChangelogGeneratorOpts:                cgOpts,
 		Changelog:                             mustGetString(cmd, "changelog"),
@@ -124,7 +88,7 @@ func NewConfig(cmd *cobra.Command) (*Config, error) {
 		VersionFile:                           mustGetBool(cmd, "version-file"),
 		Prerelease:                            mustGetBool(cmd, "prerelease"),
 		Ghr:                                   mustGetBool(cmd, "ghr"),
-		NoCI:                                  mustGetBool(cmd, "no-ci"),
+		NoCi:                                  mustGetBool(cmd, "no-ci"),
 		Dry:                                   mustGetBool(cmd, "dry"),
 		AllowInitialDevelopmentVersions:       mustGetBool(cmd, "allow-initial-development-versions"),
 		AllowNoChanges:                        mustGetBool(cmd, "allow-no-changes"),
