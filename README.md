@@ -98,7 +98,7 @@ jobs:
 
 #### Job Token
 If you do not provide a PAT the [job token](https://docs.gitlab.com/ee/ci/jobs/ci_job_token.html) will be used.
-This restricted token can create releases but not read commits. There the [git strategy](https://docs.gitlab.com/ee/ci/runners/configure_runners.html#git-strategy) must be set to clone so that we can read the commits from the repository.
+This restricted token can create releases but not read commits. The [git strategy](https://docs.gitlab.com/ee/ci/runners/configure_runners.html#git-strategy) must be set to clone so that we can read the commits from the repository. See example below
 
 #### Personal Access Token
 Create a new Gitlab personal access token with the `api` scope [here](https://gitlab.com/profile/personal_access_tokens).
