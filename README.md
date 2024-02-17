@@ -238,4 +238,4 @@ If you commit to this branch a new incremental pre-release is created everytime 
 
 The [MIT License (MIT)](http://opensource.org/licenses/MIT)
 
-Copyright © 2023 [Christoph Witzko](https://twitter.com/christophwitzko)
+Copyright © 2024 [Christoph Witzko](https://twitter.com/christophwitzko)
