@@ -21,7 +21,7 @@ This project aims to be an alternative to the original [semantic-release](https:
 ## How does it work?
 Instead of writing [meaningless commit messages](http://whatthecommit.com/), we can take our time to think about the changes in the codebase and write them down. Following the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification it is then possible to generate a helpful changelog and to derive the next semantic version number from them.
 
-When `semantic-release` is setup it will do that after every successful continuous integration build of your default branch and publish the new version for you. This way no human is directly involved in the release process and your releases are guaranteed to be [unromantic and unsentimental](http://sentimentalversioning.org/).
+When `semantic-release` is setup it will do that after every successful continuous integration build of your default branch and publish the new version for you. This way no human is directly involved in the release process and your releases are guaranteed to be unromantic and unsentimental.
 
 _Source: [semantic-release/semantic-release#how-does-it-work](https://github.com/semantic-release/semantic-release#how-does-it-work)_
 
