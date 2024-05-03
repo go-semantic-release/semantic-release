@@ -103,7 +103,7 @@ You can set the GitLab token via the `GITLAB_TOKEN` environment variable or the 
 
 .gitlab-ci.yml
 ```yml
- stages:
+stages:
   # other stages
   - release
 
@@ -117,6 +117,34 @@ release:
     - master
   script:
     - semantic-release # Add --allow-no-changes if you want to create a release for each push
+```
+
+#### Job Token
+If you do not provide a PAT the [job token](https://docs.gitlab.com/ee/ci/jobs/ci_job_token.html) will be used.
+This restricted token can create releases but not read commits. The [git strategy](https://docs.gitlab.com/ee/ci/runners/configure_runners.html#git-strategy)
+must be set to clone so that we can read the commits from the repository. See example below
+
+.gitlab-ci.yml
+```yml
+variables:
+  GIT_STRATEGY: clone
+
+stages:
+  # other stages
+  - release
+
+release:
+  image:
+    name: registry.gitlab.com/go-semantic-release/semantic-release:latest
+    entrypoint: [""]
+  stage: release
+  # when: manual # Add this if you want to manually create releases
+  only:
+    - master
+  script:
+    - semantic-release
+    # - semantic-release --allow-no-changes # create a release for each push
+    # - semantic-release --provider gitlab --provider-opt log_order=ctime # traverse commits by committer time (commits in merge requests will affect the calculated version) 
 ```
 
 ### Releasing a Go application with GitLab CI
