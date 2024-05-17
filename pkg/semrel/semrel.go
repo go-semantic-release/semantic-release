@@ -43,7 +43,9 @@ func applyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVe
 			return ""
 		}
 	}
+
 	var newVersion semver.Version
+
 	preRel := version.Prerelease()
 	if preRel == "" {
 		switch {
@@ -54,8 +56,10 @@ func applyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVe
 		case change.Patch:
 			newVersion = version.IncPatch()
 		}
+		newVersion = must(newVersion.SetMetadata(version.Metadata()))
 		return newVersion.String()
 	}
+
 	preRelVer := strings.Split(preRel, ".")
 	if len(preRelVer) > 1 {
 		idx, err := strconv.ParseInt(preRelVer[1], 10, 32)
@@ -66,10 +70,21 @@ func applyChange(rawVersion string, rawChange *Change, allowInitialDevelopmentVe
 	} else {
 		preRel += ".1"
 	}
-	newVersion, _ = version.SetPrerelease(preRel)
+
+	newVersion = must(version.SetPrerelease(preRel))
+	newVersion = must(newVersion.SetMetadata(version.Metadata()))
+
 	return newVersion.String()
 }
 
 func GetNewVersion(conf *config.Config, commits []*Commit, latestRelease *Release) string {
 	return applyChange(latestRelease.Version, calculateChange(commits, latestRelease), conf.AllowInitialDevelopmentVersions, conf.ForceBumpPatchVersion)
+}
+
+func must[T any](result T, err error) T {
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return result
 }

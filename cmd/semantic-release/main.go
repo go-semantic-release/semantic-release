@@ -200,7 +200,7 @@ func cliHandler(cmd *cobra.Command, args []string) {
 	}
 
 	logger.Println("getting commits...")
-	rawCommits, err := prov.GetCommits(release.SHA, currentSha)
+	rawCommits, err := prov.GetCommits(repoInfo.DefaultBranch, currentBranch)
 	exitIfError(err)
 
 	logger.Println("analyzing commits...")
