@@ -52,12 +52,12 @@ jobs:
         with:
           go-version: '1.23'
       - run: go build ./cmd/semantic-release/
-      - uses: docker/login-action@v1
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/login-action@v1
+      - uses: docker/login-action@v3
         with:
           registry: registry.gitlab.com
           username: ${{ secrets.GITLAB_REGISTRY_USER }}
