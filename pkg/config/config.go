@@ -101,6 +101,7 @@ func NewConfig(cmd *cobra.Command) (*Config, error) {
 		PluginResolver:                        viper.GetString("pluginResolver"),
 		PluginResolverEndpoint:                viper.GetString("pluginResolverEndpoint"),
 		PluginResolverDisableBatchPrefetch:    viper.GetBool("pluginResolverDisableBatchPrefetch"),
+		TagFormat:                             viper.GetString("tagFormat"),
 	}
 	return conf, nil
 }
@@ -147,6 +148,7 @@ func SetFlags(cmd *cobra.Command) {
 	cmd.Flags().StringArray("hooks-opt", []string{}, "options that are passed to the hooks plugins")
 	cmd.Flags().StringArrayP("update", "u", []string{}, "updates the version of a certain files")
 	cmd.Flags().String("match", "", "only consider tags matching the given glob(7) pattern, excluding the \"refs/tags/\" prefix.")
+	cmd.Flags().String("tag-format", "", "Specify a Go template for formatting tags")
 	cmd.Flags().String("maintained-version", "", "set the maintained version as base for new releases")
 	cmd.Flags().BoolP("version-file", "f", false, "create a .version file with the new version")
 	cmd.Flags().Bool("prerelease", false, "flags the release as a prerelease")
@@ -180,6 +182,9 @@ func SetFlags(cmd *cobra.Command) {
 	must(viper.BindEnv("pluginResolver", "SEMREL_PLUGIN_RESOLVER"))
 	must(viper.BindPFlag("pluginResolverDisableBatchPrefetch", cmd.Flags().Lookup("plugin-resolver-disable-batch-prefetch")))
 	must(viper.BindPFlag("pluginResolverEndpoint", cmd.Flags().Lookup("plugin-resolver-endpoint")))
+
+	must(viper.BindPFlag("tagFormat", cmd.Flags().Lookup("tag-format")))
+	must(viper.BindEnv("tagFormat", "TAG_FORMAT"))
 }
 
 func InitConfig(cmd *cobra.Command) error {
