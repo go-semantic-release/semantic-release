@@ -139,8 +139,6 @@ func cliHandler(cmd *cobra.Command, _ []string) {
 		conf.ProviderOpts["tag_format"] = conf.TagFormat
 	}
 
-	conf.ProviderOpts["tag_format"] = conf.TagFormat
-
 	err = prov.Init(conf.ProviderOpts)
 	exitIfError(err)
 
