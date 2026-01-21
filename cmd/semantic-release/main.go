@@ -134,6 +134,11 @@ func cliHandler(cmd *cobra.Command, _ []string) {
 	if conf.ProviderOpts["token"] == "" {
 		conf.ProviderOpts["token"] = conf.Token
 	}
+
+	if conf.TagFormat != "" {
+		conf.ProviderOpts["tag_format"] = conf.TagFormat
+	}
+
 	err = prov.Init(conf.ProviderOpts)
 	exitIfError(err)
 
@@ -209,7 +214,9 @@ func cliHandler(cmd *cobra.Command, _ []string) {
 	logger.Println("getting latest release...")
 	matchRegex := ""
 	match := strings.TrimSpace(conf.Match)
-	if match != "" {
+	if match != "" && conf.TagFormat != "" {
+		exitIfError(fmt.Errorf("match should not be specified with tag-format"))
+	} else if match != "" {
 		logger.Printf("getting latest release matching %s...", match)
 		matchRegex = "^" + match
 	}

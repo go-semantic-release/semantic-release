@@ -35,4 +35,5 @@ message Config {
   string plugin_resolver = 30;
   string plugin_resolver_endpoint = 31;
   bool plugin_resolver_disable_batch_prefetch = 32;
+  string tag_format = 33;
 }
