@@ -91,7 +91,8 @@ func findPluginLocally(pluginInfo *plugin.Info) (string, error) {
 			return "", fmt.Errorf("failed to get file info for %s: %w", f.Name(), err)
 		}
 		// check if the file is executable by the user
-		if fInfo.Mode()&0o100 == 0 {
+		// on windows checking execute access is not available
+		if runtime.GOOS != "windows" && fInfo.Mode()&0o100 == 0 {
 			continue
 		}
 		return path.Join(vPth, f.Name()), nil
